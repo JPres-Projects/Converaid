@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Camera, Check, CircleHelp, Copy, Eraser, ExternalLink, FolderOpen, KeyRound, ListChecks, MessageSquareQuote, MessageSquareReply, Mic, PanelLeft, RefreshCw, SendHorizontal, Volume2, X } from "lucide-react"
 import {
   ANSWER_LENGTHS,
+  ANSWER_MODES,
   AUDIO_SOURCE_LABELS,
   AUTO_ANSWER_LABELS,
   autoAnswerAllowed,
@@ -11,6 +12,7 @@ import {
   segmentLabel,
   suggestionsVisible,
   type AnswerLength,
+  type AnswerMode,
   type AudioSource,
   type AutoAnswerMode,
   type ChatChunk,
@@ -33,6 +35,7 @@ import { markdownToPlain } from "@/lib/plain-text"
 import { Button } from "@/components/ui/button"
 import { Select, Toggle } from "@/components/ui/fields"
 import { Markdown } from "@/components/Markdown"
+import { ProjectSettings } from "@/components/ProjectSettings"
 
 /**
  * The panel attached under the toolbar: answers, the live transcript and settings as tabs, with
@@ -577,12 +580,14 @@ function OwnKeyForm({ current, onClose }: { current: OwnKeyView | null; onClose:
           autoComplete="off"
         />
         <label htmlFor="own-model" className="text-white/50">{t("Model")}</label>
-        <input id="own-model" className={field} value={model} onChange={(e) => setModel(e.target.value)} list="own-models" placeholder={t("Pick or type a model")} spellCheck={false} />
-        <datalist id="own-models">
-          {models.map((m) => (
-            <option key={m} value={m} />
-          ))}
-        </datalist>
+        <input id="own-model" className={field} value={model} onChange={(e) => setModel(e.target.value)} placeholder={t("Type a model name")} spellCheck={false} />
+        {models.length > 0 && <>
+          <label htmlFor="own-models" className="text-white/50">{t("Available models")}</label>
+          <Select id="own-models" value={models.includes(model) ? model : ""} onChange={setModel} className={cn(field, "w-full py-0")} aria-label={t("Available models")}>
+            <option value="" disabled>{t("Choose a model")}</option>
+            {models.map((m) => <option key={m} value={m}>{m}</option>)}
+          </Select>
+        </>}
       </div>
       {modelsNote && <p className="mt-1 text-[11px] text-white/40">{modelsNote}</p>}
       {error && <p className="selectable mt-1 text-[11px] text-rose-300">{error}</p>}
@@ -716,7 +721,7 @@ function Transcript(props: {
         </div>
       )}
       <div className="flex items-center gap-1 border-t border-white/10 p-1.5">
-        <Select value={source} onChange={(e) => onSource(e.target.value as AudioSource)} className="h-7 min-w-0 flex-1 bg-black/30 px-2 py-0 text-[11px]" title={t("What to transcribe")}>
+        <Select value={source} onChange={(value) => onSource(value as AudioSource)} className="h-7 min-w-0 flex-1 bg-black/30 px-2 py-0 text-[11px]" title={t("What to transcribe")}>
           {(Object.keys(AUDIO_SOURCE_LABELS) as AudioSource[]).map((s) => <option key={s} value={s}>{t(AUDIO_SOURCE_LABELS[s])}</option>)}
         </Select>
         {source !== "system" && <MicPicker value={deviceId} onChange={onDevice} />}
@@ -735,11 +740,11 @@ function Transcript(props: {
   )
 }
 
-const PICK = "h-7 w-[190px] shrink-0 bg-black/30 px-2 py-0 text-[11.5px]"
+const PICK = "h-7 w-[160px] shrink-0 bg-black/30 px-2 py-0 text-[11.5px] sm:w-[190px]"
 
 /**
  * What changes from one meeting to the next, without the browser and without an account. Instructions, shortcuts,
- * the plan and past meetings stay on the web dashboard. Changes here sync to the account like changes made there.
+ * the plan and past meetings stay on the web dashboard. Project source and personal experience stay local.
  */
 function SettingsTab({ settings, update, plan, autoAllowed }: {
   settings: SettingsView
@@ -750,18 +755,24 @@ function SettingsTab({ settings, update, plan, autoAllowed }: {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="scroll min-h-0 flex-1 divide-y divide-white/[0.06] px-2.5">
+        <SettingRow label={t("Answer mode")} hint={t("Choose how the AI approaches your questions.")}>
+          <Select value={settings.answerMode} onChange={(value) => void update({ answerMode: value as AnswerMode })} className={PICK} aria-label={t("Answer mode")}>
+            {(Object.keys(ANSWER_MODES) as AnswerMode[]).map((mode) => <option key={mode} value={mode}>{t(ANSWER_MODES[mode].label)}</option>)}
+          </Select>
+        </SettingRow>
+        <ProjectSettings projects={settings.projects} />
         <SettingRow label={t("Meeting language")} hint={t("The language spoken in the meeting.")}>
-          <Select value={settings.audioLanguage} onChange={(e) => void update({ audioLanguage: e.target.value as LanguageCode })} className={PICK} aria-label={t("Meeting language")}>
+          <Select value={settings.audioLanguage} onChange={(value) => void update({ audioLanguage: value as LanguageCode })} className={PICK} aria-label={t("Meeting language")}>
             {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
           </Select>
         </SettingRow>
         <SettingRow label={t("Answer language")} hint={t("For answers and the meeting report.")}>
-          <Select value={settings.outputLanguage} onChange={(e) => void update({ outputLanguage: e.target.value as LanguageCode })} className={PICK} aria-label={t("Answer language")}>
+          <Select value={settings.outputLanguage} onChange={(value) => void update({ outputLanguage: value as LanguageCode })} className={PICK} aria-label={t("Answer language")}>
             {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
           </Select>
         </SettingRow>
         <SettingRow label={t("Audio source")} hint={t("System audio is the call; the microphone is you.")}>
-          <Select value={settings.audioSource} onChange={(e) => void update({ audioSource: e.target.value as AudioSource })} className={PICK} aria-label={t("Audio source")}>
+          <Select value={settings.audioSource} onChange={(value) => void update({ audioSource: value as AudioSource })} className={PICK} aria-label={t("Audio source")}>
             {(Object.keys(AUDIO_SOURCE_LABELS) as AudioSource[]).map((s) => <option key={s} value={s}>{t(AUDIO_SOURCE_LABELS[s])}</option>)}
           </Select>
         </SettingRow>
@@ -772,7 +783,7 @@ function SettingsTab({ settings, update, plan, autoAllowed }: {
         )}
         <SettingRow label={t("Auto-answer")} hint={t("Answers questions heard in the meeting by itself.")}>
           {autoAllowed ? (
-            <Select value={settings.autoAnswer} onChange={(e) => void update({ autoAnswer: e.target.value as AutoAnswerMode })} className={PICK} aria-label={t("Auto-answer")}>
+            <Select value={settings.autoAnswer} onChange={(value) => void update({ autoAnswer: value as AutoAnswerMode })} className={PICK} aria-label={t("Auto-answer")}>
               {(Object.keys(AUTO_ANSWER_LABELS) as AutoAnswerMode[]).map((m) => <option key={m} value={m}>{t(AUTO_ANSWER_LABELS[m])}</option>)}
             </Select>
           ) : (
@@ -780,14 +791,14 @@ function SettingsTab({ settings, update, plan, autoAllowed }: {
               type="button"
               onClick={() => void api.invoke(plan.status === "signed-out" ? "cloud:link-start" : "plan:upgrade").catch(() => {})}
               title={t("Lite and Pro answer questions from the meeting automatically. On Free, press Answer when a question is heard.")}
-              className="flex h-7 w-[190px] shrink-0 items-center gap-1.5 rounded-md border border-white/15 px-2 text-left text-[11.5px] text-white/55 transition-colors hover:bg-white/10 hover:text-white"
+              className="flex h-7 w-[160px] shrink-0 items-center gap-1.5 rounded-md border border-white/15 px-2 text-left text-[11.5px] text-white/55 transition-colors hover:bg-white/10 hover:text-white sm:w-[190px]"
             >
               <span className="text-sky-300">{t("Get Lite")}</span>
             </button>
           )}
         </SettingRow>
         <SettingRow label={t("Answer length")}>
-          <Select value={settings.answerLength} onChange={(e) => void update({ answerLength: e.target.value as AnswerLength })} className={PICK} aria-label={t("Answer length")}>
+          <Select value={settings.answerLength} onChange={(value) => void update({ answerLength: value as AnswerLength })} className={PICK} aria-label={t("Answer length")}>
             {(Object.keys(ANSWER_LENGTHS) as AnswerLength[]).map((l) => <option key={l} value={l}>{t(ANSWER_LENGTHS[l].label)}</option>)}
           </Select>
         </SettingRow>
@@ -832,7 +843,7 @@ function MicPicker({ value, onChange, className }: { value: string; onChange: (i
   const refresh = () => void listAudioInputs().then(setDevices).catch(() => setDevices([]))
   useEffect(refresh, [])
   return (
-    <Select value={value} onChange={(e) => onChange(e.target.value)} onFocus={refresh} className={className ?? "h-7 min-w-0 flex-1 bg-black/30 px-2 py-0 text-[11px]"} title={t("Microphone")}>
+    <Select value={value} onChange={onChange} onFocus={refresh} className={className ?? "h-7 min-w-0 flex-1 bg-black/30 px-2 py-0 text-[11px]"} title={t("Microphone")}>
       <option value="">{t("Default microphone")}</option>
       {devices.map((d) => (
         <option key={d.id} value={d.id}>

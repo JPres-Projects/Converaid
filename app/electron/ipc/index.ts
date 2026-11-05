@@ -1,4 +1,6 @@
-import { app, ipcMain, shell, type IpcMainInvokeEvent } from "electron"
+import { app, dialog, ipcMain, shell, type IpcMainInvokeEvent } from "electron"
+import path from "node:path"
+import { randomUUID } from "node:crypto"
 import type { InvokeChannel, InvokeMap } from "../../shared/ipc"
 import type { ChatService } from "../services/chat"
 import type { CloudSync } from "../services/cloud"
@@ -9,14 +11,17 @@ import type { MeetingStore } from "../services/meetings"
 import type { ReportGenerator } from "../services/reports"
 import type { RecordingSession } from "../services/session"
 import type { SettingsStore } from "../services/settings"
+import { projectFolderKey } from "../services/settings"
+import type { ProjectKnowledgeService } from "../services/projectKnowledgeService"
 import type { SuggestionService } from "../services/suggestions"
 import { suggestionsVisible } from "../../shared/types"
 import { SUGGESTIONS_WIDTH } from "../windows/config"
 import type { WindowManager } from "../windows/WindowManager"
-import { rendererSettingsPatch, trustedFrame } from "./guard"
+import { projectId, rendererProjectPatch, rendererSettingsPatch, trustedFrame } from "./guard"
 
 export interface IpcDeps {
   settings: SettingsStore
+  projectKnowledge: ProjectKnowledgeService
   windows: WindowManager
   session: RecordingSession
   chat: ChatService
@@ -61,7 +66,7 @@ export function openOwnKeyForm(windows: WindowManager): void {
 }
 
 export function registerIpc(deps: IpcDeps): void {
-  const { settings, windows, session, chat, suggestions, meetings, logger, cloud, plan, ownKey, transcripts } = deps
+  const { settings, projectKnowledge, windows, session, chat, suggestions, meetings, logger, cloud, plan, ownKey, transcripts } = deps
   const handle = <K extends InvokeChannel>(channel: K, fn: Handler<K>) => registerHandler(channel, fn, windows)
 
   // Settings
@@ -70,6 +75,40 @@ export function registerIpc(deps: IpcDeps): void {
     settings.update(rendererSettingsPatch(patch))
     return settings.view()
   })
+
+  handle("projects:add", async () => {
+    const result = await dialog.showOpenDialog({ title: "Add interview projects", properties: ["openDirectory", "multiSelections"] })
+    if (!result.canceled) {
+      const projects = settings.get().projects
+      const folders = new Set(projects.map((p) => projectFolderKey(p.folder)))
+      for (const folder of result.filePaths) {
+        const key = projectFolderKey(folder)
+        if (folders.has(key)) continue
+        if (projects.length >= 32) throw new Error("You can add up to 32 interview projects")
+        folders.add(key)
+        projects.push({ id: randomUUID(), name: path.basename(folder) || folder, folder, experience: "", enabled: true })
+      }
+      settings.update({ projects })
+    }
+    return settings.view()
+  })
+  handle("projects:remove", (_e, id) => {
+    const validId = projectId(id)
+    const projects = settings.get().projects
+    if (!projects.some((p) => p.id === validId)) throw new Error("Unknown project")
+    settings.update({ projects: projects.filter((p) => p.id !== validId) })
+    return settings.view()
+  })
+  handle("projects:update", (_e, id, input) => {
+    const validId = projectId(id)
+    const patch = rendererProjectPatch(input)
+    const projects = settings.get().projects
+    if (!projects.some((p) => p.id === validId)) throw new Error("Unknown project")
+    settings.update({ projects: projects.map((p) => p.id === validId ? { ...p, ...patch } : p) })
+    return settings.view()
+  })
+  handle("projects:prepare", () => projectKnowledge.prepare())
+  handle("projects:state", () => projectKnowledge.getState())
 
   // Windows
   handle("windows:state", () => windows.state())

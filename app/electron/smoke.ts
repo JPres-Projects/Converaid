@@ -1,5 +1,5 @@
 import { app, BrowserWindow, clipboard, screen } from "electron"
-import { spawn } from "node:child_process"
+import { execFileSync, spawn } from "node:child_process"
 import fs from "node:fs"
 import http from "node:http"
 import path from "node:path"
@@ -7,7 +7,7 @@ import type { AddressInfo } from "node:net"
 import type { AsrModel } from "./services/asrModel"
 import { LocalAsrSocket } from "./services/localAsr"
 import type { RefineModels } from "./services/refine"
-import { getLanguage, type AudioSource, type LanguageCode, type SessionState, type WindowKind } from "../shared/types"
+import { getLanguage, type AudioSource, type InterviewProject, type LanguageCode, type ProjectKnowledgeState, type SessionState, type WindowKind } from "../shared/types"
 import type { ChatService } from "./services/chat"
 import type { CloudSync } from "./services/cloud"
 import { MeetingStore } from "./services/meetings"
@@ -44,6 +44,8 @@ interface SmokeDeps {
  *             direct answers, small talk must be skipped (nothing shown in chat).
  *   "shots"   capture the toolbar and every panel tab (with sample answers) as PNGs into
  *             IGPT_SMOKE_SHOTS. capturePage works even with content protection on.
+ *   "project-ui" local project preparation, role notes and selection through the real renderer;
+ *             project overview, expanded briefing and mode-menu PNGs at 1440 and 390 pixels.
  *   "demo"    frames of answers streaming in the panel, for the README animation (see demoFrames).
  *   "copy"    selecting an answer in the panel and pressing Ctrl+C copies it (the Ctrl+C shortcut must not
  *             swallow the copy); nothing selected means the copy path declines. Restores the clipboard.
@@ -135,6 +137,10 @@ export async function runSmokeTest(mode: string, { windows, chat, session, setti
   if (mode === "cloud") cloudProbe = await cloudSmoke({ cloud, settings, meetings })
 
   if (mode === "shots") await shots(windows, settings, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp"))
+  if (mode === "project-ui") {
+    try { await projectUiSmoke(windows, settings, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp")) }
+    catch (error) { errors.push(`Project UI: ${(error as Error).message}`) }
+  }
   if (mode === "demo") await demoFrames(windows, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp"))
 
   let answersProbe: Record<string, unknown> & { ok: boolean } | undefined
@@ -270,6 +276,226 @@ function sendKeys(keys: string): Promise<void> {
 }
 
 const TEST_PHRASE = "The purple elephant is testing system audio capture."
+
+/** Local-only acceptance checks against the actual Electron renderer and preload bridge. */
+async function projectUiSmoke(windows: WindowManager, settings: SettingsStore, dir: string): Promise<void> {
+  fs.mkdirSync(dir, { recursive: true })
+  const original = settings.get()
+  const tempRoot = fs.realpathSync(app.getPath("temp"))
+  const fixtureRoot = fs.mkdtempSync(path.join(tempRoot, "meetingly-project-ui-"))
+  const emptyHooks = path.join(fixtureRoot, "empty-hooks")
+  fs.mkdirSync(emptyHooks)
+  const write = (folder: string, relative: string, content: string) => {
+    const file = path.join(folder, relative)
+    fs.mkdirSync(path.dirname(file), { recursive: true })
+    fs.writeFileSync(file, content)
+  }
+  const git = (folder: string, ...args: string[]) => execFileSync("git", [
+    "-c", `core.hooksPath=${emptyHooks}`, "-c", "commit.gpgsign=false", "-c", "core.fsmonitor=false", "-C", folder, ...args
+  ], { encoding: "utf8", windowsHide: true, timeout: 5000, maxBuffer: 64 * 1024 }).trim()
+  const mappedProject = (id: string, name: string, purpose: string, experience: string): InterviewProject => {
+    const folder = path.join(fixtureRoot, `${id}-project-with-a-readable-long-folder-name`)
+    write(folder, "src/Screen.tsx", "export const Screen = 'Project overview and actions'\n")
+    write(folder, "src/api.ts", "export function handleRequest() { return 'Validated project request' }\n")
+    write(folder, "src/database.ts", "export const database = 'Persistent project records'\n")
+    git(folder, "init", "--quiet")
+    git(folder, "add", "src")
+    // The identity and empty hooks directory apply only to this disposable fixture commit.
+    git(folder, "-c", "user.name=Project UI Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "Create local smoke fixture")
+    write(folder, ".ua/knowledge-graph.json", JSON.stringify({
+      project: { name, description: purpose, languages: ["TypeScript"], frameworks: ["React"], gitCommitHash: git(folder, "rev-parse", "HEAD") },
+      nodes: [
+        { id: "screen", type: "file", name: "Project screen", filePath: "src/Screen.tsx", summary: "The frontend presents records and sends user actions to the API.", tags: ["frontend"] },
+        { id: "api", type: "file", name: "Project API", filePath: "src/api.ts", summary: "The backend validates requests before accessing stored records.", tags: ["backend"] },
+        { id: "database", type: "file", name: "Project database", filePath: "src/database.ts", summary: "The database persists records used by the project.", tags: ["database"] }
+      ],
+      edges: [{ source: "screen", target: "api", type: "calls" }, { source: "api", target: "database", type: "depends_on" }],
+      layers: [{ id: "frontend", name: "Frontend", description: "User actions and record views.", nodeIds: ["screen"] }, { id: "backend", name: "Backend", description: "Validation and persistence.", nodeIds: ["api", "database"] }],
+      tour: [{ order: 1, title: "Request journey", description: "Follow an action from the screen through validation to storage.", nodeIds: ["screen", "api", "database"] }]
+    }))
+    return { id, name, folder, experience, enabled: true }
+  }
+
+  settings.update({ answerMode: "meeting", ownKey: null, cloud: null, projects: [], suggestions: false })
+  windows.setPanelExtra(0)
+  windows.showPanel("settings")
+  const panel = windows.get("chat")!
+  const originalBounds = panel.getBounds()
+  const originalMaximum = panel.getMaximumSize()
+  const run = <T = unknown>(js: string) => panel.webContents.executeJavaScript(js) as Promise<T>
+  const query = (selector: string) => `document.querySelector(${JSON.stringify(selector)})`
+  const until = async (js: string, timeout = 6000) => {
+    const deadline = Date.now() + timeout
+    while (Date.now() < deadline) {
+      if (await run(js)) return
+      await sleep(100)
+    }
+    throw new Error(`Project UI check failed: ${js}`)
+  }
+  const click = async (selector: string) => {
+    await until(`Boolean(${query(selector)}) && !${query(selector)}.disabled`)
+    await run(`${query(selector)}.scrollIntoView({ block: 'nearest' })`)
+    await sleep(75)
+    const point = await run<{ x: number; y: number }>(`(() => { const r = ${query(selector)}.getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) } })()`)
+    panel.webContents.sendInputEvent({ type: "mouseDown", ...point, button: "left", clickCount: 1 })
+    panel.webContents.sendInputEvent({ type: "mouseUp", ...point, button: "left", clickCount: 1 })
+  }
+  const fillRole = async (selector: string, text: string) => {
+    await click(selector)
+    await run(`(() => { const input = ${query(selector)}; Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, ${JSON.stringify(text)}); input.dispatchEvent(new Event('input', { bubbles: true })); })()`)
+    await until(`${query(selector)}.value === ${JSON.stringify(text)}`)
+  }
+  const capture = async (name: string) => fs.writeFileSync(path.join(dir, name), (await panel.webContents.capturePage()).toPNG())
+  const checkLayout = async (width: number) => {
+    if (!await run(`innerWidth === ${width} && document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('.scroll')].every(e => e.scrollWidth <= e.clientWidth + 1)`)) throw new Error(`Horizontal overflow or incorrect viewport at ${width}px`)
+    if (!await run(`(() => { const r = document.querySelector('section[aria-label="Projects"]').getBoundingClientRect(); return r.left >= 8 && r.right <= innerWidth - 8 })()`)) throw new Error(`Project page margins missing at ${width}px`)
+    if (!await run(`document.querySelectorAll('select,datalist').length === 0`)) throw new Error(`Native dropdown rendered at ${width}px`)
+  }
+  const section = 'section[aria-label="Projects"]'
+  const modeSelector = '[role="combobox"][aria-label="Answer mode"]'
+  const mode = query(modeSelector)
+  const prepareSelector = `${section} > div:first-child > button:last-child`
+  const invoice = '[data-project-id="invoice-portal"]'
+  const delivery = '[data-project-id="delivery-planner"]'
+  const prototype = '[data-project-id="calendar-prototype"]'
+  const invoiceRole = `${invoice} textarea`
+  const deliveryRole = `${delivery} textarea`
+  const invoiceExperience = "I maintained the API and reviewed database migrations."
+  const deliveryExperience = "I designed routing rules and monitored delivery retries."
+
+  try {
+    const projects: InterviewProject[] = [
+      mappedProject("invoice-portal", "Invoice Portal", "Tracks supplier invoices and approval status.", "I maintained the API."),
+      mappedProject("delivery-planner", "Delivery Planner", "Plans parcel routes and tracks delivery events.", "I implemented delivery events."),
+      { id: "calendar-prototype", name: "Calendar Prototype", folder: path.join(fixtureRoot, "calendar-prototype-without-a-map"), experience: "I built the first scheduling prototype.", enabled: true }
+    ]
+    write(projects[2].folder, "README.md", "# Calendar Prototype\nA calendar planner built with React. The prototype groups appointments by day.\n")
+    panel.setMaximumSize(1600, 1000)
+    panel.setSize(1440, 900)
+    await until(`Boolean(${mode}) && Boolean(${query(section)})`)
+    await until(`${query(prepareSelector)}.disabled && document.querySelectorAll('[data-project-id]').length === 0`)
+    await until(`${query(section)}.textContent.includes('Add projects')`)
+    await checkLayout(1440)
+
+    await click(modeSelector)
+    await until(`document.querySelectorAll('[role="option"]').length === 3`)
+    await click('[role="option"]:last-child')
+    await until(`${mode}.textContent.includes('Coding')`)
+    if (settings.get().answerMode !== "coding") throw new Error("Mouse-selected mode did not persist through IPC")
+    await run(`${mode}.focus()`)
+    for (const key of ["Enter", "ArrowUp", "Enter"]) {
+      await run(`${mode}.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true }))`)
+      await sleep(100)
+    }
+    await until(`${mode}.textContent.includes('Interview')`)
+    if (settings.get().answerMode !== "interview") throw new Error("Keyboard-selected mode did not persist through IPC")
+    await click(modeSelector)
+    await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+    await run(`${mode}.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+    await until(`!document.querySelector('[role="listbox"]')`)
+    if (!panel.isVisible()) throw new Error("Escape closed the panel instead of the mode menu")
+    await click(modeSelector)
+    await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+    await click(`${section} h2`)
+    await until(`!document.querySelector('[role="listbox"]')`)
+
+    settings.update({ projects })
+    await until(`document.querySelectorAll('[data-project-id]').length === 3 && document.querySelectorAll('[data-project-status="unprepared"]').length === 3`)
+    await click(`${delivery} [role="switch"]`)
+    await until(`${query(`${delivery} [role="switch"]`)}.getAttribute('aria-checked') === 'false' && ${query(section)}.textContent.includes('2 selected')`)
+    if (settings.get().projects.find((project) => project.id === projects[1].id)?.enabled !== false) throw new Error("Project deselection did not persist")
+    await click(`${delivery} [role="switch"]`)
+    await until(`${query(`${delivery} [role="switch"]`)}.getAttribute('aria-checked') === 'true' && ${query(section)}.textContent.includes('3 selected')`)
+
+    await click(`${delivery} [aria-label="Details for Delivery Planner"]`)
+    await fillRole(deliveryRole, deliveryExperience)
+    await click(`${delivery} [aria-label="Details for Delivery Planner"]`)
+    await until(`window.api.invoke('settings:get').then(s => s.projects.find(p => p.id === 'delivery-planner')?.experience === ${JSON.stringify(deliveryExperience)})`)
+    if (settings.get().projects.find((project) => project.id === projects[0].id)?.experience !== projects[0].experience) throw new Error("Saving one role changed another project's role")
+
+    await click(`${invoice} [aria-label="Details for Invoice Portal"]`)
+    await fillRole(invoiceRole, invoiceExperience)
+    // Actual mouse input blurs the role field and immediately clicks Prepare, exercising save ordering.
+    await click(prepareSelector)
+    await until(`window.api.invoke('projects:state').then(s => !s.preparing && s.projects.filter(p => p.status === 'ready').length === 2 && s.projects.find(p => p.id === 'calendar-prototype')?.status === 'limited')`, 20000)
+    await until(`${query(section)}.textContent.includes('3 selected, 2 ready') && ${query(prepareSelector)}.textContent.includes('Prepare again') && !${query(prepareSelector)}.disabled`)
+    const state = await run<ProjectKnowledgeState>("window.api.invoke('projects:state')")
+    for (const project of projects.slice(0, 2)) {
+      const prepared = state.projects.find((item) => item.id === project.id)
+      if (prepared?.status !== "ready" || !prepared.preparedAt || !prepared.brief.includes("Frontend") || !prepared.brief.includes("Backend") || !prepared.brief.includes("Request journey") || !prepared.notice.includes("Map freshness verified")) throw new Error(`Mapped project was not fully prepared: ${project.name}`)
+    }
+    const limited = state.projects.find((item) => item.id === projects[2].id)
+    if (limited?.status !== "limited" || !/no Understand Anything map/i.test(limited.notice)) throw new Error("Missing project map was not reported as limited knowledge")
+    await until(`${query(prototype)}.textContent.includes('Limited knowledge') && ${query(prototype)}.textContent.includes('No project map found. Only available documentation is prepared.')`)
+    if (settings.get().projects.find((project) => project.id === projects[0].id)?.experience !== invoiceExperience || settings.get().projects.find((project) => project.id === projects[1].id)?.experience !== deliveryExperience) throw new Error("Project roles did not persist separately before preparation")
+    await until(`${query(`${invoice} h4`)}?.textContent === 'Prepared architecture briefing'`)
+
+    for (const width of [1440, 390]) {
+      panel.setSize(width, 900)
+      await until(`innerWidth === ${width}`)
+      await run(`document.querySelectorAll('${section} [aria-expanded="true"]').forEach(e => e.click()); document.querySelectorAll('.scroll').forEach(e => { e.scrollTop = 0 })`)
+      await sleep(200)
+      await checkLayout(width)
+      await capture(`projects-${width}.png`)
+
+      await click(`${invoice} [aria-label="Details for Invoice Portal"]`)
+      await until(`Boolean(${query(`${invoice} h4`)})`)
+      await run(`${query(`${invoice} label`)}.scrollIntoView({ block: 'start' }); ${query(section)}.closest('.scroll').scrollTop -= 12`)
+      await sleep(200)
+      await checkLayout(width)
+      await capture(`project-briefing-${width}.png`)
+      await click(`${invoice} [aria-label="Details for Invoice Portal"]`)
+
+      await run(`${mode}.scrollIntoView({ block: 'center' })`)
+      await sleep(150)
+      await click(modeSelector)
+      await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+      await sleep(200)
+      if (!await run(`(() => { const r = document.querySelector('[role="listbox"]').getBoundingClientRect(); return r.left >= 8 && r.right <= innerWidth - 8 && r.top >= 0 && r.bottom <= innerHeight })()`)) throw new Error(`Dropdown outside viewport at ${width}px`)
+      await capture(`mode-${width}.png`)
+      await run(`${mode}.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+      await until(`!document.querySelector('[role="listbox"]')`)
+    }
+
+    await click(`${delivery} [aria-label="Remove Delivery Planner"]`)
+    await until(`!${query(delivery)} && document.querySelectorAll('[data-project-id]').length === 2`)
+    if (settings.get().projects.length !== 2 || settings.get().projects.some((project) => project.id === projects[1].id) || settings.get().projects.find((project) => project.id === projects[0].id)?.experience !== invoiceExperience) throw new Error("Removing a project did not preserve the other projects and their roles")
+    await click(`${invoice} [aria-label="Remove Invoice Portal"]`)
+    await until(`!${query(invoice)}`)
+    await click(`${prototype} [aria-label="Remove Calendar Prototype"]`)
+    await until(`document.querySelectorAll('[data-project-id]').length === 0 && ${query(prepareSelector)}.disabled`)
+    if (settings.get().projects.length !== 0) throw new Error("Removing the last project did not clear the selection")
+    fs.writeFileSync(path.join(dir, "project-ui-checks.json"), JSON.stringify({
+      ok: true,
+      checks: ["mode mouse selection", "mode keyboard selection", "Escape and outside close", "multiple project selection", "independent roles saved on blur before Prepare", "two verified mapped projects ready", "missing map limited", "project removal preserves other roles", "empty selection disables Prepare", "no native selects", "page margins", "no horizontal overflow"],
+      widths: [1440, 390],
+      screenshots: [1440, 390].flatMap((width) => [`projects-${width}.png`, `project-briefing-${width}.png`, `mode-${width}.png`])
+    }, null, 2))
+  } catch (error) {
+    try { await capture("project-ui-failure.png") } catch { /* Preserve the original check failure. */ }
+    throw error
+  } finally {
+    settings.update({ answerMode: original.answerMode, ownKey: original.ownKey, cloud: original.cloud, projects: original.projects, suggestions: original.suggestions })
+    panel.setMaximumSize(originalMaximum[0], originalMaximum[1])
+    panel.setBounds(originalBounds)
+    const resolvedFixture = path.resolve(fixtureRoot)
+    if (path.dirname(resolvedFixture) !== tempRoot || !path.basename(resolvedFixture).startsWith("meetingly-project-ui-")) throw new Error("Refusing to remove a fixture outside the expected temporary directory")
+    if (process.platform === "win32") {
+      // Git creates read-only object files; clear that flag only inside this run's disposable fixture.
+      const directories = [resolvedFixture]
+      while (directories.length) {
+        const folder = directories.pop()!
+        for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+          const file = path.join(folder, entry.name)
+          if (entry.isSymbolicLink()) continue
+          if (entry.isDirectory()) directories.push(file)
+          else if (entry.isFile()) fs.chmodSync(file, 0o600)
+        }
+      }
+    }
+    await fs.promises.rm(resolvedFixture, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
+  }
+}
 
 /** Render sample content into the panel and save each window as a PNG (with alpha) plus its bounds. */
 async function shots(windows: WindowManager, settings: SmokeDeps["settings"], dir: string): Promise<void> {
@@ -629,7 +855,9 @@ async function ownKeySmoke(windows: WindowManager, chat: ChatService, settings: 
         el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new FocusEvent("blur")); el.dispatchEvent(new FocusEvent("focusout", { bubbles: true })); return true })()`)
     steps.filled = (await fill("own-url", base)) === true && (await fill("own-key", "sk-smoke-123")) === true && (await fill("own-model", "smoke-model")) === true
     await sleep(800)
-    steps.listedModels = (await run(`document.querySelectorAll("#own-models option").length`)) === 2
+    await run(`document.getElementById("own-models")?.click()`)
+    steps.listedModels = (await run(`document.querySelectorAll('[role="option"]').length`)) === 3
+    await run(`document.getElementById("own-models")?.click()`)
     await shot("2-form")
     await run(`document.querySelector("form button[type=submit]").click()`)
     for (let i = 0; i < 20 && !settings.get().ownKey; i++) await sleep(250)

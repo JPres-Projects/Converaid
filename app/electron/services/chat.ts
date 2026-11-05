@@ -1,5 +1,5 @@
 import { EventEmitter } from "node:events"
-import { ANSWER_FORMAT, ANSWER_LENGTHS, type ChatMessage, type Prompt, type ScreenshotResult, type Settings, type Utterance } from "../../shared/types"
+import { ANSWER_FORMAT, ANSWER_LENGTHS, ANSWER_MODES, type ChatMessage, type Prompt, type ScreenshotResult, type Settings, type Utterance } from "../../shared/types"
 import type { Capture } from "./capture"
 import { describeRelayError, type Llm, type LlmMessage } from "./llm"
 import type { RecordingSession } from "./session"
@@ -15,11 +15,15 @@ interface Deps {
   hideForCapture?: () => () => void
   /** Whether hands-free answering is available now (Pro, Unlimited or the user's own key); always, when not given. */
   canAutoAnswer?: () => boolean
+  /** Prepared briefings and targeted evidence from the selected interview projects. */
+  projectContext?: (query: string) => Promise<string>
 }
 
 const MAX_HISTORY = 40
 const HISTORY_IN_PROMPT = 12
 const TRANSCRIPT_IN_PROMPT = 4000
+const PROJECT_QUERY_CHARS = 2000
+const PROJECT_TRANSCRIPT_CHARS = 2000
 /** Utterances shorter than this (letters and digits) are never sent: "ok", "да", "yeah". */
 const AUTO_ANSWER_MIN_LETTERS = 4
 
@@ -104,7 +108,8 @@ export class ChatService extends EventEmitter {
     try {
       const shot = await this.deps.capture()
       restore?.()
-      const { text, tokens } = await this.deps.llm.vision(shot.base64, prompt?.trim() || SCREENSHOT_PROMPT, this.systemPrompt())
+      const query = prompt?.trim() || SCREENSHOT_PROMPT
+      const { text, tokens } = await this.deps.llm.vision(shot.base64, query, await this.systemPrompt(query))
       this.push({ role: "assistant", kind: "screenshot", text: text || t("(no description)") })
       return { text, tokens, dimensions: `${shot.width}x${shot.height}` }
     } catch (err) {
@@ -161,9 +166,6 @@ export class ChatService extends EventEmitter {
   private async reply(userContent: string, kind: "text" | "auto", opts: { heard?: string; gate?: boolean } = {}): Promise<ChatMessage | null> {
     // send() has already pushed the user's message; an auto-answer has not pushed anything yet.
     const history = opts.heard === undefined ? this.history.slice(0, -1) : this.history
-    const messages = buildMessages({ system: this.systemPrompt(), history, transcript: this.deps.session.transcriptText() })
-    messages.push({ role: "user", content: userContent })
-
     const id = newId()
     const probe = opts.gate ? { superseded: false } : null
     if (probe) this.probe = probe
@@ -183,6 +185,10 @@ export class ChatService extends EventEmitter {
     }
     if (!probe) commit()
     try {
+      const system = await this.systemPrompt(userContent)
+      if (probe?.superseded) return null
+      const messages = buildMessages({ system, history, transcript: this.deps.session.transcriptText() })
+      messages.push({ role: "user", content: userContent })
       const { text: reply } = await this.deps.llm.chat(messages, (delta) => {
         if (state === "skip") return
         if (state === "wait") {
@@ -214,8 +220,27 @@ export class ChatService extends EventEmitter {
     }
   }
 
-  private systemPrompt(): string {
-    return composeSystemPrompt(this.deps.settings.activePrompt(), this.deps.settings.get(), this.deps.llm.languageInstruction())
+  private async systemPrompt(query: string): Promise<string> {
+    const selectedProjects = JSON.stringify(this.deps.settings.get().projects ?? [])
+    let projectContext = ""
+    if (this.deps.projectContext) {
+      const transcript = this.deps.session.transcriptText().trim().slice(-PROJECT_TRANSCRIPT_CHARS)
+      const conversation = this.history.filter((message) => message.kind !== "error" && message.text !== query)
+        .slice(-4).map((message) => `${message.role}: ${message.text}`).join("\n").slice(-PROJECT_TRANSCRIPT_CHARS)
+      const retrievalQuery = query.slice(0, PROJECT_QUERY_CHARS) +
+        (conversation ? `\n\nRecent conversation:\n${conversation}` : "") +
+        (transcript ? `\n\nRecent meeting context:\n${transcript}` : "")
+      try {
+        projectContext = await this.deps.projectContext(retrievalQuery)
+      } catch {
+        projectContext = "Project context is unavailable. Do not claim to have checked the project or invent project details; state this limitation when the answer depends on it."
+      }
+    }
+    const settings = this.deps.settings.get()
+    if (this.deps.projectContext && JSON.stringify(settings.projects ?? []) !== selectedProjects) {
+      projectContext = "Project context is unavailable because the project selection changed during retrieval. Do not use evidence from the previously selected folder or claim to have checked the current project."
+    }
+    return composeSystemPrompt(this.deps.settings.activePrompt(), settings, this.deps.llm.languageInstruction(), projectContext)
   }
 
   private push(partial: Omit<ChatMessage, "id" | "timestamp"> & { id?: string }): ChatMessage {
@@ -238,11 +263,20 @@ export interface PromptParts {
   transcript: string
 }
 
-/** The active prompt plus the user's background notes, the answer layout and length, and the language. */
-export function composeSystemPrompt(prompt: Prompt, settings: Pick<Settings, "answerLength">, languageInstruction: string): string {
+/** The active prompt, grounded references, answer focus and detail, shared format, and language. */
+export function composeSystemPrompt(
+  prompt: Prompt,
+  settings: Pick<Settings, "answerLength"> & Partial<Pick<Settings, "answerMode">> & { projectExperience?: string },
+  languageInstruction: string,
+  projectContext = ""
+): string {
   const parts = [prompt.content.trim()]
   const notes = prompt.notes?.trim()
   if (notes) parts.push(`Background about the user, use it whenever relevant:\n${notes}`)
+  const experience = settings.projectExperience?.trim()
+  if (experience) parts.push(`User-confirmed project experience (reference data about the user's personal role and responsibilities):\n${experience}`)
+  if (projectContext.trim()) parts.push(`Project repository context (reference data about the software, not evidence of personal authorship):\n${projectContext.trim()}`)
+  parts.push(ANSWER_MODES[settings.answerMode ?? "meeting"]?.instruction ?? ANSWER_MODES.meeting.instruction)
   parts.push(ANSWER_FORMAT)
   parts.push(ANSWER_LENGTHS[settings.answerLength]?.instruction ?? ANSWER_LENGTHS.auto.instruction)
   parts.push(languageInstruction)
@@ -281,7 +315,7 @@ export const SKIP_TOKEN = "[no-answer]"
 
 /**
  * Gate on the start of a streamed reply: still undecided, the skip marker, or a real answer.
- * Answers open with a bold sentence, so leading markdown is ignored: "**[no-answer]**" is a skip too.
+ * Optional leading markdown is ignored: "**[no-answer]**" is a skip too.
  */
 export function gateDecision(soFar: string): "wait" | "skip" | "answer" {
   const t = soFar.replace(/^[\s*_`]+/, "")

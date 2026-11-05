@@ -11,6 +11,8 @@ import type {
   OwnKeyInput,
   Settings,
   SettingsView,
+  InterviewProjectPatch,
+  ProjectKnowledgeState,
   PlanState,
   SuggestionsState,
   TranscriptEvent,
@@ -25,6 +27,12 @@ import type {
 export interface InvokeMap {
   "settings:get": () => SettingsView
   "settings:update": (patch: Partial<Settings>) => SettingsView
+  /** Local project access is granted only through the native folder picker. */
+  "projects:add": () => SettingsView
+  "projects:remove": (id: string) => SettingsView
+  "projects:update": (id: string, patch: InterviewProjectPatch) => SettingsView
+  "projects:prepare": () => ProjectKnowledgeState
+  "projects:state": () => ProjectKnowledgeState
 
   "windows:state": () => WindowsState
   "windows:show": (kind: WindowKind) => void
@@ -106,6 +114,7 @@ export interface EventMap {
   "windows:state": WindowsState
   "panel:tab": PanelTab
   "settings:changed": SettingsView
+  "projects:changed": ProjectKnowledgeState
   "chat:message": ChatMessage
   "chat:chunk": ChatChunk
   "chat:busy": boolean
@@ -125,6 +134,11 @@ export type EventChannel = keyof EventMap
 export const INVOKE_CHANNELS: InvokeChannel[] = [
   "settings:get",
   "settings:update",
+  "projects:add",
+  "projects:remove",
+  "projects:update",
+  "projects:prepare",
+  "projects:state",
   "windows:state",
   "windows:show",
   "windows:hide",
@@ -178,6 +192,7 @@ export const EVENT_CHANNELS: EventChannel[] = [
   "windows:state",
   "panel:tab",
   "settings:changed",
+  "projects:changed",
   "chat:message",
   "chat:chunk",
   "chat:busy",
