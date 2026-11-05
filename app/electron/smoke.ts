@@ -320,7 +320,8 @@ async function projectUiSmoke(windows: WindowManager, settings: SettingsStore, d
   await run(`document.querySelector('#project-experience').dispatchEvent(new FocusEvent('focusout', { bubbles: true }))`)
   for (let retry = 0; retry < 30 && settings.get().projectExperience !== "I maintained the API and reviewed database migrations."; retry++) await sleep(100)
   if (settings.get().projectExperience !== "I maintained the API and reviewed database migrations.") throw new Error("Project experience did not save on blur")
-  for (const width of [800, 390]) {
+  panel.setMaximumSize(1600, 900)
+  for (const width of [1440, 390]) {
     panel.setSize(width, 720)
     await sleep(250)
     await run(`document.querySelectorAll('.scroll').forEach(e => { e.scrollTop = 0 })`)

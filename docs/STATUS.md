@@ -26,7 +26,7 @@
 - `cd app; npm test`: exit 0, 18 suites, 161 passed, 1 pre-existing skipped test.
 - `cd app; npm run typecheck`: exit 0 for renderer and Electron.
 - `cd relay; npm test`: exit 0, 44 passed with isolated local provider fixtures.
-- `cd app; npm run smoke -- project-ui`: exit 0, production build and actual Electron/preload checks for saved modes, keyboard navigation, Escape, outside click, role save on blur, removal and horizontal overflow at 800px and 390px. Six screenshots were visually inspected under `%TEMP%/converaid-project-ui`.
+- `cd app; npm run smoke -- project-ui`: exit 0, production build and actual Electron/preload checks for saved modes, keyboard navigation, Escape, outside click, role save on blur, removal and horizontal overflow at 1440px and 390px. Screenshots were visually inspected under `%TEMP%/converaid-project-ui`.
 - `cd app; npm run smoke -- ownkey`: exit 0, custom model list, model validation, secure fake-key persistence and streamed answer against a local fixture provider; no paid calls.
 - Smoke commands were run with the harness's inherited `ELECTRON_RUN_AS_NODE` removed only from their process environment.
 - `git diff --check`: exit 0.
