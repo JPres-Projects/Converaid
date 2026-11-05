@@ -38,6 +38,119 @@ interface Source {
   metadata: number
 }
 
+/** Only these exact hidden paths may be used for a prepared knowledge graph. */
+export const PROJECT_GRAPH_PATHS = [".ua/knowledge-graph.json", ".understand-anything/knowledge-graph.json"] as const
+
+/** Graph references must meet the same filename rules as a scanned source file. */
+export function isSafeProjectFilePath(relative: string): boolean {
+  if (!relative || relative.length > 512 || /[\\\u0000-\u001f:]/.test(relative) || path.posix.isAbsolute(relative)) return false
+  const parts = relative.split("/")
+  return parts.every((part) => !!part && part !== "." && part !== ".." && !excludedName(part) && !EXCLUDED_DIRS.has(part.toLowerCase())) && eligible(parts.at(-1)!)
+}
+
+/** Validate named references without enumerating any directory or reading source text. */
+export async function safeProjectFiles(folder: string, files: string[]): Promise<string[]> {
+  const root = path.resolve(folder)
+  const realRoot = await safeRealPath(root)
+  if (!(await fs.stat(realRoot)).isDirectory()) throw new Error("Project folder is unavailable")
+  const candidates: string[] = []
+  let descendantIgnore = false
+  for (const relative of [...new Set(files)].slice(0, 5000)) {
+    if (!isSafeProjectFilePath(relative)) continue
+    try {
+      const absolute = path.join(root, relative)
+      if (!within(realRoot, await safeRealPath(absolute)) || !(await fs.stat(absolute)).isFile()) continue
+      let nested = false
+      for (let current = path.dirname(absolute); current !== root; current = path.dirname(current)) {
+        try { await fs.lstat(path.join(current, ".git")); nested = true; break }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error }
+        try { await fs.lstat(path.join(current, ".gitignore")); descendantIgnore = true }
+        catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error }
+      }
+      if (!nested) candidates.push(relative)
+    } catch { /* Missing, linked, unreadable or changed references are omitted. */ }
+  }
+  const ignored = await gitIgnored(root, candidates, descendantIgnore)
+  return candidates.filter((relative) => !ignored.has(relative))
+}
+
+/** Returns null only for an absent graph; an unsafe or oversized graph is an error. */
+export async function projectGraphStamp(folder: string, relative: string): Promise<string | null> {
+  if (!(PROJECT_GRAPH_PATHS as readonly string[]).includes(relative)) throw new Error("Invalid project graph path")
+  const root = path.resolve(folder)
+  const realRoot = await safeRealPath(root)
+  if (!(await fs.stat(realRoot)).isDirectory()) throw new Error("Project folder is unavailable")
+  const absolute = path.join(root, relative)
+  try {
+    if (!within(realRoot, await safeRealPath(absolute))) throw new Error("Unsafe project graph path")
+    const stat = await fs.stat(absolute)
+    if (!stat.isFile()) throw new Error("Project graph is not a file")
+    if (stat.size > 5 * 1024 * 1024) throw new Error("Project graph exceeds the 5 MB size limit")
+    return `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeMs}:${stat.ctimeMs}`
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null
+    throw error
+  }
+}
+
+export async function readProjectGraphFile(folder: string, relative: string): Promise<string> {
+  if (!(await projectGraphStamp(folder, relative))) throw new Error("Project graph is missing")
+  return readNamedFile(path.resolve(folder), relative, 5 * 1024 * 1024)
+}
+
+/** Exclude credential-bearing metadata before it reaches any prompt or UI. */
+export function safeProjectText(value: unknown, limit = 1600): string {
+  if (typeof value !== "string" || containsSecret(value, "reference.yaml") || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(value)) return ""
+  return value.slice(0, limit)
+    .replace(/\b[A-Za-z]:[\\/][^\s"'`]+|(?:^|\s)\/(?:Users|home|etc|var|tmp)\/[^\s"'`]+/g, " [local path omitted]")
+    .replace(/(?:^|[\s`"'])\.(?:env[^\s`"']*|git(?:\/[^\s`"']*)?|ssh(?:\/[^\s`"']*)?)(?=$|[\s`"'])/gi, " [hidden reference omitted]")
+    .trim()
+}
+
+/** Read only the selected graph references, including files deeper than scan limits. */
+export async function readProjectFiles(folder: string, files: string[], query: string): Promise<string> {
+  if (!folder.trim() || !files.length) return ""
+  let candidates: string[]
+  try { candidates = await safeProjectFiles(folder, files.slice(0, 12)) }
+  catch { return UNAVAILABLE }
+  const terms = [...new Set(query.slice(0, 4000).toLowerCase().match(/[\p{L}\p{N}_-]{3,}/gu) ?? [])].slice(0, 32)
+  let output = INTRO
+  let bytes = 0
+  let included = 0
+  for (const relative of candidates) {
+    if (bytes >= MAX_TOTAL_BYTES) break
+    try {
+      const text = await readNamedFile(path.resolve(folder), relative, Math.min(MAX_FILE_BYTES, MAX_TOTAL_BYTES - bytes))
+      bytes += Buffer.byteLength(text)
+      if (!text.trim() || containsSecret(text, relative)) continue
+      const label = `\nSource: ${JSON.stringify(relative)}\n`
+      const remaining = MAX_PROMPT_CHARS - output.length - END.length - label.length
+      if (remaining < 160) break
+      output += label + excerpt(text, terms, Math.min(3200, remaining))
+      included++
+    } catch { /* Skip unsafe, missing, binary, changed or unreadable files. */ }
+  }
+  if (!included) output += "No requested source file could be read safely; current implementation details remain unknown.\n"
+  return output + END
+}
+
+async function readNamedFile(root: string, relative: string, limit: number): Promise<string> {
+  const realRoot = await safeRealPath(root)
+  const absolute = path.join(root, relative)
+  if (!within(realRoot, await safeRealPath(absolute))) throw new Error("Unsafe project reference")
+  const file = await fs.open(absolute, constants.O_RDONLY | (process.platform === "win32" ? 0 : constants.O_NOFOLLOW))
+  try {
+    const stat = await file.stat()
+    const current = await fs.stat(absolute)
+    if (!stat.isFile() || stat.ino !== current.ino || stat.dev !== current.dev || !within(realRoot, await safeRealPath(absolute))) throw new Error("Project reference changed")
+    const buffer = Buffer.alloc(Math.min(limit, stat.size))
+    const result = await file.read(buffer, 0, buffer.length, 0)
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(buffer.subarray(0, result.bytesRead))
+    if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(text)) throw new Error("Binary project reference")
+    return text
+  } finally { await file.close() }
+}
+
 /** Read a bounded, fresh project snapshot. File contents are never persisted or logged. */
 export async function readProjectContext(folder: string, query: string): Promise<string> {
   if (!folder.trim()) return ""

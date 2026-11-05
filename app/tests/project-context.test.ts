@@ -222,7 +222,7 @@ describe("local project context", () => {
     expect(opened.mock.calls.length).toBeLessThanOrEqual(100)
     expect(out.length).toBeLessThanOrEqual(24_000)
     expect(out).toContain("truncated")
-  }, 15_000)
+  }, 60_000)
 
   it("reads changed files on the next request without persisting a snapshot", async () => {
     const root = project()

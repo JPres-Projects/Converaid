@@ -43,33 +43,57 @@ describe("SettingsStore", () => {
     expect(reloaded.get().stealth).toBe(false)
   })
 
-  it("persists local answer mode, project folder and confirmed experience without changing prompt notes", () => {
+  it("persists local projects and answer mode without changing prompt notes", () => {
     const file = tmpFile()
     const store = new SettingsStore(file)
     expect(store.get().answerMode).toBe("meeting")
-    expect(store.get().projectFolder).toBe("")
-    expect(store.get().projectExperience).toBe("")
-    store.update({ answerMode: "coding", projectFolder: path.dirname(file), projectExperience: "I maintained the export endpoint." })
+    expect(store.get().projects).toEqual([])
+    const projects = [{ id: "project-a", name: "Export", folder: path.dirname(file), experience: "I maintained the export endpoint.", enabled: true }]
+    store.update({ answerMode: "coding", projects })
     const settings = new SettingsStore(file).get()
     expect(settings.answerMode).toBe("coding")
-    expect(settings.projectFolder).toBe(path.dirname(file))
-    expect(settings.projectExperience).toBe("I maintained the export endpoint.")
+    expect(settings.projects).toEqual(projects)
     expect(settings.prompts).toEqual([DEFAULT_PROMPT])
-    for (const localKey of ["answerMode", "projectFolder", "projectExperience"]) expect(CLOUD_SETTING_KEYS).not.toContain(localKey)
+    for (const localKey of ["answerMode", "projects"]) expect(CLOUD_SETTING_KEYS).not.toContain(localKey)
   })
 
-  it("normalizes invalid modes, folder paths and project experience", () => {
+  it("normalizes invalid modes and project configurations", () => {
     const file = tmpFile()
     fs.writeFileSync(file, JSON.stringify({ answerMode: "unknown", projectFolder: "relative/path", projectExperience: 17 }))
     const store = new SettingsStore(file)
     expect(store.get().answerMode).toBe("meeting")
-    expect(store.get().projectFolder).toBe("")
-    expect(store.get().projectExperience).toBe("")
-    store.update({ answerMode: "interview", projectExperience: `  ${"x".repeat(6500)}  ` })
+    expect(store.get().projects).toEqual([])
+    const project = { id: "project-a", name: "  Export  ", folder: path.dirname(file), experience: `  ${"x".repeat(6500)}  `, enabled: true }
+    store.update({ answerMode: "interview", projects: [project, { ...project, id: "bad", folder: "relative" }] })
     expect(store.get().answerMode).toBe("interview")
-    expect(store.get().projectExperience).toBe("x".repeat(6000))
-    store.update({ projectFolder: 7 as never })
-    expect(store.get().projectFolder).toBe("")
+    expect(store.get().projects).toEqual([{ ...project, name: "Export", experience: "x".repeat(6000) }])
+    store.update({ projects: Array.from({ length: 40 }, (_, i) => ({ ...project, id: `project-${i}`, folder: path.join(path.dirname(file), String(i)) })) })
+    expect(store.get().projects).toHaveLength(32)
+  })
+
+  it("migrates the legacy selected project once and removes obsolete fields from disk", () => {
+    const file = tmpFile()
+    fs.writeFileSync(file, JSON.stringify({ deviceId: "existing-device-id", projectFolder: path.dirname(file), projectExperience: "I maintained exports.", __v: 3 }))
+    const store = new SettingsStore(file)
+    expect(store.get().projects).toEqual([expect.objectContaining({ folder: path.dirname(file), experience: "I maintained exports.", enabled: true })])
+    const id = store.get().projects[0].id
+    expect(new SettingsStore(file).get().projects[0].id).toBe(id)
+    expect(fs.readFileSync(file, "utf8")).not.toMatch(/projectFolder|projectExperience/)
+    store.update({ projects: [] })
+    expect(new SettingsStore(file).get().projects).toEqual([])
+    fs.writeFileSync(file, JSON.stringify({ projects: [], projectFolder: path.dirname(file), __v: 3 }))
+    expect(new SettingsStore(file).get().projects).toEqual([])
+  })
+
+  it("never exposes mutable project references through settings or views", () => {
+    const file = tmpFile()
+    const store = new SettingsStore(file)
+    const project = { id: "project-a", name: "Export", folder: path.dirname(file), experience: "My role", enabled: true }
+    store.update({ projects: [project] })
+    project.name = "Caller mutation"
+    store.get().projects[0].name = "Get mutation"
+    store.view().projects[0].experience = "View mutation"
+    expect(store.get().projects[0]).toMatchObject({ name: "Export", experience: "My role" })
   })
 
   it("has suggestions off by default (1.2.5), and keeps them on where they were saved on", () => {
@@ -193,7 +217,7 @@ describe("logger", () => {
     const logger = new Logger(file, "debug", false)
     logger.info("audio", "capture started", { opened: ["microphone", "system"] })
     logger.error("chat", "failed", new Error("boom"))
-    await new Promise((r) => setTimeout(r, 60))
+    await expect.poll(() => fs.existsSync(file) && fs.readFileSync(file, "utf8").includes("ERROR [chat] failed Error: boom"), { timeout: 5000 }).toBe(true)
     const text = fs.readFileSync(file, "utf8")
     expect(text).toContain("[audio] capture started")
     expect(text).toContain('"opened":["microphone","system"]')

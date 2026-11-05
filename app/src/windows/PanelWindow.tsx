@@ -33,8 +33,9 @@ import { listAudioInputs, type AudioInputDevice, type AudioLevels } from "@/lib/
 import { cn, copyText } from "@/lib/utils"
 import { markdownToPlain } from "@/lib/plain-text"
 import { Button } from "@/components/ui/button"
-import { Select, Textarea, Toggle } from "@/components/ui/fields"
+import { Select, Toggle } from "@/components/ui/fields"
 import { Markdown } from "@/components/Markdown"
+import { ProjectSettings } from "@/components/ProjectSettings"
 
 /**
  * The panel attached under the toolbar: answers, the live transcript and settings as tabs, with
@@ -759,6 +760,7 @@ function SettingsTab({ settings, update, plan, autoAllowed }: {
             {(Object.keys(ANSWER_MODES) as AnswerMode[]).map((mode) => <option key={mode} value={mode}>{t(ANSWER_MODES[mode].label)}</option>)}
           </Select>
         </SettingRow>
+        <ProjectSettings projects={settings.projects} />
         <SettingRow label={t("Meeting language")} hint={t("The language spoken in the meeting.")}>
           <Select value={settings.audioLanguage} onChange={(value) => void update({ audioLanguage: value as LanguageCode })} className={PICK} aria-label={t("Meeting language")}>
             {LANGUAGES.map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
@@ -809,7 +811,6 @@ function SettingsTab({ settings, update, plan, autoAllowed }: {
         <SettingRow label={t("Stealth mode")} hint={t("Hidden from screen sharing, recordings and screenshots.")}>
           <Toggle checked={settings.stealth} onChange={(on) => void update({ stealth: on })} label={t("Stealth mode")} />
         </SettingRow>
-        <ProjectSettings settings={settings} update={update} />
       </div>
       <div className="flex items-center gap-1 border-t border-white/10 p-1.5">
         <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px]" onClick={() => void api.invoke("transcripts:reveal")} title={t("Every session is saved as a text file in Documents/Meetingly.")}>
@@ -821,73 +822,6 @@ function SettingsTab({ settings, update, plan, autoAllowed }: {
         </Button>
       </div>
     </div>
-  )
-}
-
-function ProjectSettings({ settings, update }: { settings: SettingsView; update: (patch: Partial<SettingsView>) => Promise<void> }) {
-  const [experience, setExperience] = useState(settings.projectExperience)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  useEffect(() => setExperience(settings.projectExperience), [settings.projectExperience])
-
-  const changeFolder = async (remove = false) => {
-    setBusy(true)
-    setError(null)
-    try {
-      if (remove) {
-        await api.invoke("project:clear")
-        setExperience("")
-      }
-      else await api.invoke("project:choose")
-    } catch (err) {
-      setError(invokeError(err))
-    } finally {
-      setBusy(false)
-    }
-  }
-  const saveExperience = async () => {
-    if (experience === settings.projectExperience) return
-    setError(null)
-    try {
-      await update({ projectExperience: experience })
-    } catch (err) {
-      setError(invokeError(err))
-    }
-  }
-
-  return (
-    <section className="space-y-2 py-3" aria-labelledby="project-heading">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 id="project-heading" className="mr-auto text-[12px] font-medium text-white/90">{t("Project")}</h2>
-        <Button variant="secondary" size="sm" className="h-7 px-2 text-[11px]" disabled={busy} onClick={() => void changeFolder()}>
-          <FolderOpen className="h-3 w-3" /> {settings.projectFolder ? t("Change folder") : t("Choose folder")}
-        </Button>
-        {settings.projectFolder && <Button variant="ghost" size="sm" className="h-7 px-2 text-[11px]" disabled={busy} onClick={() => void changeFolder(true)}>{t("Remove")}</Button>}
-      </div>
-      <p className="selectable break-all rounded border border-white/10 bg-white/[0.03] px-2 py-1.5 text-[11px] text-white/65">
-        {settings.projectFolder || t("No project folder selected. Choose one folder on this computer.")}
-      </p>
-      <p className="text-[10.5px] leading-snug text-white/45">
-        {t("The folder, source and notes stay out of cloud account sync. Selected project excerpts and notes are sent to your configured AI when answering.")}
-      </p>
-      <div>
-        <label htmlFor="project-experience" className="text-[11.5px] font-medium text-white/80">{t("Your role and experience")}</label>
-        <p id="project-experience-hint" className="mb-1.5 mt-0.5 text-[10.5px] leading-snug text-white/45">
-          {t("Optional facts about your role, contributions and experience. These are not inferred from project code.")}
-        </p>
-        <Textarea
-          id="project-experience"
-          aria-describedby="project-experience-hint"
-          className="min-h-[72px] px-2 py-1.5 text-[11.5px]"
-          value={experience}
-          maxLength={6000}
-          placeholder={t("For example: I built the API and have three years of TypeScript experience.")}
-          onChange={(event) => setExperience(event.target.value)}
-          onBlur={() => void saveExperience()}
-        />
-      </div>
-      {error && <p role="alert" className="selectable text-[11px] text-rose-300">{error}</p>}
-    </section>
   )
 }
 

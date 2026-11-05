@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { rendererSettingsPatch, trustedFrame } from "../electron/ipc/guard"
+import { rendererProjectPatch, rendererSettingsPatch, trustedFrame } from "../electron/ipc/guard"
 
 describe("IPC boundaries", () => {
   it("refuses subframes, missing frames and unowned renderers", () => {
@@ -17,9 +17,16 @@ describe("IPC boundaries", () => {
   it("rejects malformed patch containers", () => {
     for (const input of [null, false, "text", []]) expect(() => rendererSettingsPatch(input)).toThrow()
   })
-  it("allows answer mode and confirmed experience while requiring a dedicated project-folder picker", () => {
-    expect(rendererSettingsPatch({ answerMode: "interview", projectExperience: "I maintained the export endpoint.", projectFolder: "C:\\private" }))
-      .toEqual({ answerMode: "interview", projectExperience: "I maintained the export endpoint." })
+  it("requires dedicated project IPC for all project data", () => {
+    expect(rendererSettingsPatch({ answerMode: "interview", projects: [], projectExperience: "I maintained the export endpoint.", projectFolder: "C:\\private" }))
+      .toEqual({ answerMode: "interview" })
+  })
+  it("only allows valid project names, confirmed roles and enabled flags", () => {
+    expect(rendererProjectPatch({ name: "  Export  ", experience: "  My role  ", enabled: false, folder: "C:\\private", id: "replacement" }))
+      .toEqual({ name: "Export", experience: "My role", enabled: false })
+    for (const patch of [null, [], { name: "" }, { name: "x".repeat(121) }, { experience: false }, { experience: "x".repeat(6001) }, { enabled: 1 }]) {
+      expect(() => rendererProjectPatch(patch)).toThrow()
+    }
   })
   it("rejects non-boolean native preferences before they can be saved", () => {
     for (const key of ["autoLaunch", "stealth", "suggestions", "keepMeetingsLocal"]) {

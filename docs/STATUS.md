@@ -38,3 +38,11 @@
 - `app/electron/services/projectContext.ts`, `electron/main.ts`, `electron/ipc/index.ts`, `electron/ipc/guard.ts`, `shared/ipc.ts`: bounded local project access and trusted IPC.
 - `app/src/components/ui/fields.tsx`, `src/windows/PanelWindow.tsx`: accessible dropdowns, mode selection and project controls.
 - Chat, settings, IPC, project and cloud-sync regression tests; Electron smoke coverage; README usage notes.
+
+## 2026-11-05: Prepared interview projects
+
+Implemented multiple local projects with separate role notes, preparation from existing Understand Anything maps, compact architecture briefings, cached question search and targeted current source reads. Explicit preparation refreshes snapshots; current project names outrank earlier conversation topics. Local project settings are migrated and excluded from cloud sync. Missing or changed evidence is surfaced without inventing personal contributions.
+
+Verification: 204 application tests passed (one existing skip), typecheck and production build passed, actual Electron UI checks completed at 1440 and 390 CSS pixels and six screenshots were inspected. A synthetic 3,000-node index searched in 27.19 ms median over 30 queries; this excludes source access and model latency. See prepared-interview-projects.md for evidence and limits.
+
+Complete: 21 final architecture and integration checks passed; fresh typecheck and production build passed; Electron project-ui smoke returned ok=true with no errors. Final screenshots at 1440 and 390 CSS pixels were inspected. Memory recovered and no user application was closed. Windows fixture cleanup now clears read-only Git object flags. Two older disposable smoke fixture folders remain in Temp because manual recursive deletion was blocked by tool policy; they contain no user project data.

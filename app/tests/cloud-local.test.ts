@@ -24,7 +24,7 @@ describe("meeting sync", () => {
     dirs.push(dir)
     const settings = new SettingsStore(path.join(dir, "settings.json"))
     settings.update({ cloud: { url: "https://account.example", token: "mtk_test", userId: "u1", email: "a@b.c", name: "", linkedAt: 1 },
-      projectFolder: "C:\\private-project-location", projectExperience: "Private confirmed responsibility", answerMode: "coding" })
+      projects: [{ id: "project-a", name: "Private project name", folder: path.join(dir, "private-project-location"), experience: "Private confirmed responsibility", enabled: true }], answerMode: "coding" })
     const requests: string[] = []
     vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
       requests.push(String(init.body))
@@ -38,7 +38,7 @@ describe("meeting sync", () => {
     await internal.pushPrompts(true)
     expect(requests).toHaveLength(2)
     const sent = requests.join("\n")
-    for (const local of ["private-project-location", "Private confirmed responsibility", "projectFolder", "projectExperience", "answerMode"]) {
+    for (const local of ["private-project-location", "Private project name", "Private confirmed responsibility", "projects", "projectFolder", "projectExperience", "answerMode"]) {
       expect(sent).not.toContain(local)
     }
   })

@@ -22,3 +22,15 @@
 - Code does not establish personal authorship or achievements.
 - Project data stays out of account sync; excerpts accompany requested AI answers.
 - Unavailable folders and large repositories do not invent context or break answering.
+
+## Prepared interview projects
+
+The user clarified that interview answers must draw on a prepared understanding of several projects, like a senior developer onboarding a junior. Existing Understand Anything maps supply purpose, architecture, layers, walkthroughs and relationships. Preparation happens before the interview; each answer receives compact project briefings and locally selected evidence without rescanning repositories.
+
+- [x] 6. Load existing `.ua/knowledge-graph.json` and legacy maps into a bounded in-memory search index. Assemble source-backed architecture briefings, inspect Git freshness, and retain a clearly limited documentation fallback for projects without a map. Verify graph relationships, multilingual technical queries, outdated sources and path boundaries.
+- [x] 7. Replace the single folder with locally persisted projects, each with a name, confirmed role and interview inclusion switch. Migrate the previous selection. Add native multi-folder selection, preparation state, stale-cache handling and removal. Verify IPC and account-sync boundaries.
+- [x] 8. Supply briefings for selected projects plus relevant graph relationships and targeted source excerpts to every answer route. Preserve question context across follow-ups and discard results if project selection changes. Verify cross-project separation and no per-answer directory scans.
+- [x] 9. Add a simple Projects list with Add projects, inclusion switches, role notes, Prepare and readable readiness/errors. Inspect the actual renderer at 1440px and 390px.
+- [x] 10. Run the complete relevant tests, typecheck, build, Electron smoke, independent review and a measured local retrieval benchmark. Report preparation time separately from cached retrieval and make no unmeasured model-latency claim.
+
+Preparation uses existing map summaries and local indexing, with no additional paid model calls or automatic map generation. Only referenced files need live reads; a changed map must be prepared again. Runtime prepared data stays in memory; project configuration persists locally.

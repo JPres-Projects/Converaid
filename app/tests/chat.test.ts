@@ -218,9 +218,10 @@ describe("answer request coverage", () => {
     expect(chat.isBusy).toBe(false)
   })
 
-  it.each(["", "C:\\project-b"])("discards stale repository evidence when the selected folder becomes %j during retrieval", async (projectFolder) => {
+  it.each(["remove", "disable", "replace", "role"])("discards stale evidence when prepared projects change through %s during retrieval", async (change) => {
     const { ChatService } = await import("../electron/services/chat")
-    let settings = { answerLength: "auto", answerMode: "coding", projectFolder: "C:\\project-a", projectExperience: "I maintained project A." }
+    const project = { id: "a", name: "Atlas", folder: "C:\\project-a", experience: "I maintained project A.", enabled: true }
+    let settings = { answerLength: "auto", answerMode: "coding", projects: [project] }
     let finishContext!: (context: string) => void
     let system = ""
     const chat = new ChatService({
@@ -235,14 +236,34 @@ describe("answer request coverage", () => {
     })
     const answer = chat.send("Explain the selected project.")
     expect(finishContext).toBeTypeOf("function")
-    settings = { ...settings, projectFolder, projectExperience: projectFolder ? "I reviewed project B." : "" }
+    settings = { ...settings, projects: change === "remove" ? [] : [{ ...project,
+      ...(change === "disable" ? { enabled: false } : {}),
+      ...(change === "replace" ? { id: "b", name: "Beacon", folder: "C:\\project-b" } : {}),
+      ...(change === "role" ? { experience: "I only reviewed this project." } : {})
+    }] }
     finishContext("PROJECT_A_SOURCE_ONLY: src/api.ts uses a legacy queue.")
     await answer
     expect(system).not.toContain("PROJECT_A_SOURCE_ONLY")
     expect(system).not.toContain("I maintained project A.")
     expect(system).toContain("Project context is unavailable")
     expect(system).toContain("project selection changed")
-    if (projectFolder) expect(system).toContain("I reviewed project B.")
+  })
+
+  it("includes recent project conversation in retrieval for a follow-up question", async () => {
+    const { ChatService } = await import("../electron/services/chat")
+    const queries: string[] = []
+    const chat = new ChatService({
+      settings: { get: () => ({ answerLength: "auto", projects: [] }), activePrompt: () => DEFAULT_PROMPT } as never,
+      llm: { languageInstruction: () => "L", chat: async () => ({ text: "Atlas handles authentication in its API service.", tokens: 1 }) } as never,
+      session: { transcriptText: () => "" } as never,
+      capture: async () => ({}) as never,
+      projectContext: async (query) => { queries.push(query); return "Prepared project references." }
+    })
+    await chat.send("Explain authentication in Atlas.")
+    await chat.send("And how are its sessions stored?")
+    expect(queries[1]).toMatch(/^And how are its sessions stored\?/)
+    expect(queries[1]).toContain("Explain authentication in Atlas.")
+    expect(queries[1]).toContain("Recent conversation")
   })
 })
 

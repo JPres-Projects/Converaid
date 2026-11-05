@@ -5,7 +5,7 @@ import { openOwnKeyForm, registerIpc } from "./ipc"
 import { Logger, type LogLevel } from "./services/logger"
 import { captureScreen } from "./services/capture"
 import { ChatService } from "./services/chat"
-import { readProjectContext } from "./services/projectContext"
+import { ProjectKnowledgeService } from "./services/projectKnowledgeService"
 import { CloudSync } from "./services/cloud"
 import { Llm } from "./services/llm"
 import { MeetingStore } from "./services/meetings"
@@ -103,12 +103,14 @@ function bootstrap(): void {
     }
   }, 60_000)
   const windows = new WindowManager(path.join(__dirname, "preload.js"))
+  const projectKnowledge = new ProjectKnowledgeService({ settings })
+  projectKnowledge.on("state", (state) => windows.broadcast("projects:changed", state))
   const chat = new ChatService({
     settings,
     llm,
     session,
     capture: captureScreen,
-    projectContext: (query) => readProjectContext(settings.get().projectFolder, query),
+    projectContext: (query) => projectKnowledge.context(query),
     hideForCapture: () => windows.hideForCapture(),
     canAutoAnswer: () => autoAnswerAllowed(plan.getState())
   })
@@ -151,7 +153,7 @@ function bootstrap(): void {
     }
     if (process.platform === "darwin") app.dock?.hide()
     installSystemAudioHandler()
-    registerIpc({ settings, windows, session, chat, suggestions, meetings, reports, logger, cloud, plan, ownKey, transcripts })
+    registerIpc({ settings, projectKnowledge, windows, session, chat, suggestions, meetings, reports, logger, cloud, plan, ownKey, transcripts })
     instrument({ logger, settings, session, chat, windows })
     applySettings()
     settings.onChange(applySettings)

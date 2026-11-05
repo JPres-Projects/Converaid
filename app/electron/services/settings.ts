@@ -11,6 +11,7 @@ import {
   LEGACY_DEFAULT_SHORTCUTS,
   RETIRED_DEFAULT_SHORTCUTS,
   LEGACY_DEFAULT_SYSTEM_PROMPTS,
+  type InterviewProject,
   type Prompt,
   type Settings,
   type SettingsView,
@@ -25,6 +26,7 @@ import { resolveLocale } from "../../shared/i18n"
 export class SettingsStore extends EventEmitter {
   private data: Settings
   private shortcutConflicts: ShortcutAction[] = []
+  private migrated = false
 
   constructor(
     private readonly file: string,
@@ -34,12 +36,13 @@ export class SettingsStore extends EventEmitter {
     this.data = this.load()
     if (!this.data.deviceId) {
       this.data.deviceId = randomUUID().replace(/-/g, "")
-      this.persist()
+      this.migrated = true
     }
+    if (this.migrated) this.persist()
   }
 
   get(): Settings {
-    return { ...this.data, prompts: this.data.prompts.map((p) => ({ ...p })) }
+    return { ...this.data, projects: this.data.projects.map((p) => ({ ...p })), prompts: this.data.prompts.map((p) => ({ ...p })) }
   }
 
   /** `origin` tells listeners where a change came from so sync never echoes its own writes. */
@@ -103,12 +106,21 @@ export class SettingsStore extends EventEmitter {
           try { fs.chmodSync(this.file, 0o600); fs.chmodSync(path.dirname(this.file), 0o700) }
           catch { console.warn("[settings] could not tighten existing settings permissions") }
         }
-        const raw = JSON.parse(fs.readFileSync(this.file, "utf8")) as Partial<Settings> & { __v?: number }
+        const raw = JSON.parse(fs.readFileSync(this.file, "utf8")) as Partial<Settings> & { __v?: number; projectFolder?: unknown; projectExperience?: unknown }
         // v2: "microphone" used to be the silent default; nobody chose it. Move to mic + system.
         if ((raw.__v ?? 1) < 2 && raw.audioSource === "microphone") raw.audioSource = "both"
         // v3 (1.2.5): auto-answer became a Pro feature, off until turned on. It used to be on by default, so turn it
         // off once; on a paying account the next sync brings back what the account has.
         if ((raw.__v ?? 1) < 3) raw.autoAnswer = "off"
+        // An existing projects array, including an empty one, is authoritative after removal.
+        if (!Object.hasOwn(raw, "projects") && validFolder(raw.projectFolder)) {
+          const folder = path.normalize(raw.projectFolder.trim())
+          raw.projects = [{ id: randomUUID(), name: path.basename(folder) || folder, folder,
+            experience: typeof raw.projectExperience === "string" ? raw.projectExperience : "", enabled: true }]
+        }
+        this.migrated = (raw.__v ?? 1) < SETTINGS_VERSION || Object.hasOwn(raw, "projectFolder") || Object.hasOwn(raw, "projectExperience")
+        delete raw.projectFolder
+        delete raw.projectExperience
         return normalize({ ...DEFAULT_SETTINGS, ...raw })
       }
     } catch (err) {
@@ -131,9 +143,43 @@ export class SettingsStore extends EventEmitter {
   }
 }
 
-const SETTINGS_VERSION = 3
+const SETTINGS_VERSION = 4
+
+function validFolder(folder: unknown): folder is string {
+  return typeof folder === "string" && folder.length <= 4096 && !folder.includes("\0") && path.isAbsolute(folder.trim())
+}
+
+/** Windows paths are case insensitive; trailing separators do not create a second project. */
+export function projectFolderKey(folder: string): string {
+  const normalized = path.resolve(folder)
+  return process.platform === "win32" ? normalized.toLowerCase() : normalized
+}
+
+function normalizeProjects(input: unknown): InterviewProject[] {
+  if (!Array.isArray(input)) return []
+  const result: InterviewProject[] = []
+  const ids = new Set<string>(), folders = new Set<string>()
+  for (const p of input) {
+    if (!p || typeof p !== "object" || typeof p.id !== "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(p.id) || !validFolder(p.folder)) continue
+    const folder = path.normalize(p.folder.trim())
+    const key = projectFolderKey(folder)
+    if (ids.has(p.id) || folders.has(key)) continue
+    ids.add(p.id)
+    folders.add(key)
+    result.push({ id: p.id, folder,
+      name: (typeof p.name === "string" ? p.name.trim() : "").slice(0, 120) || path.basename(folder) || folder.slice(0, 120),
+      experience: typeof p.experience === "string" ? p.experience.trim().slice(0, 6000) : "",
+      enabled: p.enabled === true })
+    if (result.length === 32) break
+  }
+  return result
+}
 
 export function normalize(s: Settings): Settings {
+  // Obsolete fields must never survive an update or resurrect a removed project.
+  const clean = { ...s } as Settings & { projectFolder?: unknown; projectExperience?: unknown }
+  delete clean.projectFolder
+  delete clean.projectExperience
   const squash = (t: string) => t.replace(/\s+/g, " ").trim()
   const prompts = (Array.isArray(s.prompts) && s.prompts.length > 0
     ? s.prompts.filter((p) => p && typeof p.id === "string" && typeof p.content === "string")
@@ -152,7 +198,7 @@ export function normalize(s: Settings): Settings {
     if (typeof v === "string" && v.trim() !== LEGACY_DEFAULT_SHORTCUTS[key] && v.trim() !== RETIRED_DEFAULT_SHORTCUTS[key]) shortcuts[key] = v.trim()
   }
   return {
-    ...s,
+    ...clean,
     deviceId: typeof s.deviceId === "string" && /^[a-zA-Z0-9_-]{8,64}$/.test(s.deviceId) ? s.deviceId : "",
     prompts: prompts.length > 0 ? prompts : [DEFAULT_PROMPT],
     activePromptId,
@@ -166,8 +212,7 @@ export function normalize(s: Settings): Settings {
     audioLanguage: LANGUAGES.some((l) => l.code === s.audioLanguage) ? s.audioLanguage : "en",
     transcriptionEngine: s.transcriptionEngine === "cloud" ? "cloud" : "local",
     answerMode: Object.hasOwn(ANSWER_MODES, s.answerMode) ? s.answerMode : "meeting",
-    projectFolder: typeof s.projectFolder === "string" && !s.projectFolder.includes("\0") && path.isAbsolute(s.projectFolder.trim()) ? s.projectFolder.trim() : "",
-    projectExperience: typeof s.projectExperience === "string" ? s.projectExperience.trim().slice(0, 6000) : "",
+    projects: normalizeProjects(s.projects),
     suggestions: s.suggestions !== false,
     keepMeetingsLocal: s.keepMeetingsLocal === true,
     autoLaunch: s.autoLaunch === true,

@@ -193,6 +193,29 @@ export const SHORTCUT_LABELS: Record<ShortcutAction, string> = {
   moveDown: "Move toolbar down"
 }
 
+export interface InterviewProject {
+  id: string
+  name: string
+  folder: string
+  experience: string
+  enabled: boolean
+}
+
+export interface ProjectPreparation {
+  id: string
+  status: "unprepared" | "preparing" | "ready" | "limited" | "stale" | "error"
+  brief: string
+  notice: string
+  preparedAt: number | null
+}
+
+export interface ProjectKnowledgeState {
+  projects: ProjectPreparation[]
+  preparing: boolean
+}
+
+export type InterviewProjectPatch = Partial<Pick<InterviewProject, "name" | "experience" | "enabled">>
+
 export interface Settings {
   /** Random id created on first run; identifies this install to the relay for quotas. */
   deviceId: string
@@ -206,10 +229,8 @@ export interface Settings {
   answerLength: AnswerLength
   /** Answer focus on this device; independent of automatic answering and answer detail. Never synced. */
   answerMode: AnswerMode
-  /** Explicitly selected local project folder. Only a dedicated folder picker may change it. Never synced. */
-  projectFolder: string
-  /** User-confirmed personal role and experience, separate from repository evidence. Never synced. */
-  projectExperience: string
+  /** Local interview projects. Folders are granted only by the native picker; never synced. */
+  projects: InterviewProject[]
   /** Show suggested questions on the left of the panel while listening. */
   suggestions: boolean
   /**
@@ -327,8 +348,7 @@ export const DEFAULT_SETTINGS: Settings = {
   autoAnswer: "off",
   answerLength: "auto",
   answerMode: "meeting",
-  projectFolder: "",
-  projectExperience: "",
+  projects: [],
   // Off until turned on (the button left of the panel's close button), so a session can be a plain transcript.
   suggestions: false,
   keepMeetingsLocal: false,

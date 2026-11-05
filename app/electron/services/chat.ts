@@ -15,7 +15,7 @@ interface Deps {
   hideForCapture?: () => () => void
   /** Whether hands-free answering is available now (Pro, Unlimited or the user's own key); always, when not given. */
   canAutoAnswer?: () => boolean
-  /** Read-only evidence from an explicitly selected project, retrieved for the current question. */
+  /** Prepared briefings and targeted evidence from the selected interview projects. */
   projectContext?: (query: string) => Promise<string>
 }
 
@@ -221,11 +221,15 @@ export class ChatService extends EventEmitter {
   }
 
   private async systemPrompt(query: string): Promise<string> {
-    const projectFolder = this.deps.settings.get().projectFolder
+    const selectedProjects = JSON.stringify(this.deps.settings.get().projects ?? [])
     let projectContext = ""
     if (this.deps.projectContext) {
       const transcript = this.deps.session.transcriptText().trim().slice(-PROJECT_TRANSCRIPT_CHARS)
-      const retrievalQuery = query.slice(0, PROJECT_QUERY_CHARS) + (transcript ? `\n\nRecent meeting context:\n${transcript}` : "")
+      const conversation = this.history.filter((message) => message.kind !== "error" && message.text !== query)
+        .slice(-4).map((message) => `${message.role}: ${message.text}`).join("\n").slice(-PROJECT_TRANSCRIPT_CHARS)
+      const retrievalQuery = query.slice(0, PROJECT_QUERY_CHARS) +
+        (conversation ? `\n\nRecent conversation:\n${conversation}` : "") +
+        (transcript ? `\n\nRecent meeting context:\n${transcript}` : "")
       try {
         projectContext = await this.deps.projectContext(retrievalQuery)
       } catch {
@@ -233,7 +237,7 @@ export class ChatService extends EventEmitter {
       }
     }
     const settings = this.deps.settings.get()
-    if (this.deps.projectContext && settings.projectFolder !== projectFolder) {
+    if (this.deps.projectContext && JSON.stringify(settings.projects ?? []) !== selectedProjects) {
       projectContext = "Project context is unavailable because the project selection changed during retrieval. Do not use evidence from the previously selected folder or claim to have checked the current project."
     }
     return composeSystemPrompt(this.deps.settings.activePrompt(), settings, this.deps.llm.languageInstruction(), projectContext)
@@ -262,7 +266,7 @@ export interface PromptParts {
 /** The active prompt, grounded references, answer focus and detail, shared format, and language. */
 export function composeSystemPrompt(
   prompt: Prompt,
-  settings: Pick<Settings, "answerLength"> & Partial<Pick<Settings, "answerMode" | "projectExperience">>,
+  settings: Pick<Settings, "answerLength"> & Partial<Pick<Settings, "answerMode">> & { projectExperience?: string },
   languageInstruction: string,
   projectContext = ""
 ): string {
