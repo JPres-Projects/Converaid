@@ -34,3 +34,13 @@ The user clarified that interview answers must draw on a prepared understanding 
 - [x] 10. Run the complete relevant tests, typecheck, build, Electron smoke, independent review and a measured local retrieval benchmark. Report preparation time separately from cached retrieval and make no unmeasured model-latency claim.
 
 Preparation uses existing map summaries and local indexing, with no additional paid model calls or automatic map generation. Only referenced files need live reads; a changed map must be prepared again. Runtime prepared data stays in memory; project configuration persists locally.
+
+## Local prompts and interview simulation
+
+Design: docs/simulation-design.md. The user has specified the behavior; routine implementation choices are resolved without another approval gate.
+
+- [ ] 11. Add bounded local prompt editing/selection and optional project descriptions; verify settings/IPC/context regression tests.
+- [ ] 12. Add an isolated simulation service using existing chat/project composition and local microphone transcription; verify role commands, candidate context, one response per interviewer turn, timing, lifecycle and errors.
+- [ ] 13. Add the Simulation tab, microphone/role controls, transcript and timing, and show the toolbar in the Windows taskbar; verify typecheck and UI integration.
+- [ ] 14. Verify all changed behavior with fake providers, run the appropriate suite/build, and inspect actual renderer screenshots at 1440/390 pixels.
+- [ ] 15. Commit/push the verified changes, build a portable Windows version, and update the laptop Desktop shortcut; verify the delivered artifact and report any required manual launch precisely.
