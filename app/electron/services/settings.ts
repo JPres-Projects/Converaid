@@ -3,6 +3,7 @@ import path from "node:path"
 import { randomUUID } from "node:crypto"
 import { EventEmitter } from "node:events"
 import {
+  ANSWER_MODES,
   DEFAULT_PROMPT,
   DEFAULT_SETTINGS,
   DEFAULT_SHORTCUTS,
@@ -164,6 +165,9 @@ export function normalize(s: Settings): Settings {
     outputLanguage: LANGUAGES.some((l) => l.code === s.outputLanguage) ? s.outputLanguage : "en",
     audioLanguage: LANGUAGES.some((l) => l.code === s.audioLanguage) ? s.audioLanguage : "en",
     transcriptionEngine: s.transcriptionEngine === "cloud" ? "cloud" : "local",
+    answerMode: Object.hasOwn(ANSWER_MODES, s.answerMode) ? s.answerMode : "meeting",
+    projectFolder: typeof s.projectFolder === "string" && !s.projectFolder.includes("\0") && path.isAbsolute(s.projectFolder.trim()) ? s.projectFolder.trim() : "",
+    projectExperience: typeof s.projectExperience === "string" ? s.projectExperience.trim().slice(0, 6000) : "",
     suggestions: s.suggestions !== false,
     keepMeetingsLocal: s.keepMeetingsLocal === true,
     autoLaunch: s.autoLaunch === true,

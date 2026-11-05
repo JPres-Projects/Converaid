@@ -4,6 +4,7 @@ import path from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { SettingsStore } from "../electron/services/settings"
 import { DEFAULT_PROMPT } from "../shared/types"
+import { CLOUD_SETTING_KEYS } from "../shared/cloud"
 
 const dirs: string[] = []
 function tmpFile(): string {
@@ -40,6 +41,35 @@ describe("SettingsStore", () => {
     const reloaded = new SettingsStore(file)
     expect(reloaded.get().outputLanguage).toBe("ru")
     expect(reloaded.get().stealth).toBe(false)
+  })
+
+  it("persists local answer mode, project folder and confirmed experience without changing prompt notes", () => {
+    const file = tmpFile()
+    const store = new SettingsStore(file)
+    expect(store.get().answerMode).toBe("meeting")
+    expect(store.get().projectFolder).toBe("")
+    expect(store.get().projectExperience).toBe("")
+    store.update({ answerMode: "coding", projectFolder: path.dirname(file), projectExperience: "I maintained the export endpoint." })
+    const settings = new SettingsStore(file).get()
+    expect(settings.answerMode).toBe("coding")
+    expect(settings.projectFolder).toBe(path.dirname(file))
+    expect(settings.projectExperience).toBe("I maintained the export endpoint.")
+    expect(settings.prompts).toEqual([DEFAULT_PROMPT])
+    for (const localKey of ["answerMode", "projectFolder", "projectExperience"]) expect(CLOUD_SETTING_KEYS).not.toContain(localKey)
+  })
+
+  it("normalizes invalid modes, folder paths and project experience", () => {
+    const file = tmpFile()
+    fs.writeFileSync(file, JSON.stringify({ answerMode: "unknown", projectFolder: "relative/path", projectExperience: 17 }))
+    const store = new SettingsStore(file)
+    expect(store.get().answerMode).toBe("meeting")
+    expect(store.get().projectFolder).toBe("")
+    expect(store.get().projectExperience).toBe("")
+    store.update({ answerMode: "interview", projectExperience: `  ${"x".repeat(6500)}  ` })
+    expect(store.get().answerMode).toBe("interview")
+    expect(store.get().projectExperience).toBe("x".repeat(6000))
+    store.update({ projectFolder: 7 as never })
+    expect(store.get().projectFolder).toBe("")
   })
 
   it("has suggestions off by default (1.2.5), and keeps them on where they were saved on", () => {
@@ -115,7 +145,7 @@ describe("SettingsStore", () => {
 describe("prompt migration", () => {
   it("upgrades a saved copy of any earlier default, keeps custom prompts", async () => {
     const { LEGACY_DEFAULT_SYSTEM_PROMPTS, DEFAULT_SYSTEM_PROMPT } = await import("../shared/types")
-    expect(LEGACY_DEFAULT_SYSTEM_PROMPTS).toHaveLength(3)
+    expect(LEGACY_DEFAULT_SYSTEM_PROMPTS).toHaveLength(4)
     for (const old of LEGACY_DEFAULT_SYSTEM_PROMPTS) {
       const file = tmpFile()
       fs.writeFileSync(file, JSON.stringify({

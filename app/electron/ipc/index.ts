@@ -1,4 +1,4 @@
-import { app, ipcMain, shell, type IpcMainInvokeEvent } from "electron"
+import { app, dialog, ipcMain, shell, type IpcMainInvokeEvent } from "electron"
 import type { InvokeChannel, InvokeMap } from "../../shared/ipc"
 import type { ChatService } from "../services/chat"
 import type { CloudSync } from "../services/cloud"
@@ -68,6 +68,19 @@ export function registerIpc(deps: IpcDeps): void {
   handle("settings:get", () => settings.view())
   handle("settings:update", (_e, patch) => {
     settings.update(rendererSettingsPatch(patch))
+    return settings.view()
+  })
+
+  handle("project:choose", async () => {
+    const result = await dialog.showOpenDialog({ title: "Choose a project folder", properties: ["openDirectory"] })
+    const folder = result.filePaths[0]
+    if (!result.canceled && folder && folder !== settings.get().projectFolder) {
+      settings.update({ projectFolder: folder, projectExperience: "" })
+    }
+    return settings.view()
+  })
+  handle("project:clear", () => {
+    settings.update({ projectFolder: "", projectExperience: "" })
     return settings.view()
   })
 

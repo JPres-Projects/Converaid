@@ -25,6 +25,9 @@ import type {
 export interface InvokeMap {
   "settings:get": () => SettingsView
   "settings:update": (patch: Partial<Settings>) => SettingsView
+  /** Local project access is granted only through the native folder picker. */
+  "project:choose": () => SettingsView
+  "project:clear": () => SettingsView
 
   "windows:state": () => WindowsState
   "windows:show": (kind: WindowKind) => void
@@ -125,6 +128,8 @@ export type EventChannel = keyof EventMap
 export const INVOKE_CHANNELS: InvokeChannel[] = [
   "settings:get",
   "settings:update",
+  "project:choose",
+  "project:clear",
   "windows:state",
   "windows:show",
   "windows:hide",

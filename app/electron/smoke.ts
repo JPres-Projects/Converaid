@@ -135,6 +135,10 @@ export async function runSmokeTest(mode: string, { windows, chat, session, setti
   if (mode === "cloud") cloudProbe = await cloudSmoke({ cloud, settings, meetings })
 
   if (mode === "shots") await shots(windows, settings, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp"))
+  if (mode === "project-ui") {
+    try { await projectUiSmoke(windows, settings, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp")) }
+    catch (error) { errors.push(`Project UI: ${(error as Error).message}`) }
+  }
   if (mode === "demo") await demoFrames(windows, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp"))
 
   let answersProbe: Record<string, unknown> & { ok: boolean } | undefined
@@ -272,6 +276,70 @@ function sendKeys(keys: string): Promise<void> {
 const TEST_PHRASE = "The purple elephant is testing system audio capture."
 
 /** Render sample content into the panel and save each window as a PNG (with alpha) plus its bounds. */
+/** Local-only acceptance checks against the actual Electron renderer and preload bridge. */
+async function projectUiSmoke(windows: WindowManager, settings: SettingsStore, dir: string): Promise<void> {
+  fs.mkdirSync(dir, { recursive: true })
+  settings.update({ answerMode: "meeting", ownKey: null, cloud: null, projectFolder: "", projectExperience: "", suggestions: false })
+  windows.setPanelExtra(0)
+  windows.showPanel("settings")
+  const panel = windows.get("chat")!
+  const run = (js: string) => panel.webContents.executeJavaScript(js) as Promise<unknown>
+  const until = async (js: string) => {
+    for (let attempt = 0; attempt < 30; attempt++) {
+      if (await run(js)) return
+      await sleep(100)
+    }
+    throw new Error(`Project UI check failed: ${js}`)
+  }
+  await until(`Boolean(document.querySelector('[aria-label="Answer mode"]'))`)
+  await until(`document.querySelectorAll('select,datalist').length === 0`)
+  const mode = `document.querySelector('[role="combobox"][aria-label="Answer mode"]')`
+  await run(`${mode}.click()`)
+  await until(`document.querySelectorAll('[role="option"]').length === 3`)
+  await run(`document.querySelector('[role="option"]:last-child').click()`)
+  await until(`${mode}.textContent.includes('Coding')`)
+  if (settings.get().answerMode !== "coding") throw new Error("Mode did not persist through IPC")
+  await run(`${mode}.focus()`)
+  for (const keyCode of ["Enter", "ArrowUp", "Enter"]) {
+    await run(`${mode}.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(keyCode)}, bubbles: true }))`)
+    await sleep(100)
+  }
+  await until(`${mode}.textContent.includes('Interview')`)
+  await run(`${mode}.click()`)
+  await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+  await run(`${mode}.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+  await until(`!document.querySelector('[role="listbox"]')`)
+  await run(`${mode}.click()`)
+  await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+  await run(`document.querySelector('#project-experience').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`)
+  await until(`!document.querySelector('[role="listbox"]')`)
+  settings.update({ projectFolder: path.join(app.getPath("temp"), "sample-project-with-a-long-folder-name", "coding-interview"), projectExperience: "I maintained the API." })
+  await until(`document.querySelector('#project-experience')?.value.includes('maintained the API')`)
+  await run(`(() => { const input = document.querySelector('#project-experience'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, 'I maintained the API and reviewed database migrations.'); input.dispatchEvent(new Event('input', { bubbles: true })); })()`)
+  await until(`document.querySelector('#project-experience').value === 'I maintained the API and reviewed database migrations.'`)
+  await run(`document.querySelector('#project-experience').dispatchEvent(new FocusEvent('focusout', { bubbles: true }))`)
+  for (let retry = 0; retry < 30 && settings.get().projectExperience !== "I maintained the API and reviewed database migrations."; retry++) await sleep(100)
+  if (settings.get().projectExperience !== "I maintained the API and reviewed database migrations.") throw new Error("Project experience did not save on blur")
+  for (const width of [800, 390]) {
+    panel.setSize(width, 720)
+    await sleep(250)
+    await run(`document.querySelectorAll('.scroll').forEach(e => { e.scrollTop = 0 })`)
+    if (!(await run(`document.documentElement.scrollWidth <= innerWidth`))) throw new Error(`Horizontal overflow at ${width}px`)
+    fs.writeFileSync(path.join(dir, `settings-${width}.png`), (await panel.webContents.capturePage()).toPNG())
+    await run(`document.querySelector('#project-experience').scrollIntoView({ block: 'center' })`)
+    await sleep(150)
+    fs.writeFileSync(path.join(dir, `project-${width}.png`), (await panel.webContents.capturePage()).toPNG())
+    await run(`${mode}.scrollIntoView({ block: 'center' }); ${mode}.click()`)
+    await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+    if (!(await run(`(() => { const r = document.querySelector('[role="listbox"]').getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight })()`))) throw new Error(`Dropdown outside viewport at ${width}px`)
+    fs.writeFileSync(path.join(dir, `mode-${width}.png`), (await panel.webContents.capturePage()).toPNG())
+    await run(`${mode}.click()`)
+  }
+  await run(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Remove').click()`)
+  await until(`!document.querySelector('#project-experience') || document.querySelector('#project-experience').value === ''`)
+  if (settings.get().projectFolder || settings.get().projectExperience) throw new Error("Project removal did not clear its experience")
+}
+
 async function shots(windows: WindowManager, settings: SmokeDeps["settings"], dir: string): Promise<void> {
   const now = Date.now()
   // Suggestions start off (1.2.5); the shots show the rail, so turn them on (smoke runs use a throwaway settings folder).
@@ -629,7 +697,9 @@ async function ownKeySmoke(windows: WindowManager, chat: ChatService, settings: 
         el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new FocusEvent("blur")); el.dispatchEvent(new FocusEvent("focusout", { bubbles: true })); return true })()`)
     steps.filled = (await fill("own-url", base)) === true && (await fill("own-key", "sk-smoke-123")) === true && (await fill("own-model", "smoke-model")) === true
     await sleep(800)
-    steps.listedModels = (await run(`document.querySelectorAll("#own-models option").length`)) === 2
+    await run(`document.getElementById("own-models")?.click()`)
+    steps.listedModels = (await run(`document.querySelectorAll('[role="option"]').length`)) === 3
+    await run(`document.getElementById("own-models")?.click()`)
     await shot("2-form")
     await run(`document.querySelector("form button[type=submit]").click()`)
     for (let i = 0; i < 20 && !settings.get().ownKey; i++) await sleep(250)

@@ -17,6 +17,10 @@ describe("IPC boundaries", () => {
   it("rejects malformed patch containers", () => {
     for (const input of [null, false, "text", []]) expect(() => rendererSettingsPatch(input)).toThrow()
   })
+  it("allows answer mode and confirmed experience while requiring a dedicated project-folder picker", () => {
+    expect(rendererSettingsPatch({ answerMode: "interview", projectExperience: "I maintained the export endpoint.", projectFolder: "C:\\private" }))
+      .toEqual({ answerMode: "interview", projectExperience: "I maintained the export endpoint." })
+  })
   it("rejects non-boolean native preferences before they can be saved", () => {
     for (const key of ["autoLaunch", "stealth", "suggestions", "keepMeetingsLocal"]) {
       expect(() => rendererSettingsPatch({ [key]: "yes" })).toThrow("expected a boolean")

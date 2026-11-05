@@ -5,6 +5,7 @@ import { openOwnKeyForm, registerIpc } from "./ipc"
 import { Logger, type LogLevel } from "./services/logger"
 import { captureScreen } from "./services/capture"
 import { ChatService } from "./services/chat"
+import { readProjectContext } from "./services/projectContext"
 import { CloudSync } from "./services/cloud"
 import { Llm } from "./services/llm"
 import { MeetingStore } from "./services/meetings"
@@ -107,6 +108,7 @@ function bootstrap(): void {
     llm,
     session,
     capture: captureScreen,
+    projectContext: (query) => readProjectContext(settings.get().projectFolder, query),
     hideForCapture: () => windows.hideForCapture(),
     canAutoAnswer: () => autoAnswerAllowed(plan.getState())
   })

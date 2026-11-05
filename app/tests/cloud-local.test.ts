@@ -19,6 +19,30 @@ const meeting = (id: string, over: Partial<Meeting> = {}): Meeting => ({
 })
 
 describe("meeting sync", () => {
+  it("does not upload local project paths, role notes or mode preferences", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mtx-project-sync-"))
+    dirs.push(dir)
+    const settings = new SettingsStore(path.join(dir, "settings.json"))
+    settings.update({ cloud: { url: "https://account.example", token: "mtk_test", userId: "u1", email: "a@b.c", name: "", linkedAt: 1 },
+      projectFolder: "C:\\private-project-location", projectExperience: "Private confirmed responsibility", answerMode: "coding" })
+    const requests: string[] = []
+    vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
+      requests.push(String(init.body))
+      const profile = { profile: { settings: {}, id: "u1" } }
+      const prompts = { prompts: settings.get().prompts }
+      return new Response(JSON.stringify(new URL(url).pathname.endsWith("profile") ? profile : prompts), { status: 200 })
+    })
+    const sync = new CloudSync({ settings, meetings: new MeetingStore(path.join(dir, "meetings.json")), appVersion: "1.3.1", openExternal: async () => {} })
+    const internal = sync as unknown as { pushProfile(initial: boolean): Promise<void>; pushPrompts(initial: boolean): Promise<void> }
+    await internal.pushProfile(true)
+    await internal.pushPrompts(true)
+    expect(requests).toHaveLength(2)
+    const sent = requests.join("\n")
+    for (const local of ["private-project-location", "Private confirmed responsibility", "projectFolder", "projectExperience", "answerMode"]) {
+      expect(sent).not.toContain(local)
+    }
+  })
+
   it("never uploads a meeting kept on this computer", async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "mtx-cloud-"))
     dirs.push(dir)

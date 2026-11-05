@@ -36,7 +36,8 @@ Meetingly is a free, open-source AI assistant for job interviews and live meetin
 
 ## Features
 
-- **Real answers, instantly.** When the other side asks something, press *Answer* (or let Pro's auto-answer do it): one bold line you can say, then a few catch points to expand on. No coaching, no "you could mention…".
+- **Real answers, instantly.** When the other side asks something, press *Answer* (or let Pro's auto-answer do it): a direct answer in complete, readable sentences, with detail matched to the question. Choose Meeting, Interview or Coding in Settings.
+- **Local project context.** Choose a project folder in Settings to ground answers in relevant documentation and source excerpts. Add your confirmed role and experience separately: source code does not establish personal achievements. Project paths and role notes stay out of account sync; selected excerpts and role notes accompany answers to your configured AI provider. Hidden files, common secret files and generated directories are excluded, but review sensitive projects before selecting them.
 - **Suggested questions.** A side column follows the conversation and offers one-click questions: the question you were just asked, terms that came up, the likely next question.
 - **Speech recognition on your computer.** NVIDIA Nemotron transcribes locally in 28 languages as people speak. When a sentence ends, a second model writes it again more accurately: Parakeet Ultra for 20 European languages, Qwen3-ASR for Chinese, Japanese, Korean and Vietnamese. Unlimited also offers optional cloud transcription, which sends audio to Deepgram.
 - **You and Them, separated.** Your microphone and the call audio are transcribed apart, so the transcript reads like a chat.
