@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { ChevronDown, FolderOpen, RefreshCw } from "lucide-react"
-import type { InterviewProject, ProjectKnowledgeState, ProjectPreparation } from "@shared/types"
+import { PROJECT_DESCRIPTION_LIMIT, type InterviewProject, type ProjectKnowledgeState, type ProjectPreparation } from "@shared/types"
 import { t } from "@shared/i18n"
 import { api } from "@/lib/api"
 import { useEvent } from "@/lib/hooks"
@@ -38,7 +38,7 @@ export function ProjectSettings({ projects }: { projects: InterviewProject[] }) 
   const [preparing, setPreparing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const mutations = useRef<Promise<unknown>>(Promise.resolve())
-  const failedRoles = useRef(new Set<string>())
+  const failedDetails = useRef(new Set<string>())
 
   useEffect(() => {
     let active = true
@@ -51,10 +51,10 @@ export function ProjectSettings({ projects }: { projects: InterviewProject[] }) 
     setPending((current) => [...current, key])
     setError(null)
     const operation = mutations.current.then(action).then(() => {
-      failedRoles.current.delete(key)
+      failedDetails.current.delete(key)
       return true
     }).catch((err) => {
-      if (key.startsWith("role:")) failedRoles.current.add(key)
+      if (key.startsWith("role:") || key.startsWith("description:")) failedDetails.current.add(key)
       setError(errorText(err))
       return false
     }).finally(() => setPending((current) => current.filter((item) => item !== key)))
@@ -66,10 +66,10 @@ export function ProjectSettings({ projects }: { projects: InterviewProject[] }) 
     setPreparing(true)
     setError(null)
     try {
-      // A click on Prepare blurs the role field first; wait for that save before preparing.
+      // A click on Prepare blurs a project field first; wait for that save before preparing.
       await mutations.current
-      if (projects.some((project) => project.enabled && failedRoles.current.has(`role:${project.id}`))) {
-        setError(t("A project role could not be saved. Open its details and retry saving before preparing."))
+      if (projects.some((project) => project.enabled && (failedDetails.current.has(`role:${project.id}`) || failedDetails.current.has(`description:${project.id}`)))) {
+        setError(t("A project summary or role could not be saved. Open its details and retry saving before preparing."))
         return
       }
       setKnowledge(await api.invoke("projects:prepare"))
@@ -80,7 +80,7 @@ export function ProjectSettings({ projects }: { projects: InterviewProject[] }) 
     }
   }
 
-  const busy = pending.some((key) => !key.startsWith("role:"))
+  const busy = pending.some((key) => !key.startsWith("role:") && !key.startsWith("description:"))
   const isPreparing = preparing || Boolean(knowledge?.preparing)
   const selected = projects.filter((project) => project.enabled)
   const ready = selected.filter((project) => knowledge?.projects.some((item) => item.id === project.id && item.status === "ready")).length
@@ -104,7 +104,7 @@ export function ProjectSettings({ projects }: { projects: InterviewProject[] }) 
         </Button>
       </div>
       <p className="max-w-prose text-[10.5px] leading-relaxed text-white/50">
-        {t("Select projects and prepare knowledge from their existing project maps before the interview. Selected excerpts and your role are sent to your configured AI when answering. Projects stay out of account sync.")}
+        {t("Select projects and prepare knowledge from their existing project maps before the interview. Selected excerpts, summaries and your role are sent to your configured AI when answering. Projects stay out of account sync.")}
       </p>
       {projects.length === 0 ? (
         <p className="rounded-md border border-dashed border-white/15 px-3 py-3 text-[11.5px] leading-relaxed text-white/60">
@@ -121,9 +121,11 @@ export function ProjectSettings({ projects }: { projects: InterviewProject[] }) 
               disabled={busy || isPreparing}
               removingDisabled={busy}
               saving={pending.includes(`role:${project.id}`)}
+              savingDescription={pending.includes(`description:${project.id}`)}
               onEnabled={(enabled) => { void mutate(`enable:${project.id}`, () => api.invoke("projects:update", project.id, { enabled })) }}
               onRemove={() => { void mutate(`remove:${project.id}`, () => api.invoke("projects:remove", project.id)) }}
               onSave={(experience) => mutate(`role:${project.id}`, () => api.invoke("projects:update", project.id, { experience }))}
+              onSaveDescription={(description) => mutate(`description:${project.id}`, () => api.invoke("projects:update", project.id, { description }))}
             />
           ))}
         </div>
@@ -133,37 +135,46 @@ export function ProjectSettings({ projects }: { projects: InterviewProject[] }) 
   )
 }
 
-function ProjectRow({ project, preparation, loading, disabled, removingDisabled, saving, onEnabled, onRemove, onSave }: {
+function ProjectRow({ project, preparation, loading, disabled, removingDisabled, saving, savingDescription, onEnabled, onRemove, onSave, onSaveDescription }: {
   project: InterviewProject
   preparation?: ProjectPreparation
   loading: boolean
   disabled: boolean
   removingDisabled: boolean
   saving: boolean
+  savingDescription: boolean
   onEnabled: (enabled: boolean) => void
   onRemove: () => void
   onSave: (experience: string) => Promise<boolean>
+  onSaveDescription: (description: string) => Promise<boolean>
 }) {
   const [expanded, setExpanded] = useState(false)
   const [experience, setExperience] = useState(project.experience)
+  const [description, setDescription] = useState(project.description ?? "")
   const [saveFailed, setSaveFailed] = useState(false)
+  const [descriptionSaveFailed, setDescriptionSaveFailed] = useState(false)
   useEffect(() => setExperience(project.experience), [project.experience])
+  useEffect(() => setDescription(project.description ?? ""), [project.description])
   const status = preparation?.status ?? "unprepared"
   const verified = preparation?.notice.startsWith("Map freshness verified") && !/unverified|omitted|truncated|unavailable|changed/i.test(preparation.notice)
   const notice = status === "ready"
     ? verified ? "Prepared from your project map." : "Prepared with limitations. Open details before relying on this project."
     : status === "limited" ? "No project map found. Only available documentation is prepared." : STATUS_HINTS[status]
   const fieldId = `project-role-${project.id}`
+  const descriptionId = `project-summary-${project.id}`
   const detailsId = `project-details-${project.id}`
   const saveExperience = async () => {
     if (experience !== project.experience || saveFailed) setSaveFailed(!await onSave(experience))
+  }
+  const saveDescription = async () => {
+    if (description !== (project.description ?? "") || descriptionSaveFailed) setDescriptionSaveFailed(!await onSaveDescription(description))
   }
 
   return (
     <article data-project-id={project.id} aria-label={project.name} className="min-w-0 space-y-2 px-2.5 py-2.5">
       <div className="flex items-start gap-2.5">
         <div className="pt-0.5">
-          <Toggle size="sm" checked={project.enabled} onChange={onEnabled} disabled={disabled || saving} label={t("Use {name}", { name: project.name })} />
+          <Toggle size="sm" checked={project.enabled} onChange={onEnabled} disabled={disabled || saving || savingDescription} label={t("Use {name}", { name: project.name })} />
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="break-words text-[12px] font-medium leading-snug text-white/90">{project.name}</h3>
@@ -178,7 +189,7 @@ function ProjectRow({ project, preparation, loading, disabled, removingDisabled,
         <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[10.5px]" aria-label={t("Details for {name}", { name: project.name })} aria-expanded={expanded} aria-controls={detailsId} onClick={() => setExpanded(!expanded)}>
           <ChevronDown aria-hidden="true" className={cn("h-3 w-3", expanded && "rotate-180")} /> {t("Details")}
         </Button>
-        <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[10.5px] text-white/50" aria-label={t("Remove {name}", { name: project.name })} disabled={removingDisabled || saving} onClick={onRemove}>{t("Remove")}</Button>
+        <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[10.5px] text-white/50" aria-label={t("Remove {name}", { name: project.name })} disabled={removingDisabled || saving || savingDescription} onClick={onRemove}>{t("Remove")}</Button>
       </div>
       {expanded && (
         <div id={detailsId} className="space-y-3 border-t border-white/10 pt-2">
@@ -191,6 +202,31 @@ function ProjectRow({ project, preparation, loading, disabled, removingDisabled,
           <div>
             <p className="text-[10.5px] text-white/45">{t("Folder")}</p>
             <p className="selectable mt-0.5 break-all text-[11px] leading-relaxed text-white/65">{project.folder}</p>
+          </div>
+          <div>
+            <label htmlFor={descriptionId} className="text-[11.5px] font-medium text-white/80">{t("Project summary")}</label>
+            <p id={`${descriptionId}-hint`} className="mb-1.5 mt-0.5 text-[10.5px] leading-relaxed text-white/45">
+              {t("In one or two sentences, describe who the project is for, what it does and its main technologies. Keep your personal contribution in the role field below. Saved when you leave this field.")}
+            </p>
+            <Textarea
+              id={descriptionId}
+              aria-label={t("Project summary for {name}", { name: project.name })}
+              aria-describedby={`${descriptionId}-hint`}
+              className="min-h-[72px] px-2 py-1.5 text-[11.5px]"
+              value={description}
+              disabled={disabled || savingDescription}
+              maxLength={PROJECT_DESCRIPTION_LIMIT}
+              placeholder={t("For example: A scheduling app for small teams, built with React and a TypeScript API.")}
+              onChange={(event) => setDescription(event.target.value)}
+              onBlur={() => void saveDescription()}
+            />
+            {savingDescription && <p role="status" className="mt-1 text-[10.5px] text-white/45">{t("Saving summary...")}</p>}
+            {descriptionSaveFailed && !savingDescription && (
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <span className="text-[10.5px] text-rose-300">{t("The project summary could not be saved.")}</span>
+                <Button variant="ghost" size="sm" className="h-6 px-1.5 text-[10.5px]" disabled={disabled} onClick={() => void saveDescription()}>{t("Retry saving summary")}</Button>
+              </div>
+            )}
           </div>
           <div>
             <label htmlFor={fieldId} className="text-[11.5px] font-medium text-white/80">{t("Your role and experience")}</label>

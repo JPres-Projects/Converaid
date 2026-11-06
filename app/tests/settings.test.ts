@@ -3,7 +3,7 @@ import os from "node:os"
 import path from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { SettingsStore } from "../electron/services/settings"
-import { DEFAULT_PROMPT } from "../shared/types"
+import { ANSWER_FORMAT, DEFAULT_PROMPT } from "../shared/types"
 import { CLOUD_SETTING_KEYS } from "../shared/cloud"
 
 const dirs: string[] = []
@@ -69,6 +69,41 @@ describe("SettingsStore", () => {
     expect(store.get().projects).toEqual([{ ...project, name: "Export", experience: "x".repeat(6000) }])
     store.update({ projects: Array.from({ length: 40 }, (_, i) => ({ ...project, id: `project-${i}`, folder: path.join(path.dirname(file), String(i)) })) })
     expect(store.get().projects).toHaveLength(32)
+  })
+  it("persists a short project description separately from confirmed experience", () => {
+    const file = tmpFile()
+    const store = new SettingsStore(file)
+    store.update({ projects: [{ id: "project-a", name: "Practice", folder: path.dirname(file),
+      description: "  A practice assistant.\0  ", experience: "I built the API.", enabled: true }] })
+    expect(new SettingsStore(file).get().projects[0]).toMatchObject({ description: "A practice assistant.", experience: "I built the API." })
+    store.update({ projects: [{ ...store.get().projects[0], description: "x".repeat(2500) }] })
+    expect(store.get().projects[0].description).toHaveLength(2000)
+  })
+  it("saves, switches and removes named prompts while retaining custom content and cloud ids", () => {
+    const file = tmpFile()
+    const store = new SettingsStore(file)
+    const custom = { id: "cloud:custom/123", title: "Technical interview", content: "  Use my custom approach.  ", notes: "My background" }
+    store.update({ prompts: [DEFAULT_PROMPT, custom], activePromptId: custom.id })
+    expect(new SettingsStore(file).activePrompt()).toEqual(custom)
+    const exposed = store.get().prompts
+    exposed[1].content = "Mutated"
+    custom.notes = "Mutated after saving"
+    expect(store.activePrompt().content).toBe("  Use my custom approach.  ")
+    expect(store.activePrompt().notes).toBe("My background")
+    store.update({ prompts: [DEFAULT_PROMPT] })
+    expect(new SettingsStore(file).activePrompt()).toEqual(DEFAULT_PROMPT)
+    store.update({ prompts: [] })
+    expect(store.activePrompt()).toEqual(DEFAULT_PROMPT)
+  })
+  it("recovers malformed prompts and duplicate ids within a bounded saved collection", () => {
+    const file = tmpFile()
+    const valid = { id: "cloud:existing", title: "Custom", content: "Keep this custom instruction.", notes: "Background" }
+    fs.writeFileSync(file, JSON.stringify({ prompts: [null, { ...valid, title: "" }, valid, { ...valid, content: "Duplicate" },
+      ...Array.from({ length: 25 }, (_, i) => ({ ...valid, id: `saved-${i}` }))], activePromptId: "missing" }))
+    const store = new SettingsStore(file)
+    expect(store.get().prompts).toHaveLength(20)
+    expect(store.activePrompt()).toEqual(valid)
+    expect(store.get().prompts.filter((prompt) => prompt.id === valid.id)).toHaveLength(1)
   })
 
   it("migrates the legacy selected project once and removes obsolete fields from disk", () => {
@@ -167,9 +202,15 @@ describe("SettingsStore", () => {
 })
 
 describe("prompt migration", () => {
+  it("defaults to short complete sentences and a coherent explanation without bare fragments", () => {
+    expect(DEFAULT_PROMPT.content).toContain("short, complete sentences")
+    expect(DEFAULT_PROMPT.content).toContain("coherent explanation")
+    expect(ANSWER_FORMAT).toContain("short, complete")
+    expect(ANSWER_FORMAT).toContain("coherent explanation")
+  })
   it("upgrades a saved copy of any earlier default, keeps custom prompts", async () => {
     const { LEGACY_DEFAULT_SYSTEM_PROMPTS, DEFAULT_SYSTEM_PROMPT } = await import("../shared/types")
-    expect(LEGACY_DEFAULT_SYSTEM_PROMPTS).toHaveLength(4)
+    expect(LEGACY_DEFAULT_SYSTEM_PROMPTS).toHaveLength(5)
     for (const old of LEGACY_DEFAULT_SYSTEM_PROMPTS) {
       const file = tmpFile()
       fs.writeFileSync(file, JSON.stringify({

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Camera, Captions, Check, EyeOff, MessageSquare, Mic, Pause, Play, Power, Settings, UserRound, X } from "lucide-react"
+import { Camera, Check, EyeOff, MessageSquare, Mic, Pause, Play, Power, Settings, UserRound, X } from "lucide-react"
 import { DEFAULT_SHORTCUTS } from "@shared/types"
 import { t } from "@shared/i18n"
 import { api, shortcutLabel } from "@/lib/api"
@@ -8,6 +8,7 @@ import type { PanelTab, UpdateState } from "@shared/types"
 import { Button } from "@/components/ui/button"
 import { Dot } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import converaidLogo from "../../build/converaid-logo.png"
 
 /** The always-on-top toolbar. Everything else hangs off it. */
 export function MainWindow() {
@@ -25,9 +26,9 @@ export function MainWindow() {
   useEvent("update:state", setUpdate)
   const updateNotice =
     update?.status === "installing"
-      ? t("Updating Meetingly to {version}…", { version: update.version ?? "" })
+      ? t("Updating Converaid to {version}…", { version: update.version ?? "" })
       : update?.status === "needs-move"
-        ? t("Move Meetingly to the Applications folder to get updates.")
+        ? t("Move Converaid to the Applications folder to get updates.")
         : null
 
   const run = async (action: () => Promise<unknown>) => {
@@ -72,97 +73,80 @@ export function MainWindow() {
   const connecting = session.status === "connecting"
 
   return (
-    <div ref={ref} className="inline-block p-1">
-      <div className="glass drag flex h-10 items-center gap-0.5 px-1">
-        <Grip />
-        <Button variant="ghost" size="icon" onClick={() => api.invoke("windows:toggle-all")} title={t("Hide all windows ({shortcut})", { shortcut: shortcutLabel(KEYS.toggleAll) })}>
-          <EyeOff className="h-4 w-4" />
-        </Button>
-
-        <Divider />
-
-        {session.status === "idle" ? (
-          <Button variant="ghost" size="md" onClick={listen} title={t("Start listening ({shortcut})", { shortcut: shortcutLabel(KEYS.listen) })}>
-            <Mic className="h-4 w-4" />
-            {t("Listen")}
-          </Button>
-        ) : (
-          <div className="flex items-center gap-1">
-            {/* The timer doubles as the live-transcript toggle: closing that window must not strand the session. */}
-            <Button
-              variant={showing("transcript") ? "secondary" : "ghost"}
-              size="md"
-              className={cn("gap-1.5 text-xs tabular-nums", live ? "text-rose-300" : "text-white/70")}
-              onClick={() => api.invoke("panel:toggle", "transcript")}
-              title={showing("transcript") ? t("Hide the live transcript") : t("Show the live transcript")}
-            >
-              <Dot className={cn(live && "animate-pulse bg-rose-400", paused && "bg-amber-400", connecting && "animate-pulse bg-sky-400")} />
-              {elapsed}
-              <Captions className="h-4 w-4 opacity-80" />
+    <div ref={ref} className="inline-block w-[360px] max-w-[100vw] p-[4px]">
+      <div className="glass drag flex h-[36px] items-center gap-1 !border-sky-200/20 !bg-[#09131f]/95 px-1.5" data-testid="converaid-toolbar">
+        <div className="flex shrink-0 items-center gap-1 pr-0.5" aria-label="Converaid">
+          <img src={converaidLogo} alt="" className="h-[18px] w-[18px] object-contain" draggable={false} />
+          <span className="text-[11.5px] font-semibold tracking-[-0.035em] text-white">Converaid</span>
+        </div>
+        <div className="no-drag flex min-w-0 items-center gap-0.5 border-l border-sky-200/10 pl-1">
+          {session.status === "idle" ? (
+            <Button variant="ghost" size="md" className="h-7 gap-1 px-1.5 text-[11px] text-sky-200 hover:bg-sky-400/10 hover:text-sky-100" onClick={listen} title={t("Start listening ({shortcut})", { shortcut: shortcutLabel(KEYS.listen) })}>
+              <Mic className="h-4 w-4" />
+              {t("Listen")}
             </Button>
-            {live && (
-              <Button variant="ghost" size="icon" onClick={() => run(() => api.invoke("session:pause"))} title={t("Pause")}>
-                <Pause className="h-4 w-4" />
+          ) : (
+            <div className="flex items-center gap-0.5">
+              {/* The timer doubles as the live-transcript toggle: closing that window must not strand the session. */}
+              <Button
+                variant={showing("transcript") ? "secondary" : "ghost"}
+                size="md"
+                className={cn("h-7 gap-1 px-1 text-[10px] tabular-nums", live ? "bg-sky-400/10 text-sky-200 hover:bg-sky-400/15" : "text-white/70")}
+                onClick={() => api.invoke("panel:toggle", "transcript")}
+                title={showing("transcript") ? t("Hide the live transcript") : t("Show the live transcript")}
+              >
+                <Dot className={cn("h-1.5 w-1.5", live && "animate-pulse bg-sky-300", paused && "bg-amber-400", connecting && "animate-pulse bg-sky-400")} />
+                {elapsed}
               </Button>
-            )}
-            {paused && (
-              <Button variant="ghost" size="icon" onClick={() => run(() => api.invoke("session:resume"))} title={t("Resume")}>
-                <Play className="h-4 w-4" />
+              {live && (
+                <Button variant="ghost" size="icon-sm" className="h-7 w-5" onClick={() => run(() => api.invoke("session:pause"))} title={t("Pause")}>
+                  <Pause className="h-3.5 w-3.5" />
+                </Button>
+              )}
+              {paused && (
+                <Button variant="ghost" size="icon-sm" className="h-7 w-5" onClick={() => run(() => api.invoke("session:resume"))} title={t("Resume")}>
+                  <Play className="h-3.5 w-3.5" />
+                </Button>
+              )}
+              <Button variant="ghost" size="icon-sm" className="h-7 w-5 text-emerald-300 hover:text-emerald-200" onClick={finish} title={t("Finish and save meeting")}>
+                <Check className="h-3.5 w-3.5" />
               </Button>
-            )}
-            <Button variant="ghost" size="icon" className="text-emerald-300 hover:text-emerald-200" onClick={finish} title={t("Finish and save meeting")}>
-              <Check className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="text-white/50" onClick={() => run(() => api.invoke("session:cancel"))} title={t("Discard session")}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-
-        <Divider />
-
-        <Button variant={showing("answers") ? "secondary" : "ghost"} size="icon" onClick={() => api.invoke("panel:toggle", "answers")} title={t("Answers and chat ({shortcut})", { shortcut: shortcutLabel(KEYS.chat) })}>
-          <MessageSquare className="h-4 w-4" />
-        </Button>
-        <Button variant="ghost" size="icon" onClick={screenshot} title={t("Analyze screen ({shortcut})", { shortcut: shortcutLabel(KEYS.screenshot) })}>
-          <Camera className="h-4 w-4" />
-        </Button>
-        {/* Settings for the next meeting open in the panel; its Settings tab links to the web dashboard for the rest. */}
-        <Button variant={showing("settings") ? "secondary" : "ghost"} size="icon" onClick={() => api.invoke("panel:toggle", "settings")} title={t("Settings")}>
-          <Settings className="h-4 w-4" />
-        </Button>
-        {signedOut && (
-          <Button variant="ghost" size="icon" className="relative" onClick={signIn} title={t("Sign up free or sign in: 50 AI answers a day")}>
-            <UserRound className="h-4 w-4" />
-            <span className={cn("absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-sky-400", cloud.status === "linking" && "animate-pulse")} />
+              <Button variant="ghost" size="icon-sm" className="h-7 w-5 text-white/50" onClick={() => run(() => api.invoke("session:cancel"))} title={t("Discard session")}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="no-drag ml-auto flex shrink-0 items-center gap-0.5 rounded-md border border-white/[0.06] bg-white/[0.025] px-0.5">
+          <Button variant={showing("answers") ? "secondary" : "ghost"} size="icon-sm" className={cn("h-7 w-[22px]", showing("answers") && "bg-sky-400/15 text-sky-200 hover:bg-sky-400/20")} onClick={() => api.invoke("panel:toggle", "answers")} title={t("Answers and chat ({shortcut})", { shortcut: shortcutLabel(KEYS.chat) })}>
+            <MessageSquare className="h-3.5 w-3.5" />
           </Button>
-        )}
-
-        <Divider />
-
-        <Button variant="ghost" size="icon" className="text-rose-300/80 hover:text-rose-300" onClick={() => api.invoke("app:quit")} title={t("Quit Meetingly")}>
-          <Power className="h-4 w-4" />
-        </Button>
-        <Grip />
+          <Button variant="ghost" size="icon-sm" className="h-7 w-[22px]" onClick={screenshot} title={t("Analyze screen ({shortcut})", { shortcut: shortcutLabel(KEYS.screenshot) })}>
+            <Camera className="h-3.5 w-3.5" />
+          </Button>
+          {/* Settings for the next meeting open in the panel; its Settings tab links to the web dashboard for the rest. */}
+          <Button variant={showing("settings") ? "secondary" : "ghost"} size="icon-sm" className={cn("h-7 w-[22px]", showing("settings") && "bg-sky-400/15 text-sky-200 hover:bg-sky-400/20")} onClick={() => api.invoke("panel:toggle", "settings")} title={t("Settings")}>
+            <Settings className="h-3.5 w-3.5" />
+          </Button>
+          {signedOut && (
+            <Button variant="ghost" size="icon-sm" className="relative h-7 w-[22px]" onClick={signIn} title={t("Sign up free or sign in: 50 AI answers a day")}>
+              <UserRound className="h-3.5 w-3.5" />
+              <span className={cn("absolute right-0.5 top-1.5 h-1 w-1 rounded-full bg-sky-400", cloud.status === "linking" && "animate-pulse")} />
+            </Button>
+          )}
+        </div>
+        <div className="no-drag flex shrink-0 items-center border-l border-white/10 pl-0.5">
+          <Button variant="ghost" size="icon-sm" className="h-7 w-5 text-white/50" onClick={() => api.invoke("windows:toggle-all")} title={t("Hide all windows ({shortcut})", { shortcut: shortcutLabel(KEYS.toggleAll) })}>
+            <EyeOff className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon-sm" className="h-7 w-5 text-white/45 hover:text-rose-300" onClick={() => api.invoke("app:quit")} title={t("Quit Converaid")}>
+            <Power className="h-3.5 w-3.5" />
+          </Button>
+        </div>
       </div>
       {(error || session.notice || updateNotice) && (
-        <div className="mt-1 max-w-[520px] truncate rounded-md bg-black/80 px-3 py-1 text-xs text-amber-200">{error ?? session.notice ?? updateNotice}</div>
+        <div className="mt-1 truncate rounded-md bg-black/80 px-3 py-1 text-xs text-amber-200">{error ?? session.notice ?? updateNotice}</div>
       )}
     </div>
   )
-}
-
-/** A faint handle at each end of the toolbar: a spot to drag it by that is never a button. */
-function Grip() {
-  return (
-    <span aria-hidden className="grid h-6 w-3 shrink-0 grid-cols-2 content-center justify-items-center gap-y-[3px] opacity-25">
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <i key={i} className="block h-[2px] w-[2px] rounded-full bg-white" />
-      ))}
-    </span>
-  )
-}
-
-function Divider() {
-  return <span className="mx-0.5 h-4 w-px bg-white/15" />
 }

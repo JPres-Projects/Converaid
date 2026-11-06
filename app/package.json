@@ -38,7 +38,7 @@
     "asar": true,
     "extraResources": [
       {
-        "from": "build/tray.png",
+        "from": "build/converaid-tray.png",
         "to": "tray.png"
       }
     ],
@@ -47,7 +47,7 @@
         "nsis",
         "portable"
       ],
-      "icon": "build/icon.ico",
+      "icon": "build/converaid-icon.ico",
       "extraResources": [
         {
           "from": "vendor/transcribe/win-${arch}",
@@ -58,8 +58,8 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico",
+      "installerIcon": "build/converaid-icon.ico",
+      "uninstallerIcon": "build/converaid-icon.ico",
       "installerSidebar": "build/installerSidebar.bmp",
       "uninstallerSidebar": "build/uninstallerSidebar.bmp",
       "installerHeader": "build/installerHeader.bmp",
@@ -72,7 +72,7 @@
         "dmg",
         "zip"
       ],
-      "icon": "build/icon-1024.png",
+      "icon": "build/converaid-logo.png",
       "artifactName": "Meetingly-${version}-${arch}.${ext}",
       "hardenedRuntime": true,
       "entitlements": "build/entitlements.mac.plist",
@@ -95,7 +95,7 @@
         "AppImage",
         "deb"
       ],
-      "icon": "build/icon-1024.png",
+      "icon": "build/converaid-logo.png",
       "artifactName": "Meetingly-${version}-${arch}.${ext}",
       "category": "Office",
       "maintainer": "Meetingly <support@aiprimetech.io>",

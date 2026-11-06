@@ -43,6 +43,30 @@ function deferred<T>() {
 }
 
 describe("prepared interview project service", () => {
+  it("includes selected descriptions before preparation and keeps them separate from confirmed roles", async () => {
+    const { service, settings, projects } = setup()
+    settings.update({ projects: [
+      { ...projects[0], description: "A local interview practice assistant." },
+      { ...projects[1], description: "Unselected confidential project.", enabled: false }
+    ] })
+    const context = await service.context("What is this project?")
+    expect(context).toContain("User-provided project description: A local interview practice assistant.")
+    expect(context).toContain("Confirmed personal role: Confirmed role 0")
+    expect(context).toContain("Descriptions and roles do not verify implementation details")
+    expect(context).toContain("Evidence unavailable")
+    expect(context).not.toContain("Unselected confidential project")
+    expect(prepare).not.toHaveBeenCalled()
+  })
+  it("bounds descriptions together with roles while retaining every selected project's context", async () => {
+    const { service, settings, projects } = setup(32)
+    settings.update({ projects: projects.map((project, i) => ({ ...project, description: `Description ${i} ${"d".repeat(1990)}`, experience: `Role ${i} ${"r".repeat(5990)}` })) })
+    const context = await service.context("Explain the projects")
+    expect(context.length).toBeLessThanOrEqual(32_000)
+    for (let i = 0; i < 32; i++) {
+      expect(context).toContain(`Description ${i} `)
+      expect(context).toContain(`Role ${i} `)
+    }
+  })
   it("shares concurrent preparation and cached questions but rebuilds on explicit preparation", async () => {
     const { service, projects } = setup()
     const first = deferred<PreparedProjectKnowledge>()

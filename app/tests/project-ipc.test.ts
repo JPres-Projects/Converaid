@@ -59,8 +59,8 @@ describe("local project registry IPC", () => {
   it("allows scoped edits and removal without accepting renderer paths or ids", async () => {
     const { invoke, settings } = setup()
     const folder = settings.get().projects[0].folder
-    await invoke("projects:update", "previous", { name: "API", experience: "My role", enabled: false, folder: "C:\\injected", id: "injected" })
-    expect(settings.get().projects).toEqual([{ id: "previous", name: "API", experience: "My role", enabled: false, folder }])
+    await invoke("projects:update", "previous", { name: "API", description: "An export API.", experience: "My role", enabled: false, folder: "C:\\injected", id: "injected" })
+    expect(settings.get().projects).toEqual([{ id: "previous", name: "API", description: "An export API.", experience: "My role", enabled: false, folder }])
     await expect(invoke("projects:update", "missing", { name: "No" })).rejects.toThrow("Unknown project")
     await expect(invoke("projects:remove", {})).rejects.toThrow("Invalid project id")
     await invoke("settings:update", { projects: [], projectFolder: "C:\\injected", projectExperience: "Injected" })

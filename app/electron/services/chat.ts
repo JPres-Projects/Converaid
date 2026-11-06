@@ -9,7 +9,7 @@ import { t } from "../../shared/i18n"
 interface Deps {
   settings: SettingsStore
   llm: Llm
-  session: RecordingSession
+  session: Pick<RecordingSession, "transcriptText" | "getLastUtterance">
   capture: () => Promise<Capture>
   /** Hide / restore the app's own windows around a capture when they are not content-protected. */
   hideForCapture?: () => () => void
@@ -17,6 +17,8 @@ interface Deps {
   canAutoAnswer?: () => boolean
   /** Prepared briefings and targeted evidence from the selected interview projects. */
   projectContext?: (query: string) => Promise<string>
+  /** Per-conversation context, such as practice roles, without changing saved prompts. */
+  systemInstruction?: string
 }
 
 const MAX_HISTORY = 40
@@ -240,7 +242,11 @@ export class ChatService extends EventEmitter {
     if (this.deps.projectContext && JSON.stringify(settings.projects ?? []) !== selectedProjects) {
       projectContext = "Project context is unavailable because the project selection changed during retrieval. Do not use evidence from the previously selected folder or claim to have checked the current project."
     }
-    return composeSystemPrompt(this.deps.settings.activePrompt(), settings, this.deps.llm.languageInstruction(), projectContext)
+    const activePrompt = this.deps.settings.activePrompt()
+    const prompt = this.deps.systemInstruction
+      ? { ...activePrompt, content: `${activePrompt.content.trim()}\n\n${this.deps.systemInstruction}` }
+      : activePrompt
+    return composeSystemPrompt(prompt, settings, this.deps.llm.languageInstruction(), projectContext)
   }
 
   private push(partial: Omit<ChatMessage, "id" | "timestamp"> & { id?: string }): ChatMessage {

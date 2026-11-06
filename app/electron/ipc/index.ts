@@ -10,6 +10,7 @@ import type { Logger } from "../services/logger"
 import type { MeetingStore } from "../services/meetings"
 import type { ReportGenerator } from "../services/reports"
 import type { RecordingSession } from "../services/session"
+import type { SimulationService } from "../services/simulation"
 import type { SettingsStore } from "../services/settings"
 import { projectFolderKey } from "../services/settings"
 import type { ProjectKnowledgeService } from "../services/projectKnowledgeService"
@@ -24,6 +25,7 @@ export interface IpcDeps {
   projectKnowledge: ProjectKnowledgeService
   windows: WindowManager
   session: RecordingSession
+  simulation: SimulationService
   chat: ChatService
   suggestions: SuggestionService
   meetings: MeetingStore
@@ -50,7 +52,7 @@ function registerHandler<K extends InvokeChannel>(channel: K, fn: Handler<K>, wi
       return await fn(event, ...(args as Parameters<InvokeMap[K]>))
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      if (channel !== "session:audio") console.error(`[ipc] ${channel}: ${message}`)
+      if (channel !== "session:audio" && channel !== "simulation:audio") console.error(`[ipc] ${channel}: ${message}`)
       throw new Error(message)
     }
   })
@@ -66,7 +68,7 @@ export function openOwnKeyForm(windows: WindowManager): void {
 }
 
 export function registerIpc(deps: IpcDeps): void {
-  const { settings, projectKnowledge, windows, session, chat, suggestions, meetings, logger, cloud, plan, ownKey, transcripts } = deps
+  const { settings, projectKnowledge, windows, session, simulation, chat, suggestions, meetings, logger, cloud, plan, ownKey, transcripts } = deps
   const handle = <K extends InvokeChannel>(channel: K, fn: Handler<K>) => registerHandler(channel, fn, windows)
 
   // Settings
@@ -116,9 +118,13 @@ export function registerIpc(deps: IpcDeps): void {
   handle("windows:hide", (_e, kind) => windows.hide(kind))
   handle("windows:toggle", (_e, kind) => windows.toggle(kind))
   handle("windows:toggle-all", () => windows.toggleAll())
-  handle("panel:show", (_e, tab) => windows.showPanel(tab))
-  handle("panel:toggle", (_e, tab) => windows.togglePanel(tab))
-  handle("panel:set-tab", (_e, tab) => windows.setPanelTab(tab))
+  const panelTab = (tab: unknown) => {
+    if (tab !== "answers" && tab !== "transcript" && tab !== "settings" && tab !== "simulation") throw new Error("Invalid panel tab")
+    return tab
+  }
+  handle("panel:show", (_e, tab) => windows.showPanel(panelTab(tab)))
+  handle("panel:toggle", (_e, tab) => windows.togglePanel(panelTab(tab)))
+  handle("panel:set-tab", (_e, tab) => windows.setPanelTab(panelTab(tab)))
   handle("windows:fit", (e, size) => {
     const kind = windows.kindOf(e.sender)
     if (kind) windows.fit(kind, size.width, size.height)
@@ -140,7 +146,10 @@ export function registerIpc(deps: IpcDeps): void {
 
   // Recording session
   handle("session:state", () => session.state())
-  handle("session:start", () => session.start())
+  handle("session:start", async () => {
+    await simulation?.setListening(false)
+    return session.start()
+  })
   handle("session:pause", () => session.pause())
   handle("session:resume", () => session.resume())
   handle("session:finish", () => session.finish())
@@ -148,6 +157,25 @@ export function registerIpc(deps: IpcDeps): void {
   handle("session:audio", (_e, pcm16) => session.sendAudio(pcm16))
   handle("session:transcript", () => session.transcriptText())
   handle("session:last-utterance", () => session.getLastUtterance())
+
+  handle("simulation:state", () => simulation.getState())
+  handle("simulation:role", (_e, role) => {
+    if (role !== "interviewer" && role !== "candidate") throw new Error("Invalid simulation role")
+    return simulation.setRole(role)
+  })
+  handle("simulation:send", (_e, text) => {
+    if (typeof text !== "string" || text.length > 20_000 || text.includes("\0")) throw new Error("Invalid simulation text: maximum 20000 characters")
+    return simulation.send(text)
+  })
+  handle("simulation:listen", (_e, enabled) => {
+    if (typeof enabled !== "boolean") throw new Error("Invalid simulation listening value")
+    return simulation.setListening(enabled)
+  })
+  handle("simulation:audio", (_e, pcm16) => {
+    if (!(pcm16 instanceof ArrayBuffer) || pcm16.byteLength > 256 * 1024 || pcm16.byteLength % 4 !== 0) throw new Error("Invalid simulation audio buffer")
+    simulation.sendAudio(pcm16)
+  })
+  handle("simulation:clear", () => simulation.clear())
 
   // Chat
   handle("chat:history", () => chat.getHistory())
@@ -203,6 +231,7 @@ export function registerIpc(deps: IpcDeps): void {
 
   // Push events from services to every window.
   session.on("state", (state) => {
+    if (state.status !== "idle") void simulation?.setListening(false)
     fitPanel()
     // Audio capture lives in the panel: it must exist (shown or not) whenever a session runs.
     if (state.status !== "idle") windows.ensure("chat")
@@ -210,6 +239,7 @@ export function registerIpc(deps: IpcDeps): void {
     windows.broadcast("session:state", state)
   })
   session.on("transcript", (event) => windows.broadcast("session:transcript", event))
+  simulation?.on("state", (state) => windows.broadcast("simulation:changed", state))
   session.on("utterance", (utterance) => {
     windows.broadcast("session:utterance", utterance)
     void chat.autoAnswer(utterance)
@@ -239,7 +269,12 @@ export function registerIpc(deps: IpcDeps): void {
       plan.refreshSoon(500)
     }
   })
-  windows.on("state", (state) => windows.broadcast("windows:state", state))
+  windows.on("state", (state) => {
+    if (state.chat === false || (state.panelTab !== undefined && state.panelTab !== "simulation")) {
+      void simulation?.setListening(false)
+    }
+    windows.broadcast("windows:state", state)
+  })
   settings.onChange(() => {
     fitPanel()
     // Turned on mid-session: start from what was said so far.

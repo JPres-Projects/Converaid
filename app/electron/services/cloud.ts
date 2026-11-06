@@ -32,6 +32,10 @@ interface PromptRecord {
   position: number
 }
 
+function promptStateJson(prompts: Prompt[], active: string | null): string {
+  return JSON.stringify({ prompts: prompts.map((p) => ({ id: p.id, title: p.title, content: p.content, notes: p.notes ?? "" })), active })
+}
+
 interface MeetingRecord {
   id: string
   localId: string
@@ -95,6 +99,8 @@ export class CloudSync extends EventEmitter {
   /** The settings as the server last had them (JSON), so unchanged settings aren't uploaded. */
   private serverSettingsJson: string | null = null
   private lastPromptsJson = ""
+  private promptPushQueue: Promise<void> = Promise.resolve()
+  private promptUploadActive = false
   /** The server's `updated` time per meeting (by local id); a local copy edited after it gets uploaded. */
   private remoteUpdated = new Map<string, number>()
   private meetingsSince: string | undefined
@@ -389,9 +395,11 @@ export class CloudSync extends EventEmitter {
   }
 
   private applyRemotePrompts(remote: PromptRecord[]): void {
+    // An upload can echo over SSE before its HTTP reply; keep newer local saves until ids are assigned.
+    if (this.promptUploadActive) return
     const prompts: Prompt[] = remote.map((r) => ({ id: r.id, title: r.title, content: r.content, notes: r.notes || "" }))
     const active = remote.find((r) => r.active) ?? remote[0]
-    const json = JSON.stringify({ prompts, active: active?.id })
+    const json = promptStateJson(prompts, active?.id ?? null)
     if (json === this.lastPromptsJson) return
     this.lastPromptsJson = json
     this.deps.settings.update({ prompts, activePromptId: active?.id ?? null }, "cloud")
@@ -419,19 +427,36 @@ export class CloudSync extends EventEmitter {
   }
 
   /** Mirrors the local prompts to the account; new prompts take the ids the server gives them. */
-  private async pushPrompts(initial: boolean): Promise<void> {
+  private pushPrompts(initial: boolean): Promise<void> {
+    const upload = this.promptPushQueue.then(() => this.uploadPrompts(initial))
+    // Keep later saves uploadable after a failed request; each caller still receives its own failure.
+    this.promptPushQueue = upload.catch(() => {})
+    return upload
+  }
+
+  private async uploadPrompts(initial: boolean): Promise<void> {
     const s = this.deps.settings.get()
-    const json = JSON.stringify({ prompts: s.prompts, active: s.activePromptId })
+    const json = promptStateJson(s.prompts, s.activePromptId)
     if (!initial && json === this.lastPromptsJson) return
-    const { prompts: stored } = await this.api<{ prompts: PromptRecord[] }>("PUT", "/api/app/prompts", {
-      prompts: s.prompts.map((p) => ({ id: p.id, title: p.title, content: p.content, notes: p.notes ?? "", active: p.id === s.activePromptId }))
-    })
-    // The reply is in the same order as sent.
-    const nextPrompts: Prompt[] = s.prompts.map((p, i) => ({ ...p, id: stored[i]?.id ?? p.id }))
-    const activeIndex = s.prompts.findIndex((p) => p.id === s.activePromptId)
-    const nextActive = activeIndex >= 0 ? nextPrompts[activeIndex].id : s.activePromptId
-    this.lastPromptsJson = JSON.stringify({ prompts: nextPrompts, active: nextActive })
-    if (nextPrompts.some((p, i) => p.id !== s.prompts[i]?.id)) this.deps.settings.update({ prompts: nextPrompts, activePromptId: nextActive }, "cloud")
+    this.promptUploadActive = true
+    try {
+      const { prompts: stored } = await this.api<{ prompts: PromptRecord[] }>("PUT", "/api/app/prompts", {
+        prompts: s.prompts.map((p) => ({ id: p.id, title: p.title, content: p.content, notes: p.notes ?? "", active: p.id === s.activePromptId }))
+      })
+      // The reply follows upload order. Remap ids on current state, preserving saves made during the request.
+      const ids = new Map(s.prompts.map((p, i) => [p.id, stored[i]?.id ?? p.id]))
+      const remapActive = (id: string | null) => id === null ? null : ids.get(id) ?? id
+      const acknowledged = s.prompts.map((p) => ({ ...p, id: ids.get(p.id)! }))
+      this.lastPromptsJson = promptStateJson(acknowledged, remapActive(s.activePromptId))
+      const current = this.deps.settings.get()
+      const nextPrompts = current.prompts.map((p) => ({ ...p, id: ids.get(p.id) ?? p.id }))
+      const nextActive = remapActive(current.activePromptId)
+      if (nextPrompts.some((p, i) => p.id !== current.prompts[i].id)) {
+        this.deps.settings.update({ prompts: nextPrompts, activePromptId: nextActive }, "cloud")
+      }
+    } finally {
+      this.promptUploadActive = false
+    }
   }
 
   /** Uploads meetings the account doesn't have yet, and ones changed here after the account's copy. */

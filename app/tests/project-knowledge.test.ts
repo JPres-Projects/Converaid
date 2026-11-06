@@ -51,7 +51,7 @@ function searchFixture(name: string, summaries: string[]): PreparedProjectKnowle
     file: `src/module-${index}.ts`, summary, tags: [], changed: false, search: summary.toLowerCase() }))
   return { folder: "", name, brief: "", notice: "", source: "map", nodeCount: nodes.length, preparedAt: 0,
     graphPath: null, graphStamp: null, nodes, byId: new Map(nodes.map((node) => [node.id, node])),
-    neighbors: new Map(), sections: [], fallback: summaries.join(" "), fallbackFiles: ["README.md"] }
+    neighbors: new Map(), sections: [], fallback: summaries.join(" "), fallbackFiles: ["README.md"], interview: "", interviewStamp: "" }
 }
 afterEach(() => {
   vi.restoreAllMocks()
@@ -188,6 +188,98 @@ describe("prepared local project knowledge", () => {
     expect(await isProjectKnowledgeCurrent(prepared)).toBe(false)
   })
 
+  it.each([false, true])("prepares interview notes before a call and searches their cached claims (map=%s)", async (mapped) => {
+    const root = project()
+    write(root, "README.md", "General project documentation. ".repeat(150))
+    write(root, "INTERVIEW.md", "# Personal contribution\nDesigned the approval adapter; model inference is delegated to a provider API.\n# Testing\nVerified duplicate approval retries with integration tests. Commit: abc1234.\n")
+    write(root, "docs/INTERVIEW.md", "Architecture: TypeScript frontend, service layer and SQL persistence.")
+    if (mapped) { sourceFixture(root); graph(root) }
+    const prepared = await prepareProjectKnowledge(root)
+    expect(prepared.brief.slice(0, 1800)).toContain("Designed the approval adapter")
+    expect(prepared.brief).toContain("TypeScript frontend")
+    write(root, "INTERVIEW.md", "UNPREPARED_REPLACEMENT")
+    const open = vi.spyOn(fsp, "open")
+    const opendir = vi.spyOn(fsp, "opendir")
+    const result = queryProjectKnowledge(prepared, "Which testing contribution is personal and which work is delegated?")
+    expect(result.score).toBeGreaterThan(0)
+    expect(result.text).toContain("integration tests")
+    expect(result.text).toContain("abc1234")
+    expect(result.text).toContain("provider API")
+    expect(result.text).toContain('Source: "INTERVIEW.md"')
+    expect(result.text).toContain("untrusted reference data")
+    expect(result.text).toMatch(/not.*(?:prove|verify|verified).*authorship/i)
+    expect(result.text).not.toContain("UNPREPARED_REPLACEMENT")
+    expect(result.files).not.toContain("INTERVIEW.md")
+    expect(result.files).not.toContain("docs/INTERVIEW.md")
+    expect(open).not.toHaveBeenCalled()
+    expect(opendir).not.toHaveBeenCalled()
+  })
+
+  it.each([false, true])("invalidates interview notes when added, changed or removed (map=%s)", async (mapped) => {
+    const root = project()
+    if (mapped) graph(root)
+    const absent = await prepareProjectKnowledge(root)
+    write(root, "docs/INTERVIEW.md", "Testing: verified retries.")
+    expect(await isProjectKnowledgeCurrent(absent)).toBe(false)
+    const prepared = await prepareProjectKnowledge(root)
+    expect(await isProjectKnowledgeCurrent(prepared)).toBe(true)
+    write(root, "docs/INTERVIEW.md", "Testing: verified retries and duplicate events.")
+    expect(await isProjectKnowledgeCurrent(prepared)).toBe(false)
+    const updated = await prepareProjectKnowledge(root)
+    fs.unlinkSync(path.join(root, "docs/INTERVIEW.md"))
+    expect(await isProjectKnowledgeCurrent(updated)).toBe(false)
+  })
+
+  it("excludes ignored, linked and secret-bearing interview notes", async () => {
+    const root = project()
+    const outside = project()
+    write(root, "INTERVIEW.md", "IGNORED_INTERVIEW")
+    write(root, ".gitignore", "INTERVIEW.md\n")
+    write(outside, "INTERVIEW.md", "LINKED_INTERVIEW")
+    fs.symlinkSync(outside, path.join(root, "docs"), process.platform === "win32" ? "junction" : "dir")
+    git(root, "init", "--quiet")
+    let prepared = await prepareProjectKnowledge(root)
+    expect(prepared.brief + queryProjectKnowledge(prepared, "interview").text).not.toMatch(/IGNORED_INTERVIEW|LINKED_INTERVIEW/)
+    fs.unlinkSync(path.join(root, ".gitignore"))
+    write(root, "INTERVIEW.md", 'Personal contribution: SECRET_INTERVIEW; password = "do-not-expose-this"')
+    prepared = await prepareProjectKnowledge(root)
+    expect(prepared.brief + queryProjectKnowledge(prepared, "personal").text).not.toContain("SECRET_INTERVIEW")
+  })
+
+  it("invalidates prepared interview claims when their document becomes ignored", async () => {
+    const root = project()
+    git(root, "init", "--quiet")
+    write(root, "docs/INTERVIEW.md", "Personal contribution: documented adapter integration.")
+    const prepared = await prepareProjectKnowledge(root)
+    expect(prepared.brief).toContain("documented adapter integration")
+    write(root, ".gitignore", "docs/INTERVIEW.md\n")
+    expect(await isProjectKnowledgeCurrent(prepared)).toBe(false)
+    const refreshed = await prepareProjectKnowledge(root)
+    expect(refreshed.brief + queryProjectKnowledge(refreshed, "adapter").text).not.toContain("documented adapter integration")
+  })
+
+  it("matches personal ownership questions to documented contributions in either conversation language", async () => {
+    const root = project()
+    write(root, "INTERVIEW.md", "Personal contribution: designed the adapter; provider inference was delegated.")
+    const prepared = await prepareProjectKnowledge(root)
+    for (const question of ["What did you personally build?", "Was hast du selbst gebaut?"]) {
+      const result = queryProjectKnowledge(prepared, question)
+      expect(result.score).toBeGreaterThan(0)
+      expect(result.text).toContain("provider inference was delegated")
+    }
+  })
+
+  it("prepares a valid six MiB map without truncating metadata near its end", async () => {
+    const root = project()
+    const prefix = '{"padding":"'
+    const suffix = '","project":{"name":"Large valid map"},"nodes":[]}'
+    write(root, ".ua/knowledge-graph.json", prefix + " ".repeat(6 * 1024 * 1024 - prefix.length - suffix.length) + suffix)
+    const prepared = await prepareProjectKnowledge(root)
+    expect(prepared.source).toBe("map")
+    expect(prepared.name).toBe("Large valid map")
+    expect(await isProjectKnowledgeCurrent(prepared)).toBe(true)
+  })
+
   it("rejects malformed or oversized maps explicitly", async () => {
     const root = project()
     write(root, ".ua/knowledge-graph.json", "{invalid")
@@ -196,7 +288,7 @@ describe("prepared local project knowledge", () => {
     await expect(prepareProjectKnowledge(root)).rejects.toThrow(/map|graph/i)
     write(root, ".ua/knowledge-graph.json", JSON.stringify({ project: { name: "Invalid" }, nodes: [{ id: "broken", name: 42 }] }))
     await expect(prepareProjectKnowledge(root)).rejects.toThrow(/map|graph/i)
-    write(root, ".ua/knowledge-graph.json", " ".repeat(8 * 1024 * 1024))
+    write(root, ".ua/knowledge-graph.json", " ".repeat(8 * 1024 * 1024 + 1))
     await expect(prepareProjectKnowledge(root)).rejects.toThrow(/large|limit/i)
   })
 

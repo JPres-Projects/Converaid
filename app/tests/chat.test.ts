@@ -3,6 +3,22 @@ import { buildMessages, composeSystemPrompt, gateDecision, SKIP_TOKEN } from "..
 import { formatTranscript } from "../electron/services/session"
 import { ANSWER_FORMAT, ANSWER_LENGTHS, ANSWER_MODES, DEFAULT_PROMPT, type AnswerLength, type AnswerMode, type ChatMessage } from "../shared/types"
 
+it("keeps practice instructions and candidate context isolated from live chat", async () => {
+  const { ChatService } = await import("../electron/services/chat")
+  const requests: { role: string; content: string }[][] = []
+  const settings = { get: () => ({ answerLength: "auto", answerMode: "interview", projects: [] }), activePrompt: () => DEFAULT_PROMPT } as never
+  const llm = { languageInstruction: () => "Respond in English.", chat: async (messages: { role: string; content: string }[]) => { requests.push(messages); return { text: "A complete answer.", tokens: 1 } } } as never
+  const live = new ChatService({ settings, llm, session: { transcriptText: () => "LIVE_ONLY", getLastUtterance: () => null }, capture: async () => ({}) as never })
+  const practice = new ChatService({ settings, llm, session: { transcriptText: () => "Candidate: I maintained the API.", getLastUtterance: () => null }, capture: async () => ({}) as never, systemInstruction: "PRACTICE_ONLY: Assist the candidate in this practice interview." })
+  await live.send("Explain the database.")
+  await practice.send("Explain the API.")
+  expect(requests[0][0].content).not.toContain("PRACTICE_ONLY")
+  expect(requests[1][0].content).toContain("PRACTICE_ONLY")
+  expect(requests[1].map((message) => message.content).join("\n")).toContain("Candidate: I maintained the API.")
+  expect(requests[1].map((message) => message.content).join("\n")).not.toContain("LIVE_ONLY")
+  expect(live.getHistory().some((message) => message.text === "Explain the API.")).toBe(false)
+})
+
 const msg = (role: ChatMessage["role"], text: string, kind: ChatMessage["kind"] = "text"): ChatMessage => ({
   id: text,
   role,

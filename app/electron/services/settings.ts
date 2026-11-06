@@ -11,6 +11,8 @@ import {
   LEGACY_DEFAULT_SHORTCUTS,
   RETIRED_DEFAULT_SHORTCUTS,
   LEGACY_DEFAULT_SYSTEM_PROMPTS,
+  PROMPT_LIMITS,
+  PROJECT_DESCRIPTION_LIMIT,
   type InterviewProject,
   type Prompt,
   type Settings,
@@ -168,6 +170,7 @@ function normalizeProjects(input: unknown): InterviewProject[] {
     folders.add(key)
     result.push({ id: p.id, folder,
       name: (typeof p.name === "string" ? p.name.trim() : "").slice(0, 120) || path.basename(folder) || folder.slice(0, 120),
+      ...(typeof p.description === "string" ? { description: p.description.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, "").trim().slice(0, PROJECT_DESCRIPTION_LIMIT) } : {}),
       experience: typeof p.experience === "string" ? p.experience.trim().slice(0, 6000) : "",
       enabled: p.enabled === true })
     if (result.length === 32) break
@@ -175,20 +178,32 @@ function normalizeProjects(input: unknown): InterviewProject[] {
   return result
 }
 
+function normalizePrompts(input: unknown): Prompt[] {
+  const result: Prompt[] = []
+  const ids = new Set<string>()
+  const squash = (text: string) => text.replace(/\s+/g, " ").trim()
+  for (const p of Array.isArray(input) ? input : []) {
+    if (!p || typeof p !== "object" || typeof p.id !== "string" || !p.id.trim() || p.id.length > 128 || /[\x00-\x1f\x7f]/.test(p.id) || ids.has(p.id)) continue
+    if (typeof p.title !== "string" || typeof p.content !== "string") continue
+    const title = p.title.replace(/[\x00-\x1f\x7f]/g, "").trim().slice(0, PROMPT_LIMITS.title)
+    const content = p.content.replace(/\0/g, "").slice(0, PROMPT_LIMITS.content)
+    if (!title || !content.trim()) continue
+    ids.add(p.id)
+    // An unchanged earlier default follows the current one; custom content and cloud ids survive.
+    const prompt: Prompt = { id: p.id, title, content: LEGACY_DEFAULT_SYSTEM_PROMPTS.some((old) => squash(content) === squash(old)) ? DEFAULT_PROMPT.content : content }
+    if (typeof p.notes === "string") prompt.notes = p.notes.replace(/\0/g, "").slice(0, PROMPT_LIMITS.notes)
+    result.push(prompt)
+    if (result.length === PROMPT_LIMITS.count) break
+  }
+  return result.length ? result : [{ ...DEFAULT_PROMPT }]
+}
+
 export function normalize(s: Settings): Settings {
   // Obsolete fields must never survive an update or resurrect a removed project.
   const clean = { ...s } as Settings & { projectFolder?: unknown; projectExperience?: unknown }
   delete clean.projectFolder
   delete clean.projectExperience
-  const squash = (t: string) => t.replace(/\s+/g, " ").trim()
-  const prompts = (Array.isArray(s.prompts) && s.prompts.length > 0
-    ? s.prompts.filter((p) => p && typeof p.id === "string" && typeof p.content === "string")
-    : [DEFAULT_PROMPT]
-  ).map((p) =>
-    // A prompt still on an earlier default follows the current one; edited prompts stay as they are.
-    LEGACY_DEFAULT_SYSTEM_PROMPTS.some((old) => squash(p.content) === squash(old)) ? { ...p, content: DEFAULT_PROMPT.content } : p
-  )
-  if (prompts.length === 0) prompts.push({ ...DEFAULT_PROMPT })
+  const prompts = normalizePrompts(s.prompts)
   const activePromptId = prompts.some((p) => p.id === s.activePromptId) ? s.activePromptId : prompts[0].id
   const shortcuts = { ...DEFAULT_SHORTCUTS }
   for (const key of Object.keys(DEFAULT_SHORTCUTS) as ShortcutAction[]) {

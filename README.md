@@ -2,13 +2,13 @@
 
 <div align="center">
 
-<img src="docs/logo.png" width="84" alt="Meetingly logo" />
+<img src="app/build/converaid-logo.png" width="84" alt="Converaid logo" />
 
-# Meetingly: open-source AI interview assistant and meeting copilot
+# Converaid: open-source AI interview assistant and meeting copilot
 
 **The answer, while they're still asking.**
 
-Meetingly is a free, open-source AI assistant for job interviews and live meetings on Windows, macOS and Linux. It listens to Zoom, Google Meet, Microsoft Teams or any other call, transcribes it on your own computer and puts the answer on screen the moment a question is asked. Use the free plan (50 answers a day, no card), or bring your own OpenAI, OpenRouter or Ollama key. A free alternative to Cluely, Interview Coder, Final Round AI, LockedIn AI and Parakeet AI.
+Converaid is a local fork of Meetingly, an open-source AI assistant for job interviews and live meetings. It adds editable system prompts, prepared project context and a separate interview simulation. The download links, hosted plans and upstream screenshots below describe Meetingly. Build this fork from source to obtain Converaid; the upstream downloads do not contain these changes.
 
 <p align="center"><!-- languages --><b>English</b> · <a href="README.zh-CN.md">简体中文</a> · <a href="README.ru.md">Русский</a> · <a href="README.es.md">Español</a> · <a href="README.pt-BR.md">Português</a> · <a href="README.ja.md">日本語</a> · <a href="README.ko.md">한국어</a></p>
 
@@ -29,6 +29,16 @@ Meetingly is a free, open-source AI assistant for job interviews and live meetin
 <img src="docs/demo.gif" width="880" alt="Meetingly answering interview questions as they are asked, with suggested questions on the left" />
 
 </div>
+
+## Converaid features
+
+- **Selectable system prompts.** In Settings, add, edit, save, select or remove prompts with a title, system instructions and optional background notes. The selected prompt applies to the next answer; shared answer formatting and the separate Meeting, Interview or Coding focus still apply.
+- **Optional project summaries.** Each local project has a summary field separate from **Your role and experience**. Summaries describe the project; repository evidence describes its implementation; personal contributions must be confirmed by the user. These fields stay out of account sync and accompany relevant answers to the configured provider.
+- **Interview references prepared before the call.** Selected projects can provide a compact `INTERVIEW.md` or `docs/INTERVIEW.md` covering languages, architecture, provider boundaries, challenges and concrete test mechanics. Preparation safely caches these references alongside maps up to 8 MiB. Changed references require preparation again. Interview mode uses the role and question to choose the relevant explanation; no additional analysis agent runs during the conversation. See [the preparation prompt and guide](docs/project-interview-preparation.md).
+- **Separate Simulation tab.** Enter typed or microphone turns as **Interviewer** or **Candidate (you)**. Interviewer questions request an assistant answer; candidate turns add context. The simulation uses the selected prompt, prepared projects and configured AI route with its normal quota, while keeping its conversation separate from the live meeting. Its microphone uses local recognition and is unavailable during a live meeting. While recording, say "Now I am the interviewer" or "Now I am the candidate" to switch roles; German role commands are also supported. Recording stops after a spoken turn.
+- **Answer timing.** Simulation answers show time to first text and completion, measured from submitted text or recognized speech. These measurements exclude voice transcription time.
+- **OpenRouter model controls.** Own-key settings offer Claude Sonnet 5.5 and Claude Haiku 5.5 presets, editable model IDs and **Standard** or **Nitro** routing. Nitro adds `:nitro` to the model ID. The presets do not establish provider availability; use an ID available to your account.
+- **Converaid interface.** The toolbar, panel, tray text and window titles use Converaid branding. The main toolbar is included in the taskbar; auxiliary windows remain excluded. Package identity stays compatible with existing settings. Updates require an explicitly configured Converaid feed instead of silently replacing the fork with an upstream build.
 
 ## Practical guides
 

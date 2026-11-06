@@ -2,6 +2,7 @@
 // The preload only forwards channels listed here; the renderer gets full typing.
 
 import type { CloudState } from "./cloud"
+import type { SimulationRole, SimulationState } from "./simulation"
 import type {
   ChatChunk,
   ChatMessage,
@@ -68,6 +69,13 @@ export interface InvokeMap {
   /** The most recent finished utterance, if any. */
   "session:last-utterance": () => Utterance | null
 
+  "simulation:state": () => SimulationState
+  "simulation:role": (role: SimulationRole) => SimulationState
+  "simulation:send": (text: string) => void
+  "simulation:listen": (enabled: boolean) => SimulationState
+  "simulation:audio": (pcm16: ArrayBuffer) => void
+  "simulation:clear": () => SimulationState
+
   "chat:history": () => ChatMessage[]
   /** Streams the reply through chat:chunk / chat:message events. */
   "chat:send": (text: string) => void
@@ -111,6 +119,7 @@ export interface EventMap {
   "session:state": SessionState
   "session:transcript": TranscriptEvent
   "session:utterance": Utterance
+  "simulation:changed": SimulationState
   "windows:state": WindowsState
   "panel:tab": PanelTab
   "settings:changed": SettingsView
@@ -162,6 +171,12 @@ export const INVOKE_CHANNELS: InvokeChannel[] = [
   "session:audio",
   "session:transcript",
   "session:last-utterance",
+  "simulation:state",
+  "simulation:role",
+  "simulation:send",
+  "simulation:listen",
+  "simulation:audio",
+  "simulation:clear",
   "chat:history",
   "chat:send",
   "chat:answer-last",
@@ -189,6 +204,7 @@ export const EVENT_CHANNELS: EventChannel[] = [
   "session:state",
   "session:transcript",
   "session:utterance",
+  "simulation:changed",
   "windows:state",
   "panel:tab",
   "settings:changed",

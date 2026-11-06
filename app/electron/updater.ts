@@ -4,7 +4,6 @@ import type { UpdateState } from "../shared/types"
 import type { Logger } from "./services/logger"
 import { MacUpdater, type MacUpdate } from "./mac-updater"
 
-const FEED_URL = "https://meetinglyai.com/download"
 const CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000
 /** An update ready this soon after launch installs right away: the app restarts on the new version. */
 const LAUNCH_WINDOW_MS = 10 * 60 * 1000
@@ -19,18 +18,19 @@ interface Deps {
 }
 
 /**
- * Updates install themselves from https://meetinglyai.com/download/, on every platform:
+ * Updates are disabled unless CONVERAID_UPDATE_URL explicitly configures a feed.
+ * MEETINGLY_UPDATE_URL remains accepted for updater tests. When enabled, on every platform:
  * - at launch the app checks; an update found (or already downloaded) then installs right away and the
  *   app comes back on the new version within seconds, before a meeting starts;
  * - while running it checks every few hours and downloads in the background; that update installs when
  *   the app quits, or at the next launch.
  * Windows and Linux (AppImage) use electron-updater; the Mac build has its own updater (mac-updater.ts),
  * since Apple's only accepts apps signed with a paid Developer ID.
- * MEETINGLY_UPDATE_URL points the app at another feed (the update test in CI).
  */
 export function startAutoUpdates(deps: Deps): void {
   if (!app.isPackaged) return
-  const feed = (process.env.MEETINGLY_UPDATE_URL || FEED_URL).replace(/\/+$/, "")
+  const feed = (process.env.CONVERAID_UPDATE_URL || process.env.MEETINGLY_UPDATE_URL)?.trim().replace(/\/+$/, "")
+  if (!feed) return
   const launchedAt = Date.now()
   const installNow = () => Date.now() - launchedAt < LAUNCH_WINDOW_MS && !deps.isBusy()
   if (process.platform === "darwin") startMac(deps, feed, installNow)
@@ -44,7 +44,7 @@ function startElectronUpdater({ logger, onState }: Deps, feed: string, installNo
     error: (m: unknown) => logger.error("updater", String(m)),
     debug: (m: unknown) => logger.debug("updater", String(m))
   }
-  if (process.env.MEETINGLY_UPDATE_URL) autoUpdater.setFeedURL({ provider: "generic", url: feed })
+  autoUpdater.setFeedURL({ provider: "generic", url: feed })
   autoUpdater.autoDownload = true
   autoUpdater.autoInstallOnAppQuit = true
   // The installer we publish is the full one, never the small web stub.

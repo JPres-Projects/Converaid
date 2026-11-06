@@ -9,6 +9,7 @@ const MAX_FILES = 100
 const MAX_FILE_BYTES = 64 * 1024
 const MAX_TOTAL_BYTES = 512 * 1024
 const MAX_PROMPT_CHARS = 24_000
+const MAX_GRAPH_BYTES = 8 * 1024 * 1024
 const EXCLUDED_DIRS = new Set([
   "node_modules", "bower_components", "vendor", "dist", "build", "out", "target", "coverage",
   "__pycache__", "venv", "env", "cache", "logs", "tmp", "temp", "release", "bin", "obj"
@@ -85,7 +86,7 @@ export async function projectGraphStamp(folder: string, relative: string): Promi
     if (!within(realRoot, await safeRealPath(absolute))) throw new Error("Unsafe project graph path")
     const stat = await fs.stat(absolute)
     if (!stat.isFile()) throw new Error("Project graph is not a file")
-    if (stat.size > 5 * 1024 * 1024) throw new Error("Project graph exceeds the 5 MB size limit")
+    if (stat.size > MAX_GRAPH_BYTES) throw new Error("Project graph exceeds the 8 MiB size limit")
     return `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeMs}:${stat.ctimeMs}`
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null
@@ -95,7 +96,7 @@ export async function projectGraphStamp(folder: string, relative: string): Promi
 
 export async function readProjectGraphFile(folder: string, relative: string): Promise<string> {
   if (!(await projectGraphStamp(folder, relative))) throw new Error("Project graph is missing")
-  return readNamedFile(path.resolve(folder), relative, 5 * 1024 * 1024)
+  return readNamedFile(path.resolve(folder), relative, MAX_GRAPH_BYTES)
 }
 
 /** Exclude credential-bearing metadata before it reaches any prompt or UI. */
