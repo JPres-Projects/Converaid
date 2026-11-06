@@ -81,3 +81,13 @@ The packaged ASAR includes simulation, explicit fork-update routing, interview r
 ## November 6, 2026: laptop visual verification complete
 
 Jim confirmed that both the new Converaid toolbar and the blue C icon in the Windows taskbar are visible on MININT-V535CT1 after opening the updated Desktop shortcut. The final visible Windows check is complete; PLAN step 17 and the CONV-4 manual check are closed. No runtime code or package changed after the verified delivery.
+
+## November 6, 2026: concise language examples and spoken-answer guidance
+
+The user clarified that language questions need one brief component example, not project pitches or forced language coverage. Reviewed original application source/history: JavaScript/TypeScript in DeepMines/AWG, Python in AI Clipping, Go in Stardawn Deploy, C# and Swift in AWG native clients. No personal C/C++ example is established. Updated short local references and prepared a local language-example bank; private reference contents are not committed here. DeepMines/AWG remain primary; supplemental project entries are intended to stay optional.
+
+Shared late guidance excludes spoken editor placeholders, coaching closings and invented personal challenge/skill rankings while preserving custom prompts and brackets in requested code/templates. Language-only answers request a short language-to-component example. Map programming-language labels are separated from framework/runtime labels and remain untrusted inventory, not a skill assessment. Literal C#/C++ queries retain their symbols; single-letter C behavior is unchanged.
+
+Verification: 264 tests passed, one existing skip; typecheck passed; production build and fake-provider UI smoke passed with no renderer errors. Actual 1440/390 images inspected. Actual optional four-project preparation passed; all three queried language examples survived the 32,000-character bound and inactive-project descriptions were excluded. These checks verify request/data composition, not a live model's answer quality; no paid calls were made. Focused reviews found no P1/P2 issues.
+
+A Windows NSIS update was built and its ASAR guidance/profile identity verified. It uses the existing application identity and data directory, with Converaid shortcut/uninstall labels. The laptop currently runs an installed app, so the update is staged separately; no active practice or profile has been interrupted. Delivery/activation remains pending the safe restart decision if the app is still running.

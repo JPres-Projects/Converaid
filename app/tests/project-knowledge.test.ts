@@ -124,6 +124,26 @@ describe("prepared local project knowledge", () => {
     expect(await isProjectKnowledgeCurrent(prepared)).toBe(true)
   })
 
+  it("keeps map language and framework labels separate before lengthy interview notes", async () => {
+    const root = project()
+    sourceFixture(root)
+    graph(root)
+    const graphPath = path.join(root, ".ua/knowledge-graph.json")
+    const data = JSON.parse(fs.readFileSync(graphPath, "utf8"))
+    data.project.frameworks = ["React", "Node.js"]
+    fs.writeFileSync(graphPath, JSON.stringify(data))
+    write(root, "INTERVIEW.md", "Prepared contribution notes. ".repeat(100))
+    const prepared = await prepareProjectKnowledge(root)
+    const compact = prepared.brief.slice(0, 600)
+    expect(compact).toContain("Programming languages listed by the map: TypeScript\n")
+    expect(compact).toContain("Frameworks and runtimes listed by the map: React, Node.js\n")
+    expect(compact).toMatch(/map.*(?:labels|categories).*untrusted/i)
+    expect(compact).toMatch(/do not establish.*personal use.*strongest skill/i)
+    expect(prepared.brief.indexOf("Frameworks and runtimes listed by the map")).toBeLessThan(prepared.brief.indexOf("Prepared contribution notes"))
+    expect(prepared.brief).not.toContain("Technologies listed by the map:")
+    expect(prepared.brief.length).toBeLessThanOrEqual(16_000)
+  })
+
   it("finds detailed English and German questions locally without rescanning directories or reading files", async () => {
     const root = project()
     sourceFixture(root)
@@ -267,6 +287,25 @@ describe("prepared local project knowledge", () => {
       expect(result.score).toBeGreaterThan(0)
       expect(result.text).toContain("provider inference was delegated")
     }
+  })
+
+  it.each(["C#", "C++"])("finds a literal %s reference in cached interview notes", async (language) => {
+    const root = project()
+    write(root, "INTERVIEW.md", `Documented language example: ${language} adapter integration.`)
+    const result = queryProjectKnowledge(await prepareProjectKnowledge(root), language)
+    expect(result.score).toBeGreaterThan(0)
+    expect(result.text).toContain(`${language} adapter integration`)
+  })
+
+  it("keeps C# and C++ source matches distinct without treating C as a language query", () => {
+    const sharp = searchFixture("Managed bridge", ["A C# adapter."])
+    const cpp = searchFixture("Native bridge", ["A C++ adapter."])
+    expect(queryProjectKnowledge(sharp, "C#").files).toEqual(["src/module-0.ts"])
+    expect(queryProjectKnowledge(cpp, "C#").score).toBe(0)
+    expect(queryProjectKnowledge(cpp, "C++").files).toEqual(["src/module-0.ts"])
+    expect(queryProjectKnowledge(sharp, "C++").score).toBe(0)
+    expect(queryProjectKnowledge(sharp, "C").score).toBe(0)
+    expect(queryProjectKnowledge(cpp, "C").score).toBe(0)
   })
 
   it("prepares a valid six MiB map without truncating metadata near its end", async () => {

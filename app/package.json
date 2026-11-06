@@ -63,8 +63,8 @@
       "installerSidebar": "build/installerSidebar.bmp",
       "uninstallerSidebar": "build/uninstallerSidebar.bmp",
       "installerHeader": "build/installerHeader.bmp",
-      "shortcutName": "Meetingly",
-      "uninstallDisplayName": "Meetingly"
+      "shortcutName": "Converaid",
+      "uninstallDisplayName": "Converaid"
     },
     "mac": {
       "category": "public.app-category.productivity",

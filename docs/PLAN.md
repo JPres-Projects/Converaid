@@ -52,3 +52,9 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [x] 20. Write compact local INTERVIEW.md references for those two projects and a reusable role-specific preparation prompt; cite code and commits, distinguish current facts from historical fixes and unknown personal responsibility.
 - [x] 21. Include safe prewritten interview references in selected-project preparation, with bounded cached context and freshness checks; verify map, no-map, ignored/unsafe and changed-reference cases.
 - [x] 22. Verify the appropriate unit suite, typecheck/build and a preparation run against the two actual selected projects; update CONV-1 evidence and report the usable briefings and remaining release limitations.
+
+- [x] 23. Audit the supplied simulation answer and a small portfolio shortlist using actual source and Git provenance; select presentable Python and compiled-language examples, excluding unchanged forks and dependency-only languages.
+- [x] 24. Record short language-to-component examples from the curated shortlist; avoid full project pitches, forced language coverage, inferred proficiency or individual authorship.
+- [x] 25. Strengthen shared spoken-answer guidance against editorial placeholders, filler and invented personal challenge rankings; separate map language metadata from frameworks/runtimes and verify focused regression tests.
+- [x] 26. Verify the complete relevant suite, typecheck/build and actual prepared portfolio context, including active-project isolation, bounds and preserved custom prompts; report model-behavior limits honestly.
+- [ ] 27. Build and deliver the Windows update and short language references to the laptop, preserving the existing installation, settings and any running practice; verify hashes and the small project selection.

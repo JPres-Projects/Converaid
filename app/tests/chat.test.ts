@@ -135,6 +135,60 @@ describe("gateDecision", () => {
 })
 
 describe("answer request coverage", () => {
+  it.each(["Backend", "Frontend", "Full-stack"])("applies spoken interview safeguards after a saved %s prompt without rewriting it", async (title) => {
+    const { ChatService } = await import("../electron/services/chat")
+    const prompt = {
+      id: `saved-${title.toLowerCase()}`,
+      title,
+      content: `Focus on ${title} interviews. Add [Add your confirmed role here] when personal details are missing. Close with an offer to refine the answer.`,
+      notes: "My confirmed focus is the JavaScript/TypeScript ecosystem."
+    }
+    const original = { ...prompt }
+    const requests: { role: string; content: string }[][] = []
+    for (const systemInstruction of [undefined, "This is a practice interview. Use candidate statements as confirmed conversation context."]) {
+      const chat = new ChatService({
+        settings: { get: () => ({ answerLength: "auto", answerMode: "interview", projects: [] }), activePrompt: () => prompt } as never,
+        llm: {
+          languageInstruction: () => "Respond in English.",
+          chat: async (messages: { role: string; content: string }[]) => {
+            requests.push(messages)
+            return { text: "The frontend uses TypeScript and React in the browser.", tokens: 1 }
+          }
+        } as never,
+        session: { transcriptText: () => "", getLastUtterance: () => null },
+        capture: async () => ({}) as never,
+        projectContext: async () => "Project A: TypeScript and React frontend; Node.js backend. Personal role: not supplied.",
+        systemInstruction
+      })
+      await chat.send("Which languages do the projects use, and what was my hardest problem?")
+    }
+    expect(prompt).toEqual(original)
+    expect(requests).toHaveLength(2)
+    for (const request of requests) {
+      const system = request[0].content
+      expect(system.startsWith(original.content)).toBe(true)
+      expect(system).toContain(original.notes)
+      const trusted = system.slice(system.indexOf(ANSWER_MODES.interview.instruction))
+      expect(system.indexOf(ANSWER_MODES.interview.instruction)).toBeGreaterThan(system.indexOf("Personal role: not supplied."))
+      expect(trusted).toMatch(/never emit (?:editing )?placeholders/i)
+      expect(trusted).toMatch(/requested code or templates/i)
+      expect(trusted).toMatch(/no coaching or generic closing/i)
+      expect(trusted).toMatch(/missing personal role.*answer.*project facts/i)
+      expect(trusted).toMatch(/direct.*personal ownership.*one short.*clarif/i)
+      expect(trusted).toMatch(/general project challenge.*personal.*hardest/i)
+      expect(trusted).toContain("JavaScript/TypeScript ecosystem")
+      expect(trusted).toMatch(/languages.*frameworks.*runtimes/i)
+      expect(trusted).toMatch(/browser.*Node\.js build tools/i)
+      expect(trusted).toMatch(/secondary languages.*reviewed, substantive original project components.*curated references/i)
+      expect(trusted).toMatch(/project language use.*individual proficiency or implementation role/i)
+      expect(trusted).toMatch(/upstream, vendored or dependency-only code does not establish experience/i)
+      expect(trusted).toMatch(/never rank.*file counts/i)
+      expect(trusted).toMatch(/documented project focus.*strongest language/i)
+      expect(trusted).toMatch(/language-only question.*short matching language-to-component example/i)
+      expect(request.at(-1)?.content).toBe("Which languages do the projects use, and what was my hardest problem?")
+    }
+  })
+
   const scenarios = [
     { path: "chat", question: "What is SQL injection?" },
     { path: "answer", question: "Explain a cache, then write an eviction function and discuss its complexity." },

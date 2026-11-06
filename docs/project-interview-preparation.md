@@ -6,6 +6,8 @@ Keep the reference compact: about 400 words, with the most useful material first
 
 Project descriptions provide a short product overview. The separate role field records what the user confirms they designed, implemented, reviewed, tested or delegated. Neither a code map nor a Git author proves an individual's responsibilities.
 
+For language questions, a short language-to-component example is enough. State the language or family first, then its actual use in a reviewed project. Keep programming languages separate from frameworks, build tools and runtimes. Project language use is evidence about code, not an automatic ranking of individual proficiency. A missing example is acceptable; dependencies and unchanged upstream code do not fill that gap.
+
 ## Reusable preparation prompt
 
 Use this in a coding assistant before the interview, then save the verified result as the project's interview reference:
