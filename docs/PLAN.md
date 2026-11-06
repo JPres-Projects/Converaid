@@ -79,3 +79,10 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [x] Verify concise challenge, solution and test examples for every reviewed language.
 - [x] Stage personal background and compact prepared answer cards as private prompt data.
 - [x] Update the stopped laptop profile atomically and verify preservation, bounds and idempotence.
+
+## November 6 - obsolete delivery cleanup
+
+- [x] Inventory current and obsolete Converaid deliverables and shortcut targets.
+- [x] Repair desktop launch targets before removing obsolete portable builds.
+- [x] Delete only verified obsolete builds, stale delivery proofs and redundant setup copies within named delivery roots.
+- [x] Verify the current installer, installed application, shortcuts and preserved private interview data.
