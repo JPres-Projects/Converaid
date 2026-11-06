@@ -6,3 +6,4 @@
 {"at":"2026-11-06T16:26:41.637Z","type":"edited","text":"files added: app/electron/ipc/index.ts, app/electron/main.ts, app/electron/services/meetings.ts, app/electron/services/reports.ts, app/electron/services/transcriptFiles.ts and 1 more","by":"person","commit":"928719d"}
 {"at":"2026-11-06T16:27:28.819Z","type":"edited","text":"tests linked: app/tests/cloud-local.test.ts, app/tests/cloud-prompts.test.ts, app/tests/project-ipc.test.ts, app/tests/reports.test.ts, app/tests/session.test.ts, app/tests/simulation-ipc.test.ts, app/tests/transcript-files.test.ts","by":"scan","commit":"928719d"}
 {"at":"2026-11-06T16:28:15.182Z","type":"test","text":"backend: not-run -> passing","by":"tests","commit":"928719d"}
+{"at":"2026-11-06T22:03:48.215Z","type":"edited","text":"tests linked: app/tests/preparation-ipc.test.ts","by":"scan","commit":"d59a2e8"}

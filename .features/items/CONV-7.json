@@ -28,6 +28,16 @@
       "origin": "scan"
     },
     {
+      "file": "app/tests/preparation-ipc.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/preparations.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
       "file": "app/tests/suggestions.test.ts",
       "area": "backend",
       "origin": "scan"
@@ -59,5 +69,5 @@
     "at": "2026-11-06T16:25:58.085Z",
     "commit": "928719d"
   },
-  "updatedAt": "2026-11-06T16:27:28.802Z"
+  "updatedAt": "2026-11-06T22:03:48.215Z"
 }

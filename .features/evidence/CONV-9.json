@@ -1,0 +1,20 @@
+{
+  "tests": {
+    "app/tests/preparation-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:03:55.338Z",
+      "commit": "d59a2e8",
+      "fingerprint": "b5f5ee02f6444996",
+      "ms": 4925
+    },
+    "app/tests/preparations.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:03:55.396Z",
+      "commit": "d59a2e8",
+      "fingerprint": "b5f5ee02f6444996",
+      "ms": 4925
+    }
+  }
+}

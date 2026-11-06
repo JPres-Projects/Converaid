@@ -2,7 +2,7 @@
 
 <!-- Written by the awg-features plugin from .features/items. Change features with its commands (/awg-features, /awg-features-add, /awg-features-test), not in this file. -->
 
-Updated 2026-11-06 at commit e55cc04. 9 features: 1 changed since last test; 1 tests not run; 6 backend tested; 1 in progress. Tested in the backend: 6, in the frontend: 0.
+Updated 2026-11-06 at commit d59a2e8. 9 features: 2 changed since last test; 6 tests not run; 1 in progress. Tested in the backend: 0, in the frontend: 0.
 
 A status comes from the feature's tests, not from anybody's word: **Tested** means every test of the feature passed on the code as it is now; **Changed since last test** means it passed, but its files changed since.
 
@@ -36,8 +36,14 @@ A status comes from the feature's tests, not from anybody's word: **Tested** mea
 
 | ID | Feature | Status | Backend | Frontend |
 |---|---|---|---|---|
-| CONV-2 | Practice interviews with editable system prompts | Changed since last test | changed | untested |
+| CONV-1 | Prepare selected projects for role-specific interviews | Tests not run | not run | untested |
+| CONV-2 | Practice interviews with editable system prompts | Tests not run | not run | untested |
+| CONV-3 | Choose a model provider and routing | Changed since last test | changed | untested |
 | CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested |
+| CONV-5 | Record and transcribe conversations | Tests not run | not run | untested |
+| CONV-6 | Review saved meetings and reports | Tests not run | not run | untested |
+| CONV-7 | Get answers and suggestions during conversations | Tests not run | not run | untested |
+| CONV-8 | Use managed accounts and service allowances | Changed since last test | changed | untested |
 
 ## Still open
 
@@ -54,10 +60,10 @@ The steps a team takes before a feature counts, beside its tests: research what 
 
 | ID | Feature | Status | Missing |
 |---|---|---|---|
-| CONV-5 | Record and transcribe conversations | Backend tested | research, design, security |
-| CONV-6 | Review saved meetings and reports | Backend tested | research, design, security |
-| CONV-7 | Get answers and suggestions during conversations | Backend tested | research, design, security |
-| CONV-8 | Use managed accounts and service allowances | Backend tested | research, design, security |
+| CONV-5 | Record and transcribe conversations | Tests not run | research, design, security |
+| CONV-6 | Review saved meetings and reports | Tests not run | research, design, security |
+| CONV-7 | Get answers and suggestions during conversations | Tests not run | research, design, security |
+| CONV-8 | Use managed accounts and service allowances | Changed since last test | research, design, security |
 
 ## Open findings
 
@@ -79,32 +85,32 @@ Found wrong and not proven fixed yet. Each stays here until a test that names it
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-8 | Use managed accounts and service allowances | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-8 | Use managed accounts and service allowances | Changed since last test | changed | untested | 2026-11-06 Add session-only preparation and editable role context |
 
 ## Conversation assistance
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-7 | Get answers and suggestions during conversations | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-7 | Get answers and suggestions during conversations | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
 
 ## Conversation recording
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-5 | Record and transcribe conversations | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-5 | Record and transcribe conversations | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
 
 ## General
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-1 | Prepare selected projects for role-specific interviews | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
-| CONV-2 | Practice interviews with editable system prompts | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
-| CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-1 | Prepare selected projects for role-specific interviews | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
+| CONV-2 | Practice interviews with editable system prompts | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
+| CONV-3 | Choose a model provider and routing | Changed since last test | changed | untested | 2026-11-06 Add session-only preparation and editable role context |
+| CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested | 2026-11-06 Add session-only preparation and editable role context |
 
 ## Meeting records
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-6 | Review saved meetings and reports | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-6 | Review saved meetings and reports | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
 

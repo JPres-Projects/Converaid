@@ -6,3 +6,4 @@
 {"at":"2026-11-06T16:26:43.020Z","type":"edited","text":"files added: app/electron/services/capture.ts, app/electron/services/chat.ts, app/electron/services/suggestions.ts, app/src/windows/MainWindow.tsx, app/src/windows/PanelWindow.tsx","by":"person","commit":"928719d"}
 {"at":"2026-11-06T16:27:28.806Z","type":"edited","text":"tests linked: app/tests/chat.test.ts, app/tests/interview-projects.test.ts, app/tests/suggestions.test.ts","by":"scan","commit":"928719d"}
 {"at":"2026-11-06T16:28:15.232Z","type":"test","text":"backend: not-run -> passing","by":"tests","commit":"928719d"}
+{"at":"2026-11-06T22:03:48.217Z","type":"edited","text":"tests linked: app/tests/preparation-ipc.test.ts, app/tests/preparations.test.ts","by":"scan","commit":"d59a2e8"}
