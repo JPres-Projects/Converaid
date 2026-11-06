@@ -4,7 +4,7 @@
 export type WindowKind = "main" | "chat"
 
 /** Tabs of the attached panel (window kind "chat"). */
-export type PanelTab = "answers" | "transcript" | "simulation" | "settings"
+export type PanelTab = "answers" | "transcript" | "simulation" | "settings" | "preparation"
 
 export type LanguageCode = "en" | "ar" | "bg" | "zh" | "hr" | "cs" | "da" | "nl" | "et" | "fi" | "fr" | "de" | "hi" | "hu" | "it" | "ja" | "ko" | "no" | "pl" | "pt" | "ro" | "ru" | "sk" | "es" | "sv" | "tr" | "uk" | "vi"
 
@@ -220,6 +220,19 @@ export interface ProjectKnowledgeState {
 }
 
 export type InterviewProjectPatch = Partial<Pick<InterviewProject, "name" | "description" | "experience" | "enabled">>
+
+export const PREPARATION_LIMITS = { title: 160, organization: 160, focus: 1000, requirements: 6000 } as const
+
+export interface Preparation {
+  title: string
+  organization: string
+  focus: string
+  requirements: string
+}
+
+export interface PreparationState {
+  active: Readonly<Preparation> | null
+}
 
 export interface Settings {
   /** Random id created on first run; identifies this install to the relay for quotas. */

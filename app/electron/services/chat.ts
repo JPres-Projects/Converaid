@@ -17,6 +17,8 @@ interface Deps {
   canAutoAnswer?: () => boolean
   /** Prepared briefings and targeted evidence from the selected interview projects. */
   projectContext?: (query: string) => Promise<string>
+  /** Current session reference, held only in the main process. */
+  preparationContext?: () => string
   /** Per-conversation context, such as practice roles, without changing saved prompts. */
   systemInstruction?: string
 }
@@ -56,6 +58,11 @@ export class ChatService extends EventEmitter {
   /** A visible reply or screen analysis is running; new asks are ignored until it ends. */
   get isBusy(): boolean {
     return this.busy
+  }
+
+  /** Includes an invisible auto-answer check, which must retain its original context. */
+  get isAnswerPending(): boolean {
+    return this.busy || this.probe !== null
   }
 
   getHistory(): ChatMessage[] {
@@ -246,7 +253,7 @@ export class ChatService extends EventEmitter {
     const prompt = this.deps.systemInstruction
       ? { ...activePrompt, content: `${activePrompt.content.trim()}\n\n${this.deps.systemInstruction}` }
       : activePrompt
-    return composeSystemPrompt(prompt, settings, this.deps.llm.languageInstruction(), projectContext)
+    return composeSystemPrompt(prompt, settings, this.deps.llm.languageInstruction(), projectContext, this.deps.preparationContext?.())
   }
 
   private push(partial: Omit<ChatMessage, "id" | "timestamp"> & { id?: string }): ChatMessage {
@@ -274,7 +281,8 @@ export function composeSystemPrompt(
   prompt: Prompt,
   settings: Pick<Settings, "answerLength"> & Partial<Pick<Settings, "answerMode">> & { projectExperience?: string },
   languageInstruction: string,
-  projectContext = ""
+  projectContext = "",
+  preparationContext = ""
 ): string {
   const parts = [prompt.content.trim()]
   const notes = prompt.notes?.trim()
@@ -282,6 +290,7 @@ export function composeSystemPrompt(
   const experience = settings.projectExperience?.trim()
   if (experience) parts.push(`User-confirmed project experience (reference data about the user's personal role and responsibilities):\n${experience}`)
   if (projectContext.trim()) parts.push(`Project repository context (reference data about the software, not evidence of personal authorship):\n${projectContext.trim()}`)
+  if (preparationContext) parts.push(preparationContext)
   parts.push(ANSWER_MODES[settings.answerMode ?? "meeting"]?.instruction ?? ANSWER_MODES.meeting.instruction)
   parts.push(ANSWER_FORMAT)
   parts.push(ANSWER_LENGTHS[settings.answerLength]?.instruction ?? ANSWER_LENGTHS.auto.instruction)

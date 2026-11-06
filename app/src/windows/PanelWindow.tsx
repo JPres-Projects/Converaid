@@ -39,6 +39,7 @@ import { Markdown } from "@/components/Markdown"
 import { ProjectSettings } from "@/components/ProjectSettings"
 import { PromptSettings } from "@/components/PromptSettings"
 import { SimulationTab } from "@/components/SimulationTab"
+import { PreparationTab } from "@/components/PreparationTab"
 import converaidLogo from "../../build/converaid-logo.png"
 
 /**
@@ -133,7 +134,7 @@ export function PanelWindow() {
               </Button>
             </div>
           </div>
-          <div className="no-drag grid w-full min-w-0 grid-cols-4 items-center gap-0.5 rounded-lg border border-white/[0.06] bg-black/20 p-0.5">
+          <div className="no-drag grid w-full min-w-0 grid-cols-3 items-center gap-0.5 rounded-lg border border-white/[0.06] bg-black/20 p-0.5 sm:grid-cols-5">
             <TabButton active={tab === "answers"} onClick={() => choose("answers")}>{t("Answers")}</TabButton>
             <TabButton active={tab === "transcript"} onClick={() => choose("transcript")}>
               {t("Transcript")}
@@ -141,6 +142,7 @@ export function PanelWindow() {
             </TabButton>
             <TabButton active={tab === "settings"} onClick={() => choose("settings")}>{t("Settings")}</TabButton>
             <TabButton active={tab === "simulation"} onClick={() => choose("simulation")}>{t("Simulation")}</TabButton>
+            <TabButton active={tab === "preparation"} onClick={() => choose("preparation")}>Preparation</TabButton>
           </div>
         </header>
         {settings && settings.shortcutConflicts.length > 0 && (
@@ -177,6 +179,7 @@ export function PanelWindow() {
             </div>
             {tab === "settings" && settings && <SettingsTab settings={settings} update={update} plan={plan} autoAllowed={autoAllowed} />}
             {tab === "simulation" && settings && <SimulationTab settings={settings} liveStatus={session.status} />}
+            <div className={cn("min-h-0 flex-1 flex-col", tab === "preparation" ? "flex" : "hidden")}><PreparationTab /></div>
           </div>
         </div>
       </div>
