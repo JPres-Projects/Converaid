@@ -5,6 +5,7 @@ import { openOwnKeyForm, registerIpc } from "./ipc"
 import { Logger, type LogLevel } from "./services/logger"
 import { captureScreen } from "./services/capture"
 import { ChatService } from "./services/chat"
+import { PreparationService } from "./services/preparation"
 import { SimulationService } from "./services/simulation"
 import { LocalAsrSocket } from "./services/localAsr"
 import { ProjectKnowledgeService } from "./services/projectKnowledgeService"
@@ -107,7 +108,10 @@ function bootstrap(): void {
   const windows = new WindowManager(path.join(__dirname, "preload.js"))
   const projectKnowledge = new ProjectKnowledgeService({ settings })
   projectKnowledge.on("state", (state) => windows.broadcast("projects:changed", state))
+  const preparation = new PreparationService()
+  const preparationContext = () => preparation.context()
   const chat = new ChatService({
+    preparationContext,
     settings,
     llm,
     session,
@@ -116,10 +120,11 @@ function bootstrap(): void {
     hideForCapture: () => windows.hideForCapture(),
     canAutoAnswer: () => autoAnswerAllowed(plan.getState())
   })
-  const suggestions = new SuggestionService({ settings, llm, session, chat })
+  const suggestions = new SuggestionService({ settings, llm, session, chat, preparationContext: () => preparation.reference() })
 
   let simulation: SimulationService
   const simulationChat = new ChatService({
+    preparationContext,
     settings,
     llm,
     session: {
@@ -181,7 +186,7 @@ function bootstrap(): void {
     }
     if (process.platform === "darwin") app.dock?.hide()
     installSystemAudioHandler()
-    registerIpc({ settings, projectKnowledge, simulation, windows, session, chat, suggestions, meetings, reports, logger, cloud, plan, ownKey, transcripts })
+    registerIpc({ preparation, settings, projectKnowledge, simulation, windows, session, chat, suggestions, meetings, reports, logger, cloud, plan, ownKey, transcripts })
     instrument({ logger, settings, session, chat, windows })
     applySettings()
     settings.onChange(applySettings)
@@ -193,6 +198,7 @@ function bootstrap(): void {
     void cloud.start().catch((err) => logger.warn("cloud", "start failed", err))
     if (!process.env.IGPT_SMOKE) plan.start()
     windows.createMain()
+    if (!process.env.IGPT_SMOKE && process.env.MEETINGLY_AUTOSTART !== "listen") windows.showPanel("preparation")
     createTray(windows, settings, {
       openWeb: (page) => void cloud.openWeb(page),
       openLogs: () => shell.showItemInFolder(logger.file),

@@ -116,3 +116,15 @@ Authority: CONV-D7 replaces CONV-D6 for active preparation lifetime. The user ex
 - [ ] Inspect the actual Preparation screen at 1440 and approximately 390 pixels and verify Start returns to the existing toolbar.
 - [ ] Integrate compact private support, language, thesis and open-source examples while preserving custom prompt text, projects, provider credentials and taskbar exclusion.
 - [ ] Build and install one current package on the laptop; verify installed hash, profile preservation and session reset, then record exact delivery proof.
+## Preparation delivery, 2026-11-06
+- [x] Preserve partial changes and integrate taskbar commit 32209f1.
+- [x] Prove failing regressions; implement validated session-only context and trusted Start.
+- [x] Add editable responsive Preparation and connect all answer paths.
+- [x] Verify tests, typechecks, renderer screenshots and production NSIS.
+- [x] Preserve private profile, install, prove quit/relaunch reset and deliver hashes.
+
+## Final approved review and private context update, 2026-11-06
+- [x] Reproduce stale suggestions across successful Preparation Start and preserve them on invalid or busy Start; apply minimal fix.
+- [x] Verify focused tests and typechecks; rebuild production and NSIS once.
+- [x] Back up the real profile, apply the authorized private bundle atomically and idempotently, and prove unrelated settings unchanged.
+- [x] Install the final build, prove true Quit/relaunch reset, sync synthetic screenshots and final proof, and commit the delivery record.

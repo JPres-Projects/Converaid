@@ -23,9 +23,12 @@ import type {
   WindowsState,
   PanelTab
 } from "./types"
+import type { Preparation, PreparationState } from "./types"
 
 /** Renderer -> main request/response. */
 export interface InvokeMap {
+  "preparation:state": () => PreparationState
+  "preparation:start": (draft: Preparation) => PreparationState
   "settings:get": () => SettingsView
   "settings:update": (patch: Partial<Settings>) => SettingsView
   /** Local project access is granted only through the native folder picker. */
@@ -141,6 +144,8 @@ export type InvokeChannel = keyof InvokeMap
 export type EventChannel = keyof EventMap
 
 export const INVOKE_CHANNELS: InvokeChannel[] = [
+  "preparation:state",
+  "preparation:start",
   "settings:get",
   "settings:update",
   "projects:add",

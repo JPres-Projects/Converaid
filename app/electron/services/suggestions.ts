@@ -7,6 +7,7 @@ import type { SettingsStore } from "./settings"
 import { t } from "../../shared/i18n"
 
 interface Deps {
+  preparationContext?: () => string
   settings: Pick<SettingsStore, "get" | "activePrompt">
   llm: Pick<Llm, "chat" | "languageInstruction">
   session: Pick<RecordingSession, "transcriptText">
@@ -198,6 +199,8 @@ export class SuggestionService extends EventEmitter {
   private messages(transcript: string, since: number): LlmMessage[] {
     const notes = this.deps.settings.activePrompt().notes?.trim()
     const system = [SUGGEST_PROMPT]
+    const preparation = this.deps.preparationContext?.()
+    if (preparation) system.push(preparation)
     if (notes) system.push(`Background about the user:\n${notes}`)
     system.push(`Write the topic, the context and the questions in the language this names: ${this.deps.llm.languageInstruction()}`)
 

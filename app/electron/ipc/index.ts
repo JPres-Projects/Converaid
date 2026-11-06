@@ -3,6 +3,7 @@ import path from "node:path"
 import { randomUUID } from "node:crypto"
 import type { InvokeChannel, InvokeMap } from "../../shared/ipc"
 import type { ChatService } from "../services/chat"
+import type { PreparationService } from "../services/preparation"
 import type { CloudSync } from "../services/cloud"
 import type { PlanService } from "../services/plan"
 import type { OwnKeyService } from "../services/ownKey"
@@ -21,6 +22,7 @@ import type { WindowManager } from "../windows/WindowManager"
 import { projectId, rendererProjectPatch, rendererSettingsPatch, trustedFrame } from "./guard"
 
 export interface IpcDeps {
+  preparation: PreparationService
   settings: SettingsStore
   projectKnowledge: ProjectKnowledgeService
   windows: WindowManager
@@ -71,6 +73,16 @@ export function registerIpc(deps: IpcDeps): void {
   const { settings, projectKnowledge, windows, session, simulation, chat, suggestions, meetings, logger, cloud, plan, ownKey, transcripts } = deps
   const handle = <K extends InvokeChannel>(channel: K, fn: Handler<K>) => registerHandler(channel, fn, windows)
 
+  handle("preparation:state", () => deps.preparation.getState())
+  handle("preparation:start", (_e, draft) => {
+    if (chat.isAnswerPending || simulation.getState().busy) throw new Error("Wait for the current answer to finish before starting preparation.")
+    const state = deps.preparation.start(draft)
+    suggestions.reset()
+    windows.setPanelTab("answers")
+    windows.hide("chat")
+    return state
+  })
+
   // Settings
   handle("settings:get", () => settings.view())
   handle("settings:update", (_e, patch) => {
@@ -119,7 +131,7 @@ export function registerIpc(deps: IpcDeps): void {
   handle("windows:toggle", (_e, kind) => windows.toggle(kind))
   handle("windows:toggle-all", () => windows.toggleAll())
   const panelTab = (tab: unknown) => {
-    if (tab !== "answers" && tab !== "transcript" && tab !== "settings" && tab !== "simulation") throw new Error("Invalid panel tab")
+    if (tab !== "answers" && tab !== "transcript" && tab !== "settings" && tab !== "simulation" && tab !== "preparation") throw new Error("Invalid panel tab")
     return tab
   }
   handle("panel:show", (_e, tab) => windows.showPanel(panelTab(tab)))
