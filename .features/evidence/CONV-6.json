@@ -3,58 +3,66 @@
     "app/tests/cloud-local.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.794Z",
-      "commit": "928719d",
-      "fingerprint": "4a5ccaa2efec970a",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.560Z",
+      "commit": "3fee6e7",
+      "fingerprint": "ad2896e36690029e",
+      "ms": 12935
     },
     "app/tests/cloud-prompts.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.894Z",
-      "commit": "928719d",
-      "fingerprint": "4a5ccaa2efec970a",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.627Z",
+      "commit": "3fee6e7",
+      "fingerprint": "ad2896e36690029e",
+      "ms": 12935
     },
     "app/tests/project-ipc.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.011Z",
-      "commit": "928719d",
-      "fingerprint": "4a5ccaa2efec970a",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.806Z",
+      "commit": "3fee6e7",
+      "fingerprint": "ad2896e36690029e",
+      "ms": 12935
     },
     "app/tests/reports.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.093Z",
-      "commit": "928719d",
-      "fingerprint": "4a5ccaa2efec970a",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.947Z",
+      "commit": "3fee6e7",
+      "fingerprint": "ad2896e36690029e",
+      "ms": 12935
     },
     "app/tests/session.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.182Z",
-      "commit": "928719d",
-      "fingerprint": "4a5ccaa2efec970a",
-      "ms": 32778
+      "at": "2026-11-06T22:11:05.028Z",
+      "commit": "3fee6e7",
+      "fingerprint": "ad2896e36690029e",
+      "ms": 12935
     },
     "app/tests/simulation-ipc.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.259Z",
-      "commit": "928719d",
-      "fingerprint": "4a5ccaa2efec970a",
-      "ms": 32778
+      "at": "2026-11-06T22:11:05.137Z",
+      "commit": "3fee6e7",
+      "fingerprint": "ad2896e36690029e",
+      "ms": 12935
     },
     "app/tests/transcript-files.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.338Z",
-      "commit": "928719d",
-      "fingerprint": "4a5ccaa2efec970a",
-      "ms": 32778
+      "at": "2026-11-06T22:11:05.214Z",
+      "commit": "3fee6e7",
+      "fingerprint": "ad2896e36690029e",
+      "ms": 12935
+    },
+    "app/tests/preparation-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:04.692Z",
+      "commit": "3fee6e7",
+      "fingerprint": "ad2896e36690029e",
+      "ms": 12935
     }
   }
 }

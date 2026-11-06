@@ -19,6 +19,26 @@
   ],
   "tests": [
     {
+      "file": "app/tests/chat.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/cloud-local.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/cloud-prompts.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/interview-projects.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
       "file": "app/tests/preparation-ipc.test.ts",
       "area": "backend",
       "origin": "person"
@@ -27,6 +47,36 @@
       "file": "app/tests/preparations.test.ts",
       "area": "backend",
       "origin": "person"
+    },
+    {
+      "file": "app/tests/project-knowledge-service.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/reports.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/settings.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/simulation.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/suggestions.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/transcript-files.test.ts",
+      "area": "backend",
+      "origin": "scan"
     }
   ],
   "acceptance": [],
@@ -86,5 +136,5 @@
     "at": "2026-11-06T18:07:34.764Z",
     "commit": "da4bf6b"
   },
-  "updatedAt": "2026-11-06T22:03:48.886Z"
+  "updatedAt": "2026-11-06T22:05:47.245Z"
 }

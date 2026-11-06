@@ -3,50 +3,58 @@
     "app/tests/chat.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.466Z",
-      "commit": "928719d",
-      "fingerprint": "97098eca2ab4e892",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.046Z",
+      "commit": "3fee6e7",
+      "fingerprint": "4c294fe78a93a451",
+      "ms": 12935
     },
     "app/tests/deepgram.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.519Z",
-      "commit": "928719d",
-      "fingerprint": "97098eca2ab4e892",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.104Z",
+      "commit": "3fee6e7",
+      "fingerprint": "4c294fe78a93a451",
+      "ms": 12935
     },
     "app/tests/project-ipc.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.569Z",
-      "commit": "928719d",
-      "fingerprint": "97098eca2ab4e892",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.237Z",
+      "commit": "3fee6e7",
+      "fingerprint": "4c294fe78a93a451",
+      "ms": 12935
     },
     "app/tests/refine.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.621Z",
-      "commit": "928719d",
-      "fingerprint": "97098eca2ab4e892",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.297Z",
+      "commit": "3fee6e7",
+      "fingerprint": "4c294fe78a93a451",
+      "ms": 12935
     },
     "app/tests/session.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.676Z",
-      "commit": "928719d",
-      "fingerprint": "97098eca2ab4e892",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.377Z",
+      "commit": "3fee6e7",
+      "fingerprint": "4c294fe78a93a451",
+      "ms": 12935
     },
     "app/tests/simulation-ipc.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.727Z",
-      "commit": "928719d",
-      "fingerprint": "97098eca2ab4e892",
-      "ms": 32778
+      "at": "2026-11-06T22:11:04.451Z",
+      "commit": "3fee6e7",
+      "fingerprint": "4c294fe78a93a451",
+      "ms": 12935
+    },
+    "app/tests/preparation-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:04.162Z",
+      "commit": "3fee6e7",
+      "fingerprint": "4c294fe78a93a451",
+      "ms": 12935
     }
   }
 }

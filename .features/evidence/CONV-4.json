@@ -3,26 +3,34 @@
     "app/tests/updater.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.411Z",
-      "commit": "928719d",
-      "fingerprint": "b8ad920c05633627",
-      "ms": 32778
+      "at": "2026-11-06T22:11:03.911Z",
+      "commit": "3fee6e7",
+      "fingerprint": "65f368916ff036c6",
+      "ms": 12935
     },
     "app/tests/copy.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.308Z",
-      "commit": "928719d",
-      "fingerprint": "b8ad920c05633627",
-      "ms": 32778
+      "at": "2026-11-06T22:11:03.757Z",
+      "commit": "3fee6e7",
+      "fingerprint": "65f368916ff036c6",
+      "ms": 12935
     },
     "app/tests/update-feed.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:12.361Z",
-      "commit": "928719d",
-      "fingerprint": "b8ad920c05633627",
-      "ms": 32778
+      "at": "2026-11-06T22:11:03.822Z",
+      "commit": "3fee6e7",
+      "fingerprint": "65f368916ff036c6",
+      "ms": 12935
+    },
+    "app/tests/window-taskbar.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:03.980Z",
+      "commit": "3fee6e7",
+      "fingerprint": "65f368916ff036c6",
+      "ms": 12935
     }
   }
 }

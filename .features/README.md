@@ -2,7 +2,7 @@
 
 <!-- Written by the awg-features plugin from .features/items. Change features with its commands (/awg-features, /awg-features-add, /awg-features-test), not in this file. -->
 
-Updated 2026-11-06 at commit d59a2e8. 9 features: 2 changed since last test; 6 tests not run; 1 in progress. Tested in the backend: 0, in the frontend: 0.
+Updated 2026-11-06 at commit 3fee6e7. 9 features: 8 backend tested; 1 in progress. Tested in the backend: 8, in the frontend: 0.
 
 A status comes from the feature's tests, not from anybody's word: **Tested** means every test of the feature passed on the code as it is now; **Changed since last test** means it passed, but its files changed since.
 
@@ -32,19 +32,6 @@ A status comes from the feature's tests, not from anybody's word: **Tested** mea
 
 **Next step:** CONV-S1 Explain a selected project's architecture and responsibility boundaries (core, untested) - no test proves it yet: write its end-to-end test the way the person does it (real systems where that is safe, drafts never sent), with "@scenario CONV-S1" at its top, and run it (/awg-features-test CONV-S1).
 
-## Needs attention
-
-| ID | Feature | Status | Backend | Frontend |
-|---|---|---|---|---|
-| CONV-1 | Prepare selected projects for role-specific interviews | Tests not run | not run | untested |
-| CONV-2 | Practice interviews with editable system prompts | Tests not run | not run | untested |
-| CONV-3 | Choose a model provider and routing | Changed since last test | changed | untested |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested |
-| CONV-5 | Record and transcribe conversations | Tests not run | not run | untested |
-| CONV-6 | Review saved meetings and reports | Tests not run | not run | untested |
-| CONV-7 | Get answers and suggestions during conversations | Tests not run | not run | untested |
-| CONV-8 | Use managed accounts and service allowances | Changed since last test | changed | untested |
-
 ## Still open
 
 Put down by the chat that did the work; closed when a chat says what showed it worked (`open done <ID>`).
@@ -60,10 +47,10 @@ The steps a team takes before a feature counts, beside its tests: research what 
 
 | ID | Feature | Status | Missing |
 |---|---|---|---|
-| CONV-5 | Record and transcribe conversations | Tests not run | research, design, security |
-| CONV-6 | Review saved meetings and reports | Tests not run | research, design, security |
-| CONV-7 | Get answers and suggestions during conversations | Tests not run | research, design, security |
-| CONV-8 | Use managed accounts and service allowances | Changed since last test | research, design, security |
+| CONV-5 | Record and transcribe conversations | Backend tested | research, design, security |
+| CONV-6 | Review saved meetings and reports | Backend tested | research, design, security |
+| CONV-7 | Get answers and suggestions during conversations | Backend tested | research, design, security |
+| CONV-8 | Use managed accounts and service allowances | Backend tested | research, design, security |
 
 ## Open findings
 
@@ -85,32 +72,32 @@ Found wrong and not proven fixed yet. Each stays here until a test that names it
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-8 | Use managed accounts and service allowances | Changed since last test | changed | untested | 2026-11-06 Add session-only preparation and editable role context |
+| CONV-8 | Use managed accounts and service allowances | Backend tested | passing | untested | 2026-11-06 Add session-only preparation and editable role context |
 
 ## Conversation assistance
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-7 | Get answers and suggestions during conversations | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
+| CONV-7 | Get answers and suggestions during conversations | Backend tested | passing | untested | 2026-11-06 Reset previous suggestions when preparation starts |
 
 ## Conversation recording
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-5 | Record and transcribe conversations | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
+| CONV-5 | Record and transcribe conversations | Backend tested | passing | untested | 2026-11-06 Reset previous suggestions when preparation starts |
 
 ## General
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-1 | Prepare selected projects for role-specific interviews | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
-| CONV-2 | Practice interviews with editable system prompts | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
-| CONV-3 | Choose a model provider and routing | Changed since last test | changed | untested | 2026-11-06 Add session-only preparation and editable role context |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested | 2026-11-06 Add session-only preparation and editable role context |
+| CONV-1 | Prepare selected projects for role-specific interviews | Backend tested | passing | untested | 2026-11-06 Reset previous suggestions when preparation starts |
+| CONV-2 | Practice interviews with editable system prompts | Backend tested | passing | untested | 2026-11-06 Reset previous suggestions when preparation starts |
+| CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-11-06 Add session-only preparation and editable role context |
+| CONV-4 | Launch Converaid with a distinct desktop identity | Backend tested | passing | untested | 2026-11-06 Add session-only preparation and editable role context |
 
 ## Meeting records
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-6 | Review saved meetings and reports | Tests not run | not run | untested | 2026-11-06 Reset previous suggestions when preparation starts |
+| CONV-6 | Review saved meetings and reports | Backend tested | passing | untested | 2026-11-06 Reset previous suggestions when preparation starts |
 

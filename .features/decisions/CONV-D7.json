@@ -16,11 +16,11 @@
     "activePreparationId",
     "preparations"
   ],
-  "status": "current",
+  "status": "superseded",
   "supersedes": [
     "CONV-D6"
   ],
-  "supersededBy": null,
+  "supersededBy": "CONV-D8",
   "decided": {
     "by": "Jim",
     "at": "2026-11-06T21:21:53.128Z",
@@ -36,5 +36,5 @@
     "at": "2026-11-06T21:21:53.128Z",
     "commit": "32209f1"
   },
-  "updatedAt": "2026-11-06T21:21:53.128Z"
+  "updatedAt": "2026-11-06T22:06:40.128Z"
 }

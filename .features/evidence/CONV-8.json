@@ -3,99 +3,99 @@
     "app/tests/cloud-local.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.700Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 32778
+      "at": "2026-11-06T22:11:05.646Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 12935
     },
     "app/tests/cloud-prompts.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.752Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 32778
+      "at": "2026-11-06T22:11:05.719Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 12935
     },
     "app/tests/own-key.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.806Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 32778
+      "at": "2026-11-06T22:11:05.815Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 12935
     },
     "app/tests/plan.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.855Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 32778
+      "at": "2026-11-06T22:11:05.881Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 12935
     },
     "app/tests/settings.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:28:13.930Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 32778,
+      "at": "2026-11-06T22:11:05.950Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 12935,
       "skippedTests": 1
     },
     "relay/accounts.test.mjs": {
       "status": "passed",
       "runner": "node-test",
-      "at": "2026-11-06T16:28:14.038Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 302
+      "at": "2026-11-06T22:11:06.013Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 237
     },
     "relay/answers.test.mjs": {
       "status": "passed",
       "runner": "node-test",
-      "at": "2026-11-06T16:28:14.118Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 261
+      "at": "2026-11-06T22:11:06.075Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 243
     },
     "relay/client-lifetime.test.mjs": {
       "status": "passed",
       "runner": "node-test",
-      "at": "2026-11-06T16:28:14.212Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 295
+      "at": "2026-11-06T22:11:06.148Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 219
     },
     "relay/http-regression.test.mjs": {
       "status": "passed",
       "runner": "node-test",
-      "at": "2026-11-06T16:28:14.351Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 636
+      "at": "2026-11-06T22:11:06.220Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 668
     },
     "relay/models.test.mjs": {
       "status": "passed",
       "runner": "node-test",
-      "at": "2026-11-06T16:28:14.413Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 191
+      "at": "2026-11-06T22:11:06.283Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 244
     },
     "relay/plans.test.mjs": {
       "status": "passed",
       "runner": "node-test",
-      "at": "2026-11-06T16:28:14.481Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 182
+      "at": "2026-11-06T22:11:06.351Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 264
     },
     "relay/quotas.test.mjs": {
       "status": "passed",
       "runner": "node-test",
-      "at": "2026-11-06T16:28:14.559Z",
-      "commit": "928719d",
-      "fingerprint": "3204221dec41f2f9",
-      "ms": 191
+      "at": "2026-11-06T22:11:06.419Z",
+      "commit": "3fee6e7",
+      "fingerprint": "7e14931bdfe36ff4",
+      "ms": 263
     }
   }
 }
