@@ -64,3 +64,18 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [x] Read the private Micro-One transcript, reconstruct the question sequence and save a private reading copy without altering the original.
 - [x] Record the latest language clarification in CONV-D1 and verify that the installed laptop profile has no fixed proficiency ranking.
 - [x] Complete the product brief and classify inherited code in the feature ledger, then verify the metadata and linked tests.
+
+## November 6 - personal interview language prompt
+
+- [x] Record the approved interview focus in CONV-D2 and verify the Python example against application source.
+- [x] Prepare a compact personal prompt section without changing global application defaults.
+- [x] Apply the section to the relevant saved personal prompts while preserving other settings and custom text.
+- [x] Verify saved content, limits, idempotence and the existing prompt-assembly path without a paid model call.
+
+
+## November 6 - prepared personal and project follow-ups
+
+- [x] Capture the confirmed identity and preparation requirements in CONV-D3 without putting personal prompt payloads into this repository.
+- [x] Verify concise challenge, solution and test examples for every reviewed language.
+- [x] Stage personal background and compact prepared answer cards as private prompt data.
+- [x] Update the stopped laptop profile atomically and verify preservation, bounds and idempotence.
