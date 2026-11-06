@@ -9,7 +9,15 @@
   "files": [],
   "tests": [],
   "acceptance": [],
-  "manualChecks": [],
+  "manualChecks": [
+    {
+      "what": "Preparation layout at 1440 and 390 pixels",
+      "result": "passed: root directly read both renderer screenshots, confirmed page margins, wrapping and visible Start; one nonessential footer sentence is queued for cleanup.",
+      "at": "2026-11-06T22:00:15.887Z",
+      "by": "agent",
+      "commit": "02aed94"
+    }
+  ],
   "scope": {
     "kind": "independent",
     "by": "agent",
@@ -57,5 +65,5 @@
     "at": "2026-11-06T18:07:34.764Z",
     "commit": "da4bf6b"
   },
-  "updatedAt": "2026-11-06T21:38:29.716Z"
+  "updatedAt": "2026-11-06T22:00:15.935Z"
 }

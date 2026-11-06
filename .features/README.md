@@ -2,7 +2,7 @@
 
 <!-- Written by the awg-features plugin from .features/items. Change features with its commands (/awg-features, /awg-features-add, /awg-features-test), not in this file. -->
 
-Updated 2026-11-06 at commit 32209f1. 9 features: 1 changed since last test; 1 tests not run; 6 backend tested; 1 in progress. Tested in the backend: 6, in the frontend: 0.
+Updated 2026-11-06 at commit e55cc04. 9 features: 1 changed since last test; 1 tests not run; 6 backend tested; 1 in progress. Tested in the backend: 6, in the frontend: 0.
 
 A status comes from the feature's tests, not from anybody's word: **Tested** means every test of the feature passed on the code as it is now; **Changed since last test** means it passed, but its files changed since.
 
@@ -79,32 +79,32 @@ Found wrong and not proven fixed yet. Each stays here until a test that names it
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-8 | Use managed accounts and service allowances | Backend tested | passing | untested | 2026-11-06 feat: add interview practice and prepared project briefings |
+| CONV-8 | Use managed accounts and service allowances | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
 ## Conversation assistance
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-7 | Get answers and suggestions during conversations | Backend tested | passing | untested | 2026-11-06 fix: ground spoken language answers in reviewed examples |
+| CONV-7 | Get answers and suggestions during conversations | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
 ## Conversation recording
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-5 | Record and transcribe conversations | Backend tested | passing | untested | 2026-11-06 fix: ground spoken language answers in reviewed examples |
+| CONV-5 | Record and transcribe conversations | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
 ## General
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-1 | Prepare selected projects for role-specific interviews | Backend tested | passing | untested | 2026-11-06 fix: ground spoken language answers in reviewed examples |
-| CONV-2 | Practice interviews with editable system prompts | Changed since last test | changed | untested | 2026-11-06 fix: keep Windows overlays out of taskbar |
-| CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-11-06 feat: add interview practice and prepared project briefings |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested | 2026-11-06 fix: keep Windows overlays out of taskbar |
+| CONV-1 | Prepare selected projects for role-specific interviews | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-2 | Practice interviews with editable system prompts | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
 ## Meeting records
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-6 | Review saved meetings and reports | Backend tested | passing | untested | 2026-11-06 feat: add interview practice and prepared project briefings |
+| CONV-6 | Review saved meetings and reports | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
