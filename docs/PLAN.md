@@ -93,3 +93,9 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [x] Add editable responsive Preparation and connect all answer paths.
 - [x] Verify tests, typechecks, renderer screenshots and production NSIS.
 - [x] Preserve private profile, install, prove quit/relaunch reset and deliver hashes.
+
+## Final approved review and private context update, 2026-11-06
+- [x] Reproduce stale suggestions across successful Preparation Start and preserve them on invalid or busy Start; apply minimal fix.
+- [x] Verify focused tests and typechecks; rebuild production and NSIS once.
+- [x] Back up the real profile, apply the authorized private bundle atomically and idempotently, and prove unrelated settings unchanged.
+- [x] Install the final build, prove true Quit/relaunch reset, sync synthetic screenshots and final proof, and commit the delivery record.

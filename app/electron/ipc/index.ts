@@ -77,6 +77,7 @@ export function registerIpc(deps: IpcDeps): void {
   handle("preparation:start", (_e, draft) => {
     if (chat.isAnswerPending || simulation.getState().busy) throw new Error("Wait for the current answer to finish before starting preparation.")
     const state = deps.preparation.start(draft)
+    suggestions.reset()
     windows.setPanelTab("answers")
     windows.hide("chat")
     return state
