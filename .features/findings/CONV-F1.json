@@ -1,0 +1,15 @@
+{
+  "id": "CONV-F1",
+  "feature": "CONV-4",
+  "text": "When account linking or billing browser launch fails, the existing Auto-answer action discards the IPC rejection and shows no user-visible error. CloudSync.linkStart and openWeb do not populate CloudState.error for these failures; the IPC wrapper logs and rethrows only. This unchanged upstream account/billing flow is independent of the Converaid branding release.",
+  "property": "visible",
+  "severity": "low",
+  "at": "app/src/windows/PanelWindow.tsx:110",
+  "code": "onClick={() => void api.invoke(plan.status === \"signed-out\" ? \"cloud:link-start\" : \"plan:upgrade\").catch(() => {})}",
+  "by": "agent",
+  "created": {
+    "at": "2026-11-06T15:11:51.943Z",
+    "commit": "c145803"
+  },
+  "updatedAt": "2026-11-06T15:11:51.944Z"
+}

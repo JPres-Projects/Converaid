@@ -1,0 +1,26 @@
+{
+  "id": "CONV-O1",
+  "title": "Prove the documented Windows product acceptance scenarios end to end",
+  "done": "The product brief now records seven scenarios; all eight feature groups have passing backend test evidence. Existing renderer and installation checks remain separate evidence.",
+  "check": "Each scenario has passing tagged end-to-end evidence on the Windows desktop, with explicit provider stand-ins and no claim about untested real-model answer quality.",
+  "waits": "A dedicated Windows acceptance-test pass for the newly documented scenarios.",
+  "refs": [
+    "CONV-1",
+    "CONV-2",
+    "CONV-3",
+    "CONV-4"
+  ],
+  "source": {
+    "tool": "codex",
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "computer": "DESKTOP-KV3OK8I",
+    "transcript": "C:\\Users\\stand\\.codex\\sessions\\2026\\11\\05\\rollout-2026-11-05T03-10-10-01a1a978-8210-70f2-86b4-bd5cc8cc499e.jsonl",
+    "conversation": ".awg/conversations/codex-01a1a978-8210-70f2-86b4-bd5cc8cc499e.md"
+  },
+  "by": "agent",
+  "created": {
+    "at": "2026-11-06T16:31:29.454Z",
+    "commit": "928719d"
+  },
+  "updatedAt": "2026-11-06T16:31:29.455Z"
+}

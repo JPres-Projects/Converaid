@@ -1,0 +1,43 @@
+{
+  "id": "CONV-D6",
+  "topic": "preparation-context",
+  "verdict": "Provide one editable Preparation tab with saved applications, position/preparation title, company or platform, optional skill focus and requirements. Keep architecture/product, coding/refactoring and Outlier skill preparation as local starter data; select architecture/product initially. Use requirements as context, not proof of expertise.",
+  "why": "The user wants to enter the application context themselves and keep language-specific preparation simple.",
+  "words": [
+    "preparation",
+    "job",
+    "application",
+    "role",
+    "provider",
+    "focus",
+    "stelle",
+    "anbieter",
+    "vorbereitung"
+  ],
+  "markers": [
+    "Converaid",
+    "Outlier"
+  ],
+  "status": "superseded",
+  "supersedes": [],
+  "supersededBy": "CONV-D7",
+  "decided": {
+    "by": "Jim",
+    "at": "2026-11-06T18:11:34.120Z",
+    "quote": "English translation: I should be able to enter the position and provider myself in a Preparation tab. Outlier language-specific screenings could also be a preset; do not make it too complicated.",
+    "via": "unseen",
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "tool": "codex",
+    "computer": "DESKTOP-KV3OK8I",
+    "transcript": "C:\\Users\\stand\\.codex\\sessions\\2026\\11\\05\\rollout-2026-11-05T03-10-10-01a1a978-8210-70f2-86b4-bd5cc8cc499e.jsonl",
+    "conversation": ".awg/conversations/codex-01a1a978-8210-70f2-86b4-bd5cc8cc499e.md"
+  },
+  "confirmed": true,
+  "seen": false,
+  "sources": [],
+  "created": {
+    "at": "2026-11-06T18:11:34.120Z",
+    "commit": "da4bf6b"
+  },
+  "updatedAt": "2026-11-06T21:21:53.128Z"
+}

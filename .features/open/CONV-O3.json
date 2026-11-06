@@ -1,0 +1,28 @@
+{
+  "id": "CONV-O3",
+  "title": "Apply the privately prepared research context after the interview",
+  "done": "Read the supplied research PDF and source ZIP locally; prepared compact English reference and answer-support drafts outside repository and synchronized folders at C:/Users/stand/AppData/Local/ConveraidPreparation/thesis-20261106. No app settings were changed and nothing was transferred.",
+  "check": "After an explicit release, back up the destination profile and verify the selected preparation includes the reviewed reference and support guidance.",
+  "waits": "The user explicitly releases transfer and application changes after the interviews.",
+  "refs": [
+    "CONV-1",
+    "CONV-2"
+  ],
+  "source": {
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "computer": "DESKTOP-KV3OK8I"
+  },
+  "by": "agent",
+  "created": {
+    "at": "2026-11-06T20:41:49.375Z",
+    "commit": "32209f1"
+  },
+  "updatedAt": "2026-11-06T22:13:02.271Z",
+  "closed": {
+    "how": "done",
+    "text": "Verified the laptop delivery proof for e624b37: privatePayloadApplied is true; three prompts are 4422/4423/4425 characters and notes11249 within12000. Original custom content and all unrelated settings were retained, with idempotent application. The subsequent simplified UI build preserves this profile unchanged.",
+    "at": "2026-11-06T22:13:02.270Z",
+    "by": "agent",
+    "computer": "DESKTOP-KV3OK8I"
+  }
+}

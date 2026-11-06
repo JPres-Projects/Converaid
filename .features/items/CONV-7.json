@@ -1,0 +1,73 @@
+{
+  "id": "CONV-7",
+  "title": "Get answers and suggestions during conversations",
+  "summary": "Use conversation context, suggested questions and optional screen context to request streamed answers.",
+  "group": "Conversation assistance",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "lifecycle": "implemented",
+  "entryPoints": [],
+  "files": [
+    "app/electron/services/capture.ts",
+    "app/electron/services/chat.ts",
+    "app/electron/services/suggestions.ts",
+    "app/src/windows/MainWindow.tsx",
+    "app/src/windows/PanelWindow.tsx"
+  ],
+  "tests": [
+    {
+      "file": "app/tests/chat.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/interview-projects.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/preparation-ipc.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/preparations.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/suggestions.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    }
+  ],
+  "acceptance": [],
+  "manualChecks": [],
+  "scope": {
+    "kind": "independent",
+    "why": "Inherited desktop capability, independent of coding-assistant integrations.",
+    "by": "agent",
+    "at": "2026-11-06T16:26:28.738Z"
+  },
+  "relates": [
+    {
+      "id": "CONV-2",
+      "how": "uses",
+      "why": "Live assistance shares the configured prompt and chat service.",
+      "by": "agent",
+      "at": "2026-11-06T16:26:35.521Z"
+    }
+  ],
+  "refs": {
+    "checked": true,
+    "at": "2026-11-06T16:26:35.521Z",
+    "by": "agent"
+  },
+  "created": {
+    "at": "2026-11-06T16:25:58.085Z",
+    "commit": "928719d"
+  },
+  "updatedAt": "2026-11-06T22:03:48.215Z"
+}

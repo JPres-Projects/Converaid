@@ -1,0 +1,11 @@
+{"at":"2026-11-06T16:25:42.512Z","type":"created","text":"Capture microphone and system audio, transcribe locally or through the configured cloud route, and manage recording state.","lifecycle":"planned","by":"agent","commit":"928719d"}
+{"at":"2026-11-06T16:26:21.209Z","type":"lifecycle","from":"planned","to":"implemented","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:26:22.526Z","type":"scope","text":"independent: Inherited desktop capability, independent of coding-assistant integrations.","by":"agent"}
+{"at":"2026-11-06T16:26:24.228Z","type":"note","text":"Inventory backfill of inherited implementation; no product behavior changed.","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:26:34.889Z","type":"relate","text":"uses CONV-2 Practice interviews with editable system prompts: Microphone simulation uses the existing local transcription engine.","by":"agent"}
+{"at":"2026-11-06T16:26:35.249Z","type":"relate","text":"CONV-6 Review saved meetings and reports uses this one","by":"agent"}
+{"at":"2026-11-06T16:26:39.963Z","type":"edited","text":"files added: app/electron/asr-worker.ts, app/electron/ipc/index.ts, app/electron/main.ts, app/electron/services/asrAudio.ts, app/electron/services/asrModel.ts and 9 more","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:27:28.810Z","type":"edited","text":"tests linked: app/tests/chat.test.ts, app/tests/deepgram.test.ts, app/tests/project-ipc.test.ts, app/tests/refine.test.ts, app/tests/session.test.ts, app/tests/simulation-ipc.test.ts","by":"scan","commit":"928719d"}
+{"at":"2026-11-06T16:28:15.107Z","type":"test","text":"backend: not-run -> passing","by":"tests","commit":"928719d"}
+{"at":"2026-11-06T22:03:48.211Z","type":"edited","text":"tests linked: app/tests/preparation-ipc.test.ts","by":"scan","commit":"d59a2e8"}
+{"at":"2026-11-06T22:11:07.693Z","type":"test","text":"backend: not-run -> passing","by":"tests","commit":"3fee6e7"}

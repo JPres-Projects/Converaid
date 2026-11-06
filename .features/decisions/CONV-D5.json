@@ -1,0 +1,39 @@
+{
+  "id": "CONV-D5",
+  "topic": "windows-taskbar-presence",
+  "verdict": "Converaid toolbar and panel windows must stay out of the Windows taskbar. Keep overlay and tray access available, including after visibility or privacy-state changes. This changes ordinary taskbar presence and does not promise invisibility to screen-sharing tools.",
+  "why": "The user explicitly reversed the earlier visible-taskbar requirement and wants the overlay as the normal access point.",
+  "words": [
+    "taskbar",
+    "windows",
+    "overlay",
+    "toolbar",
+    "taskleiste",
+    "leiste"
+  ],
+  "markers": [
+    "Converaid"
+  ],
+  "status": "current",
+  "supersedes": [],
+  "supersededBy": null,
+  "decided": {
+    "by": "Jim",
+    "at": "2026-11-06T17:58:18.050Z",
+    "quote": "English translation: It must not appear down in the Windows bar. It should only be in the overlay bar.",
+    "via": "unseen",
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "tool": "codex",
+    "computer": "DESKTOP-KV3OK8I",
+    "transcript": "C:\\Users\\stand\\.codex\\sessions\\2026\\11\\05\\rollout-2026-11-05T03-10-10-01a1a978-8210-70f2-86b4-bd5cc8cc499e.jsonl",
+    "conversation": ".awg/conversations/codex-01a1a978-8210-70f2-86b4-bd5cc8cc499e.md"
+  },
+  "confirmed": true,
+  "seen": false,
+  "sources": [],
+  "created": {
+    "at": "2026-11-06T17:58:18.050Z",
+    "commit": "da4bf6b"
+  },
+  "updatedAt": "2026-11-06T17:58:18.050Z"
+}

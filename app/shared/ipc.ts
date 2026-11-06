@@ -2,6 +2,7 @@
 // The preload only forwards channels listed here; the renderer gets full typing.
 
 import type { CloudState } from "./cloud"
+import type { SimulationRole, SimulationState } from "./simulation"
 import type {
   ChatChunk,
   ChatMessage,
@@ -11,6 +12,8 @@ import type {
   OwnKeyInput,
   Settings,
   SettingsView,
+  InterviewProjectPatch,
+  ProjectKnowledgeState,
   PlanState,
   SuggestionsState,
   TranscriptEvent,
@@ -20,11 +23,20 @@ import type {
   WindowsState,
   PanelTab
 } from "./types"
+import type { Preparation, PreparationState } from "./types"
 
 /** Renderer -> main request/response. */
 export interface InvokeMap {
+  "preparation:state": () => PreparationState
+  "preparation:start": (draft: Preparation) => PreparationState
   "settings:get": () => SettingsView
   "settings:update": (patch: Partial<Settings>) => SettingsView
+  /** Local project access is granted only through the native folder picker. */
+  "projects:add": () => SettingsView
+  "projects:remove": (id: string) => SettingsView
+  "projects:update": (id: string, patch: InterviewProjectPatch) => SettingsView
+  "projects:prepare": () => ProjectKnowledgeState
+  "projects:state": () => ProjectKnowledgeState
 
   "windows:state": () => WindowsState
   "windows:show": (kind: WindowKind) => void
@@ -59,6 +71,13 @@ export interface InvokeMap {
   "session:transcript": () => string
   /** The most recent finished utterance, if any. */
   "session:last-utterance": () => Utterance | null
+
+  "simulation:state": () => SimulationState
+  "simulation:role": (role: SimulationRole) => SimulationState
+  "simulation:send": (text: string) => void
+  "simulation:listen": (enabled: boolean) => SimulationState
+  "simulation:audio": (pcm16: ArrayBuffer) => void
+  "simulation:clear": () => SimulationState
 
   "chat:history": () => ChatMessage[]
   /** Streams the reply through chat:chunk / chat:message events. */
@@ -103,9 +122,11 @@ export interface EventMap {
   "session:state": SessionState
   "session:transcript": TranscriptEvent
   "session:utterance": Utterance
+  "simulation:changed": SimulationState
   "windows:state": WindowsState
   "panel:tab": PanelTab
   "settings:changed": SettingsView
+  "projects:changed": ProjectKnowledgeState
   "chat:message": ChatMessage
   "chat:chunk": ChatChunk
   "chat:busy": boolean
@@ -123,8 +144,15 @@ export type InvokeChannel = keyof InvokeMap
 export type EventChannel = keyof EventMap
 
 export const INVOKE_CHANNELS: InvokeChannel[] = [
+  "preparation:state",
+  "preparation:start",
   "settings:get",
   "settings:update",
+  "projects:add",
+  "projects:remove",
+  "projects:update",
+  "projects:prepare",
+  "projects:state",
   "windows:state",
   "windows:show",
   "windows:hide",
@@ -148,6 +176,12 @@ export const INVOKE_CHANNELS: InvokeChannel[] = [
   "session:audio",
   "session:transcript",
   "session:last-utterance",
+  "simulation:state",
+  "simulation:role",
+  "simulation:send",
+  "simulation:listen",
+  "simulation:audio",
+  "simulation:clear",
   "chat:history",
   "chat:send",
   "chat:answer-last",
@@ -175,9 +209,11 @@ export const EVENT_CHANNELS: EventChannel[] = [
   "session:state",
   "session:transcript",
   "session:utterance",
+  "simulation:changed",
   "windows:state",
   "panel:tab",
   "settings:changed",
+  "projects:changed",
   "chat:message",
   "chat:chunk",
   "chat:busy",

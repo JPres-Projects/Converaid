@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "key": "CONV",
+  "areas": {
+    "frontend": [],
+    "backend": []
+  },
+  "ignore": [],
+  "tests": {
+    "onCommit": false,
+    "timeoutSeconds": 600,
+    "runners": []
+  },
+  "notify": {
+    "on": [
+      "new",
+      "idea",
+      "finding",
+      "failing",
+      "fixed",
+      "tested",
+      "verified",
+      "lifecycle"
+    ],
+    "immediate": [
+      "failing"
+    ],
+    "digestMinutes": 10,
+    "quietHours": null,
+    "slack": null,
+    "telegram": null,
+    "webhook": null,
+    "awg": false,
+    "command": null
+  },
+  "capture": {
+    "ideas": true,
+    "requests": true,
+    "cues": []
+  },
+  "review": {
+    "everyCommits": 10
+  },
+  "steps": {
+    "since": "2026-10-19T00:00:00.000Z",
+    "on": true
+  }
+}

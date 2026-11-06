@@ -1,0 +1,32 @@
+{
+  "note": "Files and globs that are plumbing, not part of any feature.",
+  "paths": [
+    "app/electron/preload.ts",
+    "app/electron/services/logger.ts",
+    "app/postcss.config.js",
+    "app/scripts/fetch-asr-native.mjs",
+    "app/scripts/i18n.mjs",
+    "app/scripts/i18n_translate.py",
+    "app/scripts/publish-release.sh",
+    "app/scripts/screenshot.ps1",
+    "app/scripts/smoke.mjs",
+    "app/shared/i18n/catalogs.ts",
+    "app/shared/i18n/index.ts",
+    "app/src/components/Markdown.tsx",
+    "app/src/components/Panel.tsx",
+    "app/src/components/ui/badge.tsx",
+    "app/src/components/ui/button.tsx",
+    "app/src/components/ui/fields.tsx",
+    "app/src/index.css",
+    "app/src/lib/api.ts",
+    "app/src/lib/format.ts",
+    "app/src/lib/hooks.ts",
+    "app/src/lib/markdown.ts",
+    "app/src/lib/plain-text.ts",
+    "app/src/lib/utils.ts",
+    "app/src/main.tsx",
+    "app/tailwind.config.js",
+    "docs/readme_i18n.py",
+    "relay/deploy.sh"
+  ]
+}

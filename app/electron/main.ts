@@ -5,6 +5,10 @@ import { openOwnKeyForm, registerIpc } from "./ipc"
 import { Logger, type LogLevel } from "./services/logger"
 import { captureScreen } from "./services/capture"
 import { ChatService } from "./services/chat"
+import { PreparationService } from "./services/preparation"
+import { SimulationService } from "./services/simulation"
+import { LocalAsrSocket } from "./services/localAsr"
+import { ProjectKnowledgeService } from "./services/projectKnowledgeService"
 import { CloudSync } from "./services/cloud"
 import { Llm } from "./services/llm"
 import { MeetingStore } from "./services/meetings"
@@ -15,7 +19,7 @@ import { RefineModels } from "./services/refine"
 import { SettingsStore } from "./services/settings"
 import { TranscriptAutosave } from "./services/transcriptFiles"
 import { setLocale } from "../shared/i18n"
-import { autoAnswerAllowed } from "../shared/types"
+import { autoAnswerAllowed, getLanguage } from "../shared/types"
 import { SuggestionService } from "./services/suggestions"
 import { PlanService } from "./services/plan"
 import { OwnKeyService } from "./services/ownKey"
@@ -102,15 +106,45 @@ function bootstrap(): void {
     }
   }, 60_000)
   const windows = new WindowManager(path.join(__dirname, "preload.js"))
+  const projectKnowledge = new ProjectKnowledgeService({ settings })
+  projectKnowledge.on("state", (state) => windows.broadcast("projects:changed", state))
+  const preparation = new PreparationService()
+  const preparationContext = () => preparation.context()
   const chat = new ChatService({
+    preparationContext,
     settings,
     llm,
     session,
     capture: captureScreen,
+    projectContext: (query) => projectKnowledge.context(query),
     hideForCapture: () => windows.hideForCapture(),
     canAutoAnswer: () => autoAnswerAllowed(plan.getState())
   })
-  const suggestions = new SuggestionService({ settings, llm, session, chat })
+  const suggestions = new SuggestionService({ settings, llm, session, chat, preparationContext: () => preparation.reference() })
+
+  let simulation: SimulationService
+  const simulationChat = new ChatService({
+    preparationContext,
+    settings,
+    llm,
+    session: {
+      transcriptText: () => simulation.transcriptText(),
+      getLastUtterance: () => simulation.getLastUtterance()
+    },
+    capture: captureScreen,
+    projectContext: (query) => projectKnowledge.context(query),
+    systemInstruction: "This is a practice interview. Input is labeled Interviewer or Candidate. Help the candidate answer the current interviewer question, using candidate statements only as confirmed conversation context. Do not invent personal experience or generate the next interviewer question."
+  })
+  simulation = new SimulationService({
+    settings,
+    chat: simulationChat,
+    createSocket: () => new LocalAsrSocket({
+      language: getLanguage(settings.get().audioLanguage).asr,
+      model: asrModel,
+      refine: refineModels.forLanguage(settings.get().audioLanguage)
+    }),
+    canListen: () => session.state().status === "idle"
+  })
 
   const cloud = new CloudSync({
     settings,
@@ -123,6 +157,9 @@ function bootstrap(): void {
   const shortcuts = new ShortcutManager({ settings, windows, session, chat, openWeb: () => void cloud.openWeb() })
   cloud.on("state", (s) => logger.info("cloud", `status ${s.status}`, { email: s.email, error: s.error }))
   const plan = new PlanService({ settings })
+  simulationChat.on("message", (message) => {
+    if (message.role === "assistant" && message.kind !== "error") plan.refreshSoon()
+  })
   const ownKey = new OwnKeyService({ settings, box })
   plan.on("state", (s) => logger.info("plan", `${s.status} ${s.plan ?? ""}`, { answers: s.used?.answers, limit: s.limits?.answers }))
 
@@ -149,7 +186,7 @@ function bootstrap(): void {
     }
     if (process.platform === "darwin") app.dock?.hide()
     installSystemAudioHandler()
-    registerIpc({ settings, windows, session, chat, suggestions, meetings, reports, logger, cloud, plan, ownKey, transcripts })
+    registerIpc({ preparation, settings, projectKnowledge, simulation, windows, session, chat, suggestions, meetings, reports, logger, cloud, plan, ownKey, transcripts })
     instrument({ logger, settings, session, chat, windows })
     applySettings()
     settings.onChange(applySettings)
@@ -161,6 +198,7 @@ function bootstrap(): void {
     void cloud.start().catch((err) => logger.warn("cloud", "start failed", err))
     if (!process.env.IGPT_SMOKE) plan.start()
     windows.createMain()
+    if (!process.env.IGPT_SMOKE && process.env.MEETINGLY_AUTOSTART !== "listen") windows.showPanel("preparation")
     createTray(windows, settings, {
       openWeb: (page) => void cloud.openWeb(page),
       openLogs: () => shell.showItemInFolder(logger.file),
@@ -228,6 +266,7 @@ function bootstrap(): void {
   })
   app.on("will-quit", () => {
     logger.info("app", "quitting")
+    void simulation.setListening(false).catch((error) => logger.warn("simulation", "Microphone shutdown failed", error))
     shortcuts.unregister()
     // Quitting mid-session saves it like Finish: the meeting and its .txt now, the report on the next start
     // (reports.resumeUnfinished). Smoke runs end with a quit and must leave nothing behind.

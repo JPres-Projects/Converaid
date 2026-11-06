@@ -1,0 +1,24 @@
+{
+  "file": "Converaid-2026-11-06-Languages-Setup.exe",
+  "bytes": 130512421,
+  "sha256": "dc0266d8a829e9b038268e83d6967d9436c444d05d50e1ef9176eac5b4839dbc",
+  "appAsarSha256": "075c52d66cbe55d94d899dbe718601237d530cde26730c1aa429eed3fc61b2a7",
+  "sourceHashes": {
+    "app/shared/types.ts": "32649b085ed71f247c60f88e89819828e5b86855d9a0e0e8d376902783d758c8",
+    "app/electron/services/projectKnowledge.ts": "8499cf4f6d0e7ea540400ba02220f30d514df595bb82fffe131942eb7b343cba",
+    "app/package.json": "ab8bf9ce9cb778b1679f8dadee923b3c223403f8bfef6e5f77762569dd0217fa"
+  },
+  "referenceHashes": {
+    "DeepMines": "15a821009e3710eef4787d79621390c275d7240b1344da2913875ef79763977b",
+    "AWG": "d3e28b3a1058a9f78a67d3419ff84ec573119d07d9d1e1721f4507d1bbe21ccc",
+    "AI Clipping": "4a361218c9cdcf123ddfdaf0b740117da4e30550f08c360b1136863ff8f57dd3",
+    "Stardawn Deploy": "bcfd1d7779fce82aa6552d45cec280ef776abdb18df7358a6ddbd0554dd9c085"
+  },
+  "bankSha256": "31b11e59e9dad9920983da31d61067793c99aacf19c6e03ef3a09a0da8da423c",
+  "unitTestsPassed": 264,
+  "unitTestsSkipped": 1,
+  "typecheck": "passed",
+  "rendererSmoke": "passed",
+  "liveModelCalls": 0,
+  "profileIdentityPreserved": true
+}

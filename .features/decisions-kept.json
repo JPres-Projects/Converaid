@@ -1,0 +1,125 @@
+{
+  "files": [],
+  "lines": [
+    {
+      "key": "README.md#27f5829b4d9f",
+      "file": "README.md",
+      "text": "<img src=\"app/build/converaid-logo.png\" width=\"84\" alt=\"Converaid logo\" />",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:25:59.980Z"
+    },
+    {
+      "key": "README.md#f1db886ac86f",
+      "file": "README.md",
+      "text": "# Converaid: open-source AI interview assistant and meeting copilot",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:00.357Z"
+    },
+    {
+      "key": "README.md#e69c16f5c0fd",
+      "file": "README.md",
+      "text": "Converaid is a local fork of Meetingly, an open-source AI assistant for job interviews and live meetings. It adds editable system prompts, prepared project context and a separate interview…",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:00.791Z"
+    },
+    {
+      "key": "README.md#342dc047cc18",
+      "file": "README.md",
+      "text": "## Converaid features",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:01.189Z"
+    },
+    {
+      "key": "README.md#678854919f75",
+      "file": "README.md",
+      "text": "- **Converaid interface.** The toolbar, panel, tray text and window titles use Converaid branding. The main toolbar is included in the taskbar; auxiliary windows remain excluded. Package identity…",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:01.526Z"
+    },
+    {
+      "key": "docs/converaid-branding.md#0e83770786ef",
+      "file": "docs/converaid-branding.md",
+      "text": "# Converaid application artwork",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:01.903Z"
+    },
+    {
+      "key": "docs/converaid-branding.md#45b63d43d8c6",
+      "file": "docs/converaid-branding.md",
+      "text": "The Converaid mark was generated with the built-in image generation tool on November 6, 2026. The tool does not expose a selectable model version. The artwork is a cyan geometric conversation mark…",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:02.381Z"
+    },
+    {
+      "key": "docs/converaid-branding.md#00b08ae4faa2",
+      "file": "docs/converaid-branding.md",
+      "text": "The selected generated output was `exec-78099db3-9a66-4338-8855-f95a7720d2df.png`. It is preserved without modification as `app/build/converaid-logo.png` (1254 by 1254 pixels, RGBA). Its SHA-256 is…",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:02.748Z"
+    },
+    {
+      "key": "docs/converaid-branding.md#b4c737f2bd2a",
+      "file": "docs/converaid-branding.md",
+      "text": "> Create one finished original logo mark for Converaid, a desktop assistant for clear conversation, interview practice and understanding software projects. This is the actual application icon,…",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:03.082Z"
+    },
+    {
+      "key": "docs/converaid-branding.md#2898ff09c18c",
+      "file": "docs/converaid-branding.md",
+      "text": "> Polish this Converaid application logo into a finished precise vector-like icon. Preserve the same overall open C made from two conversational forms, its cyan/sky-blue color and its centered…",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:03.386Z"
+    },
+    {
+      "key": "docs/converaid-branding.md#a579d8b3376d",
+      "file": "docs/converaid-branding.md",
+      "text": "- `app/build/converaid-icon.ico` contains 32-bit PNG frames at 16, 24, 32, 48, 64, 128, and 256 pixels.",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:03.689Z"
+    },
+    {
+      "key": "docs/converaid-branding.md#44d487bb77b3",
+      "file": "docs/converaid-branding.md",
+      "text": "- `app/build/converaid-tray-16.png`, `converaid-tray-32.png`, `converaid-tray-64.png`, and `converaid-tray-256.png` provide transparent tray sizes.",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:03.999Z"
+    },
+    {
+      "key": "docs/converaid-branding.md#9aba7f6cdb46",
+      "file": "docs/converaid-branding.md",
+      "text": "- `app/build/converaid-tray.png` is the 32-pixel tray asset used in development and copied to `resources/tray.png` when packaged.",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:04.268Z"
+    },
+    {
+      "key": "docs/project-interview-preparation.md#5df93d643f52",
+      "file": "docs/project-interview-preparation.md",
+      "text": "The two local examples prepared for Jim live in the DeepMines and AWG project roots, rather than in this public Converaid repository. Their technical and personal context stays with those selected…",
+      "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
+      "by": "agent",
+      "at": "2026-11-06T21:26:04.576Z"
+    },
+    {
+      "key": "README.md#fc6fefd1af73",
+      "file": "README.md",
+      "text": "- **Converaid interface.** The toolbar, panel, tray text and window titles use Converaid branding. On Windows, the overlay windows remain excluded from the taskbar. Package identity stays compatible…",
+      "why": "This line documents existing Converaid branding and verified Windows taskbar behavior. It does not state the superseded multi-field Preparation design or activation persistence. CONV-D8 exclusively governs the simplified General/Job-description preparation; this is an unrelated lexical match.",
+      "by": "agent",
+      "at": "2026-11-06T22:26:38.365Z"
+    }
+  ]
+}

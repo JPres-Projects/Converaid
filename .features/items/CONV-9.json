@@ -1,0 +1,150 @@
+{
+  "id": "CONV-9",
+  "title": "Prepare editable job applications before practice",
+  "summary": "English translation: I want to enter the role and company or platform myself in a Preparation tab, so the assistant knows which application and required skills the practice is for.",
+  "group": "General",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "lifecycle": "implemented",
+  "entryPoints": [],
+  "files": [
+    "app/electron/ipc/index.ts",
+    "app/electron/main.ts",
+    "app/electron/services/chat.ts",
+    "app/electron/services/preparation.ts",
+    "app/electron/services/suggestions.ts",
+    "app/shared/ipc.ts",
+    "app/shared/types.ts",
+    "app/src/components/PreparationTab.tsx",
+    "app/src/windows/PanelWindow.tsx"
+  ],
+  "tests": [
+    {
+      "file": "app/tests/chat.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/cloud-local.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/cloud-prompts.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/interview-projects.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/preparation-ipc.test.ts",
+      "area": "backend",
+      "origin": "person"
+    },
+    {
+      "file": "app/tests/preparations.test.ts",
+      "area": "backend",
+      "origin": "person"
+    },
+    {
+      "file": "app/tests/project-knowledge-service.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/reports.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/settings.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/simulation.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/suggestions.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/transcript-files.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    }
+  ],
+  "acceptance": [],
+  "manualChecks": [
+    {
+      "what": "Preparation layout at 1440 and 390 pixels",
+      "result": "passed: root directly read both renderer screenshots, confirmed page margins, wrapping and visible Start; one nonessential footer sentence is queued for cleanup.",
+      "at": "2026-11-06T22:00:15.887Z",
+      "by": "agent",
+      "commit": "02aed94"
+    },
+    {
+      "what": "Simplified General and Job description layouts at 1440 and 390 pixels",
+      "result": "passed: root directly viewed the final General screenshot plus desktop and phone Job-description screenshots. General has no fields; Job description has exactly one textarea; margins, wrapping and Start are visible.",
+      "at": "2026-11-06T22:19:55.311Z",
+      "by": "agent",
+      "commit": "2c64eef"
+    }
+  ],
+  "scope": {
+    "kind": "independent",
+    "by": "agent",
+    "at": "2026-11-06T18:10:27.511Z"
+  },
+  "relates": [
+    {
+      "id": "CONV-2",
+      "how": "uses",
+      "why": "The selected preparation supplies bounded role context to existing prompt and simulation answer flows.",
+      "by": "agent",
+      "at": "2026-11-06T18:10:27.197Z"
+    }
+  ],
+  "refs": {
+    "checked": true,
+    "at": "2026-11-06T18:10:27.197Z",
+    "by": "agent"
+  },
+  "captured": {
+    "words": "English translation: I want to enter the role and company or platform myself in a Preparation tab, so the assistant knows which application and required skills the practice is for.",
+    "at": "2026-11-06T18:07:34.780Z",
+    "by": "agent",
+    "request": true,
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e"
+  },
+  "steps": {
+    "research": {
+      "done": "Rechecked the current settings, exit, IPC and shared prompt paths. Use a main-process in-memory preparation service and existing panel/fields rather than persistent activation or a new platform subsystem. Reuse established prompt flows and existing dependencies; no paid analyzer or automatic repository scan is added.",
+      "at": "2026-11-06T21:28:38.505Z",
+      "by": "agent"
+    },
+    "design": {
+      "done": "CONV-D8 is current: exactly General and Job description buttons, one conditional description textarea and one Start action. General uses existing project/personal context with no added job reference. No platform/title/language fields or starter presets remain. Root has verified tests and types; fresh desktop/phone screenshots are the final delivery check.",
+      "at": "2026-11-06T22:15:53.163Z",
+      "by": "agent"
+    },
+    "security": {
+      "done": "Job text and language input are bounded external reference data accepted through trusted IPC. Active context stays out of SettingsStore and is shared only with existing configured answer routes. Profile updates must preserve credentials and custom data; private biography and research/contribution notes stay outside Git. No additional paid provider call is introduced.",
+      "at": "2026-11-06T21:29:19.122Z",
+      "by": "agent"
+    }
+  },
+  "created": {
+    "at": "2026-11-06T18:07:34.764Z",
+    "commit": "da4bf6b"
+  },
+  "updatedAt": "2026-11-06T22:25:08.334Z"
+}

@@ -1,0 +1,141 @@
+{
+  "tests": {
+    "app/tests/chat.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.018Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/cloud-prompts.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.184Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/ipc-guard.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.373Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/settings.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:03.017Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935,
+      "skippedTests": 1
+    },
+    "app/tests/simulation-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:03.079Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/simulation.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:03.150Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/cloud-local.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.099Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/interview-projects.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.284Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/own-key.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.448Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/project-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.761Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/project-knowledge-service.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.825Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/reports.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.880Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/session.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.959Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/suggestions.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:03.221Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/transcript-files.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:03.292Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/preparation-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.558Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    },
+    "app/tests/preparations.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T22:11:02.687Z",
+      "commit": "3fee6e7",
+      "fingerprint": "e191e23e809c22e4",
+      "ms": 12935
+    }
+  }
+}

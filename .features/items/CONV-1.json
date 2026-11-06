@@ -1,0 +1,147 @@
+{
+  "id": "CONV-1",
+  "title": "Prepare selected projects for role-specific interviews",
+  "summary": "Prepare only selected local projects before an interview, using compact code- and commit-backed references for architecture, languages, provider boundaries, challenges and test mechanics while keeping personal responsibility separate.",
+  "group": "General",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "lifecycle": "implemented",
+  "entryPoints": [],
+  "files": [
+    "app/electron/services/projectContext.ts",
+    "app/electron/services/projectKnowledge.ts",
+    "app/electron/services/projectKnowledgeService.ts",
+    "app/shared/types.ts",
+    "app/src/components/ProjectSettings.tsx",
+    "docs/project-interview-preparation.md"
+  ],
+  "tests": [
+    {
+      "file": "app/tests/chat.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/cloud-local.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/cloud-prompts.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/interview-projects.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/preparation-ipc.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/preparations.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/project-context.test.ts",
+      "area": "backend",
+      "origin": "person"
+    },
+    {
+      "file": "app/tests/project-ipc.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/project-knowledge-service.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/project-knowledge.test.ts",
+      "area": "backend",
+      "origin": "person"
+    },
+    {
+      "file": "app/tests/reports.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/settings.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/simulation.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/suggestions.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/transcript-files.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    }
+  ],
+  "acceptance": [],
+  "manualChecks": [
+    {
+      "what": "Actual selected projects",
+      "result": "Prepared DeepMines and AWG from their real 5.6/6.3 MB maps and local INTERVIEW.md references. Both ready; ownership caveats and concrete test examples survive the 32,000-character context bound. Last run: 11,694 ms preparation, 421 ms context assembly, zero paid calls.",
+      "at": "2026-11-06T14:55:43.630Z",
+      "by": "person",
+      "commit": "9881211"
+    }
+  ],
+  "scope": {
+    "kind": "independent",
+    "by": "agent",
+    "at": "2026-11-06T14:40:23.281Z"
+  },
+  "refs": {
+    "checked": true,
+    "none": true,
+    "at": "2026-11-06T14:40:23.046Z",
+    "by": "agent"
+  },
+  "captured": {
+    "words": "Geh doch einfach mal in Extract Mining Stocks Data ... und in AWG genauso ... welche Probleme gab es ... welche Sprachen wurden da verwendet ... fuer die Interviews ist es wichtig",
+    "at": "2026-11-06T14:39:53.767Z",
+    "by": "agent",
+    "request": true,
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e"
+  },
+  "steps": {
+    "research": {
+      "done": "Reuse existing selected project preparation, safe local file reading and precomputed Understand Anything maps. Add conventional INTERVIEW.md references rather than a runtime analysis agent or another retrieval service. Sources: app/electron/services/projectKnowledge.ts, projectKnowledgeService.ts and projectContext.ts.",
+      "at": "2026-11-06T14:41:33.586Z",
+      "by": "agent"
+    },
+    "security": {
+      "done": "Only explicitly selected local project roots are read. Interview files pass existing path, ignore, symlink, size and secret filtering; context stays cached and bounded. Reference text cannot establish personal authorship or issue instructions. Excerpts are shared only through the existing user-configured answer route; no new paid call or automatic project-wide access is added.",
+      "at": "2026-11-06T14:41:34.177Z",
+      "by": "agent"
+    },
+    "design": {
+      "done": "Backfilled the project-details interface evidence at c145803: summaries and confirmed personal roles remain separate fields, selected projects stay explicit, preparation errors remain visible, and the release owner passed and inspected the 1440 px and 390 px local Settings/Simulation smoke using selected project context.",
+      "at": "2026-11-06T15:12:25.766Z",
+      "by": "agent"
+    }
+  },
+  "created": {
+    "at": "2026-11-06T14:39:53.760Z",
+    "commit": "9881211"
+  },
+  "updatedAt": "2026-11-06T22:03:48.218Z"
+}
