@@ -11,10 +11,16 @@
   "entryPoints": [],
   "files": [
     "README.md",
+    "app/electron/copy-menu.ts",
+    "app/electron/copy.ts",
+    "app/electron/mac-updater.ts",
     "app/electron/main.ts",
+    "app/electron/shortcuts.ts",
     "app/electron/tray.ts",
+    "app/electron/update-feed.ts",
     "app/electron/updater.ts",
     "app/electron/windows/WindowManager.ts",
+    "app/electron/windows/config.ts",
     "app/index.html",
     "app/package.json",
     "app/src/vite-env.d.ts",
@@ -23,6 +29,16 @@
     "docs/converaid-branding.md"
   ],
   "tests": [
+    {
+      "file": "app/tests/copy.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/update-feed.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
     {
       "file": "app/tests/updater.test.ts",
       "area": "backend",
@@ -89,5 +105,5 @@
     "at": "2026-11-06T15:09:29.031Z",
     "commit": "c145803"
   },
-  "updatedAt": "2026-11-06T15:29:02.182Z"
+  "updatedAt": "2026-11-06T16:27:28.820Z"
 }

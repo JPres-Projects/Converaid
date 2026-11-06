@@ -1,0 +1,52 @@
+{
+  "tests": {
+    "app/tests/chat.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.466Z",
+      "commit": "928719d",
+      "fingerprint": "97098eca2ab4e892",
+      "ms": 32778
+    },
+    "app/tests/deepgram.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.519Z",
+      "commit": "928719d",
+      "fingerprint": "97098eca2ab4e892",
+      "ms": 32778
+    },
+    "app/tests/project-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.569Z",
+      "commit": "928719d",
+      "fingerprint": "97098eca2ab4e892",
+      "ms": 32778
+    },
+    "app/tests/refine.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.621Z",
+      "commit": "928719d",
+      "fingerprint": "97098eca2ab4e892",
+      "ms": 32778
+    },
+    "app/tests/session.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.676Z",
+      "commit": "928719d",
+      "fingerprint": "97098eca2ab4e892",
+      "ms": 32778
+    },
+    "app/tests/simulation-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.727Z",
+      "commit": "928719d",
+      "fingerprint": "97098eca2ab4e892",
+      "ms": 32778
+    }
+  }
+}

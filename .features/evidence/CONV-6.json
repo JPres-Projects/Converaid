@@ -1,0 +1,60 @@
+{
+  "tests": {
+    "app/tests/cloud-local.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.794Z",
+      "commit": "928719d",
+      "fingerprint": "4a5ccaa2efec970a",
+      "ms": 32778
+    },
+    "app/tests/cloud-prompts.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.894Z",
+      "commit": "928719d",
+      "fingerprint": "4a5ccaa2efec970a",
+      "ms": 32778
+    },
+    "app/tests/project-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.011Z",
+      "commit": "928719d",
+      "fingerprint": "4a5ccaa2efec970a",
+      "ms": 32778
+    },
+    "app/tests/reports.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.093Z",
+      "commit": "928719d",
+      "fingerprint": "4a5ccaa2efec970a",
+      "ms": 32778
+    },
+    "app/tests/session.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.182Z",
+      "commit": "928719d",
+      "fingerprint": "4a5ccaa2efec970a",
+      "ms": 32778
+    },
+    "app/tests/simulation-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.259Z",
+      "commit": "928719d",
+      "fingerprint": "4a5ccaa2efec970a",
+      "ms": 32778
+    },
+    "app/tests/transcript-files.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.338Z",
+      "commit": "928719d",
+      "fingerprint": "4a5ccaa2efec970a",
+      "ms": 32778
+    }
+  }
+}

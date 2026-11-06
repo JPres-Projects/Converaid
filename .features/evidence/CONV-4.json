@@ -3,10 +3,26 @@
     "app/tests/updater.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.712Z",
-      "commit": "837e977",
-      "fingerprint": "1b8deb071ff9af6e",
-      "ms": 12399
+      "at": "2026-11-06T16:28:12.411Z",
+      "commit": "928719d",
+      "fingerprint": "b8ad920c05633627",
+      "ms": 32778
+    },
+    "app/tests/copy.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.308Z",
+      "commit": "928719d",
+      "fingerprint": "b8ad920c05633627",
+      "ms": 32778
+    },
+    "app/tests/update-feed.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.361Z",
+      "commit": "928719d",
+      "fingerprint": "b8ad920c05633627",
+      "ms": 32778
     }
   }
 }

@@ -1,0 +1,8 @@
+{"at":"2026-11-06T16:25:59.567Z","type":"created","text":"Use linked account identity, entitlement and usage state through the inherited managed relay; own-key requests bypass that relay.","lifecycle":"planned","by":"agent","commit":"928719d"}
+{"at":"2026-11-06T16:26:31.529Z","type":"lifecycle","from":"planned","to":"implemented","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:26:33.169Z","type":"scope","text":"independent: Inherited desktop capability, independent of coding-assistant integrations.","by":"agent"}
+{"at":"2026-11-06T16:26:34.536Z","type":"note","text":"Inventory backfill of inherited implementation; no product behavior changed.","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:26:35.827Z","type":"relate","text":"touches no other feature","by":"agent"}
+{"at":"2026-11-06T16:26:44.758Z","type":"edited","text":"files added: app/electron/services/cloud.ts, app/electron/services/plan.ts, app/electron/services/relayAuth.ts, app/shared/cloud.ts, app/shared/relay.ts and 8 more","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:27:28.815Z","type":"edited","text":"tests linked: app/tests/cloud-local.test.ts, app/tests/cloud-prompts.test.ts, app/tests/own-key.test.ts, app/tests/plan.test.ts, app/tests/settings.test.ts, relay/accounts.test.mjs, relay/answers.test.mjs, relay/client-lifetime.test.mjs, relay/http-regression.test.mjs, relay/models.test.mjs, relay/plans.test.mjs, relay/quotas.test.mjs","by":"scan","commit":"928719d"}
+{"at":"2026-11-06T16:28:15.283Z","type":"test","text":"backend: not-run -> passing","by":"tests","commit":"928719d"}

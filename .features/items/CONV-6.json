@@ -1,0 +1,84 @@
+{
+  "id": "CONV-6",
+  "title": "Review saved meetings and reports",
+  "summary": "Keep meeting history and plain-text transcripts, and generate structured reports when requested by the recording workflow.",
+  "group": "Meeting records",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "lifecycle": "implemented",
+  "entryPoints": [],
+  "files": [
+    "app/electron/ipc/index.ts",
+    "app/electron/main.ts",
+    "app/electron/services/meetings.ts",
+    "app/electron/services/reports.ts",
+    "app/electron/services/transcriptFiles.ts",
+    "app/src/windows/PanelWindow.tsx"
+  ],
+  "tests": [
+    {
+      "file": "app/tests/cloud-local.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/cloud-prompts.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/project-ipc.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/reports.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/session.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/simulation-ipc.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/transcript-files.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    }
+  ],
+  "acceptance": [],
+  "manualChecks": [],
+  "scope": {
+    "kind": "independent",
+    "why": "Inherited desktop capability, independent of coding-assistant integrations.",
+    "by": "agent",
+    "at": "2026-11-06T16:26:25.977Z"
+  },
+  "relates": [
+    {
+      "id": "CONV-5",
+      "how": "uses",
+      "why": "Saved meeting records and reports originate in recording sessions.",
+      "by": "agent",
+      "at": "2026-11-06T16:26:35.242Z"
+    }
+  ],
+  "refs": {
+    "checked": true,
+    "at": "2026-11-06T16:26:35.242Z",
+    "by": "agent"
+  },
+  "created": {
+    "at": "2026-11-06T16:25:56.737Z",
+    "commit": "928719d"
+  },
+  "updatedAt": "2026-11-06T16:27:28.816Z"
+}

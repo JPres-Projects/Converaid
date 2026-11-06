@@ -1,0 +1,44 @@
+{
+  "tests": {
+    "app/tests/model-presets.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.017Z",
+      "commit": "928719d",
+      "fingerprint": "3094f9e475fb8a88",
+      "ms": 32778
+    },
+    "app/tests/own-key.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.080Z",
+      "commit": "928719d",
+      "fingerprint": "3094f9e475fb8a88",
+      "ms": 32778
+    },
+    "app/tests/plan.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.143Z",
+      "commit": "928719d",
+      "fingerprint": "3094f9e475fb8a88",
+      "ms": 32778
+    },
+    "app/tests/secret-box.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.202Z",
+      "commit": "928719d",
+      "fingerprint": "3094f9e475fb8a88",
+      "ms": 32778
+    },
+    "app/tests/session.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:12.258Z",
+      "commit": "928719d",
+      "fingerprint": "3094f9e475fb8a88",
+      "ms": 32778
+    }
+  }
+}

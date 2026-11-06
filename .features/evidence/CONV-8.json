@@ -1,0 +1,101 @@
+{
+  "tests": {
+    "app/tests/cloud-local.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.700Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 32778
+    },
+    "app/tests/cloud-prompts.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.752Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 32778
+    },
+    "app/tests/own-key.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.806Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 32778
+    },
+    "app/tests/plan.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.855Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 32778
+    },
+    "app/tests/settings.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:13.930Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 32778,
+      "skippedTests": 1
+    },
+    "relay/accounts.test.mjs": {
+      "status": "passed",
+      "runner": "node-test",
+      "at": "2026-11-06T16:28:14.038Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 302
+    },
+    "relay/answers.test.mjs": {
+      "status": "passed",
+      "runner": "node-test",
+      "at": "2026-11-06T16:28:14.118Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 261
+    },
+    "relay/client-lifetime.test.mjs": {
+      "status": "passed",
+      "runner": "node-test",
+      "at": "2026-11-06T16:28:14.212Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 295
+    },
+    "relay/http-regression.test.mjs": {
+      "status": "passed",
+      "runner": "node-test",
+      "at": "2026-11-06T16:28:14.351Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 636
+    },
+    "relay/models.test.mjs": {
+      "status": "passed",
+      "runner": "node-test",
+      "at": "2026-11-06T16:28:14.413Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 191
+    },
+    "relay/plans.test.mjs": {
+      "status": "passed",
+      "runner": "node-test",
+      "at": "2026-11-06T16:28:14.481Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 182
+    },
+    "relay/quotas.test.mjs": {
+      "status": "passed",
+      "runner": "node-test",
+      "at": "2026-11-06T16:28:14.559Z",
+      "commit": "928719d",
+      "fingerprint": "3204221dec41f2f9",
+      "ms": 191
+    }
+  }
+}

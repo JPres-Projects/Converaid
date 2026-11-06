@@ -1,0 +1,8 @@
+{"at":"2026-11-06T16:25:58.090Z","type":"created","text":"Use conversation context, suggested questions and optional screen context to request streamed answers.","lifecycle":"planned","by":"agent","commit":"928719d"}
+{"at":"2026-11-06T16:26:27.690Z","type":"lifecycle","from":"planned","to":"implemented","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:26:28.743Z","type":"scope","text":"independent: Inherited desktop capability, independent of coding-assistant integrations.","by":"agent"}
+{"at":"2026-11-06T16:26:30.221Z","type":"note","text":"Inventory backfill of inherited implementation; no product behavior changed.","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:26:35.525Z","type":"relate","text":"uses CONV-2 Practice interviews with editable system prompts: Live assistance shares the configured prompt and chat service.","by":"agent"}
+{"at":"2026-11-06T16:26:43.020Z","type":"edited","text":"files added: app/electron/services/capture.ts, app/electron/services/chat.ts, app/electron/services/suggestions.ts, app/src/windows/MainWindow.tsx, app/src/windows/PanelWindow.tsx","by":"person","commit":"928719d"}
+{"at":"2026-11-06T16:27:28.806Z","type":"edited","text":"tests linked: app/tests/chat.test.ts, app/tests/interview-projects.test.ts, app/tests/suggestions.test.ts","by":"scan","commit":"928719d"}
+{"at":"2026-11-06T16:28:15.232Z","type":"test","text":"backend: not-run -> passing","by":"tests","commit":"928719d"}

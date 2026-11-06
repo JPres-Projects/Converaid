@@ -3,51 +3,123 @@
     "app/tests/chat.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.377Z",
-      "commit": "837e977",
-      "fingerprint": "afdf76a135a2f626",
-      "ms": 12399
+      "at": "2026-11-06T16:28:11.267Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
     },
     "app/tests/cloud-prompts.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.436Z",
-      "commit": "837e977",
-      "fingerprint": "afdf76a135a2f626",
-      "ms": 12399
+      "at": "2026-11-06T16:28:11.381Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
     },
     "app/tests/ipc-guard.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.493Z",
-      "commit": "837e977",
-      "fingerprint": "afdf76a135a2f626",
-      "ms": 12399
+      "at": "2026-11-06T16:28:11.469Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
     },
     "app/tests/settings.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.545Z",
-      "commit": "837e977",
-      "fingerprint": "afdf76a135a2f626",
-      "ms": 12399,
+      "at": "2026-11-06T16:28:11.757Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778,
       "skippedTests": 1
     },
     "app/tests/simulation-ipc.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.593Z",
-      "commit": "837e977",
-      "fingerprint": "afdf76a135a2f626",
-      "ms": 12399
+      "at": "2026-11-06T16:28:11.802Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
     },
     "app/tests/simulation.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.657Z",
-      "commit": "837e977",
-      "fingerprint": "afdf76a135a2f626",
-      "ms": 12399
+      "at": "2026-11-06T16:28:11.846Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/cloud-local.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.335Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/interview-projects.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.424Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/own-key.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.515Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/project-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.560Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/project-knowledge-service.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.611Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/reports.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.661Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/session.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.708Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/suggestions.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.895Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
+    },
+    "app/tests/transcript-files.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:28:11.956Z",
+      "commit": "928719d",
+      "fingerprint": "34c38b6898da1d0c",
+      "ms": 32778
     }
   }
 }

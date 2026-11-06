@@ -3,34 +3,107 @@
     "app/tests/project-context.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.115Z",
-      "commit": "837e977",
-      "fingerprint": "5e12fe07aef87b14",
-      "ms": 12399
+      "at": "2026-11-06T16:30:44.390Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
     },
     "app/tests/project-ipc.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.170Z",
-      "commit": "837e977",
-      "fingerprint": "5e12fe07aef87b14",
-      "ms": 12399
+      "at": "2026-11-06T16:30:44.470Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
     },
     "app/tests/project-knowledge-service.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.241Z",
-      "commit": "837e977",
-      "fingerprint": "5e12fe07aef87b14",
-      "ms": 12399
+      "at": "2026-11-06T16:30:44.551Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
     },
     "app/tests/project-knowledge.test.ts": {
       "status": "passed",
       "runner": "vitest",
-      "at": "2026-11-06T16:06:26.317Z",
-      "commit": "837e977",
-      "fingerprint": "5e12fe07aef87b14",
-      "ms": 12399
+      "at": "2026-11-06T16:30:44.715Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
+    },
+    "app/tests/chat.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:44.119Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
+    },
+    "app/tests/cloud-local.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:44.189Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
+    },
+    "app/tests/cloud-prompts.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:44.258Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
+    },
+    "app/tests/interview-projects.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:44.318Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
+    },
+    "app/tests/reports.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:44.771Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
+    },
+    "app/tests/settings.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:44.826Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942,
+      "skippedTests": 1
+    },
+    "app/tests/simulation.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:44.879Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
+    },
+    "app/tests/suggestions.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:44.940Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
+    },
+    "app/tests/transcript-files.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:30:45.003Z",
+      "commit": "928719d",
+      "fingerprint": "5b775b00907c9ebf",
+      "ms": 14942
     }
   }
 }

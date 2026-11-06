@@ -1,6 +1,6 @@
 {
   "id": "CONV-3",
-  "title": "Choose OpenRouter Claude models and routing",
+  "title": "Choose a model provider and routing",
   "summary": "English requirement summary of earlier user requests: Offer Claude Sonnet 5.5 and Claude Haiku 5.5 OpenRouter presets, keep model identifiers editable, and allow Standard or Nitro routing while preserving the selected model.",
   "group": "General",
   "areas": [
@@ -10,6 +10,9 @@
   "lifecycle": "implemented",
   "entryPoints": [],
   "files": [
+    "app/electron/services/llm.ts",
+    "app/electron/services/ownKey.ts",
+    "app/electron/services/secretBox.ts",
     "app/shared/model-presets.ts",
     "app/src/windows/PanelWindow.tsx"
   ],
@@ -18,6 +21,26 @@
       "file": "app/tests/model-presets.test.ts",
       "area": "backend",
       "origin": "agent"
+    },
+    {
+      "file": "app/tests/own-key.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/plan.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/secret-box.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/session.test.ts",
+      "area": "backend",
+      "origin": "scan"
     }
   ],
   "acceptance": [
@@ -73,5 +96,5 @@
     "at": "2026-11-06T15:09:27.883Z",
     "commit": "c145803"
   },
-  "updatedAt": "2026-11-06T15:11:30.836Z"
+  "updatedAt": "2026-11-06T16:27:28.823Z"
 }
