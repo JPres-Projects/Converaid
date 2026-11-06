@@ -2,7 +2,7 @@
 
 <!-- Written by the awg-features plugin from .features/items. Change features with its commands (/awg-features, /awg-features-add, /awg-features-test), not in this file. -->
 
-Updated 2026-11-06 at commit 2c64eef. 9 features: 1 changed since last test; 1 implemented, untested; 7 backend tested. Tested in the backend: 7, in the frontend: 0.
+Updated 2026-11-06 at commit 5a62cdc. 9 features: 1 changed since last test; 8 backend tested. Tested in the backend: 8, in the frontend: 0.
 
 A status comes from the feature's tests, not from anybody's word: **Tested** means every test of the feature passed on the code as it is now; **Changed since last test** means it passed, but its files changed since.
 
@@ -92,8 +92,8 @@ Found wrong and not proven fixed yet. Each stays here until a test that names it
 | CONV-1 | Prepare selected projects for role-specific interviews | Backend tested | passing | untested | 2026-11-06 Simplify Preparation to General or one job description |
 | CONV-2 | Practice interviews with editable system prompts | Backend tested | passing | untested | 2026-11-06 Simplify Preparation to General or one job description |
 | CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-11-06 Add session-only preparation and editable role context |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Changed since last test | changed | untested | 2026-11-06 Add session-only preparation and editable role context |
-| CONV-9 | Prepare editable job applications before practice | Implemented, untested | - | - | 2026-11-06 Simplify Preparation to General or one job description |
+| CONV-4 | Launch Converaid with a distinct desktop identity | Changed since last test | changed | untested | 2026-11-06 docs: record final simplified laptop delivery |
+| CONV-9 | Prepare editable job applications before practice | Backend tested | passing | untested | 2026-11-06 Simplify Preparation to General or one job description |
 
 ## Meeting records
 

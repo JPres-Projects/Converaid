@@ -3,7 +3,10 @@
   "title": "Prepare editable job applications before practice",
   "summary": "English translation: I want to enter the role and company or platform myself in a Preparation tab, so the assistant knows which application and required skills the practice is for.",
   "group": "General",
-  "areas": [],
+  "areas": [
+    "backend",
+    "frontend"
+  ],
   "lifecycle": "implemented",
   "entryPoints": [],
   "files": [
@@ -143,5 +146,5 @@
     "at": "2026-11-06T18:07:34.764Z",
     "commit": "da4bf6b"
   },
-  "updatedAt": "2026-11-06T22:22:59.663Z"
+  "updatedAt": "2026-11-06T22:25:08.334Z"
 }
