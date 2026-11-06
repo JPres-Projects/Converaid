@@ -92,4 +92,4 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [x] Prove failing regressions; implement validated session-only context and trusted Start.
 - [x] Add editable responsive Preparation and connect all answer paths.
 - [x] Verify tests, typechecks, renderer screenshots and production NSIS.
-- [ ] Preserve private profile, install, prove quit/relaunch reset and deliver hashes.
+- [x] Preserve private profile, install, prove quit/relaunch reset and deliver hashes.
