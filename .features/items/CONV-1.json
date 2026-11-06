@@ -3,13 +3,18 @@
   "title": "Prepare selected projects for role-specific interviews",
   "summary": "Prepare only selected local projects before an interview, using compact code- and commit-backed references for architecture, languages, provider boundaries, challenges and test mechanics while keeping personal responsibility separate.",
   "group": "General",
-  "areas": [],
+  "areas": [
+    "backend",
+    "frontend"
+  ],
   "lifecycle": "implemented",
   "entryPoints": [],
   "files": [
     "app/electron/services/projectContext.ts",
     "app/electron/services/projectKnowledge.ts",
+    "app/electron/services/projectKnowledgeService.ts",
     "app/shared/types.ts",
+    "app/src/components/ProjectSettings.tsx",
     "docs/project-interview-preparation.md"
   ],
   "tests": [
@@ -17,6 +22,16 @@
       "file": "app/tests/project-context.test.ts",
       "area": "backend",
       "origin": "person"
+    },
+    {
+      "file": "app/tests/project-ipc.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/project-knowledge-service.test.ts",
+      "area": "backend",
+      "origin": "agent"
     },
     {
       "file": "app/tests/project-knowledge.test.ts",
@@ -62,11 +77,16 @@
       "done": "Only explicitly selected local project roots are read. Interview files pass existing path, ignore, symlink, size and secret filtering; context stays cached and bounded. Reference text cannot establish personal authorship or issue instructions. Excerpts are shared only through the existing user-configured answer route; no new paid call or automatic project-wide access is added.",
       "at": "2026-11-06T14:41:34.177Z",
       "by": "agent"
+    },
+    "design": {
+      "done": "Backfilled the project-details interface evidence at c145803: summaries and confirmed personal roles remain separate fields, selected projects stay explicit, preparation errors remain visible, and the release owner passed and inspected the 1440 px and 390 px local Settings/Simulation smoke using selected project context.",
+      "at": "2026-11-06T15:12:25.766Z",
+      "by": "agent"
     }
   },
   "created": {
     "at": "2026-11-06T14:39:53.760Z",
     "commit": "9881211"
   },
-  "updatedAt": "2026-11-06T14:55:44.011Z"
+  "updatedAt": "2026-11-06T15:12:25.767Z"
 }

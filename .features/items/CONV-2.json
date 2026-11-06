@@ -1,0 +1,123 @@
+{
+  "id": "CONV-2",
+  "title": "Practice interviews with editable system prompts",
+  "summary": "English requirement summary of earlier user requests: Save and select named editable system prompts, keep optional project summaries separate from confirmed personal roles, and practice with isolated typed or microphone Candidate and Interviewer turns. Support spoken role changes and show first-text and completion latency excluding transcription.",
+  "group": "General",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "lifecycle": "implemented",
+  "entryPoints": [],
+  "files": [
+    "app/electron/ipc/guard.ts",
+    "app/electron/ipc/index.ts",
+    "app/electron/main.ts",
+    "app/electron/services/chat.ts",
+    "app/electron/services/cloud.ts",
+    "app/electron/services/settings.ts",
+    "app/electron/services/simulation.ts",
+    "app/electron/smoke.ts",
+    "app/shared/ipc.ts",
+    "app/shared/simulation.ts",
+    "app/shared/types.ts",
+    "app/src/components/PromptSettings.tsx",
+    "app/src/components/SimulationTab.tsx",
+    "app/src/windows/PanelWindow.tsx",
+    "docs/simulation-design.md"
+  ],
+  "tests": [
+    {
+      "file": "app/tests/chat.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/cloud-prompts.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/ipc-guard.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/settings.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/simulation-ipc.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/simulation.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    }
+  ],
+  "acceptance": [
+    "WHEN a named prompt is saved and selected THE SYSTEM SHALL use its instructions and background for the next answer while preserving shared response rules.",
+    "WHEN the user submits a simulation interviewer turn THE SYSTEM SHALL answer through the configured route using selected project evidence; candidate turns SHALL add context without requesting an answer.",
+    "WHEN a microphone role command is recognized THE SYSTEM SHALL switch the next input role; first-text and completion timings SHALL exclude transcription and live meeting conversation SHALL remain separate."
+  ],
+  "manualChecks": [
+    {
+      "what": "Release-owner verification at c145803",
+      "result": "Existing verified work reported by the release owner: complete suite 257 passed and 1 skipped; local Settings/Simulation interaction smoke passed at 1440 px and 390 px using bounded localhost fixtures and no paid calls. This entry records that evidence; it does not set a tested lifecycle.",
+      "at": "2026-11-06T15:11:23.836Z",
+      "by": "agent",
+      "commit": "c145803"
+    }
+  ],
+  "scope": {
+    "kind": "independent",
+    "why": "Desktop interview practice is independent of which coding assistant maintains the project.",
+    "by": "agent",
+    "at": "2026-11-06T15:10:22.509Z"
+  },
+  "relates": [
+    {
+      "id": "CONV-1",
+      "how": "uses",
+      "why": "Simulation answers reuse selected prepared project evidence and confirmed per-project roles.",
+      "by": "agent",
+      "at": "2026-11-06T15:10:23.440Z"
+    }
+  ],
+  "refs": {
+    "checked": true,
+    "at": "2026-11-06T15:10:23.440Z",
+    "by": "agent"
+  },
+  "captured": {
+    "words": "English requirement summary of earlier user requests: Save and select named editable system prompts, keep optional project summaries separate from confirmed personal roles, and practice with isolated typed or microphone Candidate and Interviewer turns. Support spoken role changes and show first-text and completion latency excluding transcription.",
+    "at": "2026-11-06T15:09:26.450Z",
+    "by": "agent",
+    "request": true
+  },
+  "steps": {
+    "research": {
+      "done": "Reused the existing ChatService provider route, selected project preparation, prompt settings and on-device ASR instead of adding another answer backend. Evidence: app/electron/main.ts, services/chat.ts, services/simulation.ts, services/projectKnowledgeService.ts and docs/simulation-design.md at c145803.",
+      "at": "2026-11-06T15:11:21.391Z",
+      "by": "agent"
+    },
+    "design": {
+      "done": "The release owner completed the Settings and Simulation UI smoke at 1440 px and 390 px and inspected the resulting screenshots. The custom choice controls, prompt editor, Candidate/Interviewer turns, microphone state and first-text/completion timings follow the existing panel design. The final reviewer found no P1/P2 issue in the new changes.",
+      "at": "2026-11-06T15:11:22.175Z",
+      "by": "agent"
+    },
+    "security": {
+      "done": "Simulation has a separate ChatService and conversation, bounded IPC text/audio, local microphone recognition and explicit shutdown when leaving the tab, starting a live session or quitting. Candidate turns add context without a paid answer. Answers reuse configured provider limits, selected-project filtering and confirmed personal roles; prompt sync preserves drafts across replaced IDs and propagates upload failures. Relevant IPC, prompt, settings and simulation tests were part of the release suite.",
+      "at": "2026-11-06T15:11:23.102Z",
+      "by": "agent"
+    }
+  },
+  "created": {
+    "at": "2026-11-06T15:09:26.437Z",
+    "commit": "c145803"
+  },
+  "updatedAt": "2026-11-06T15:11:30.052Z"
+}
