@@ -58,3 +58,9 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [x] 25. Strengthen shared spoken-answer guidance against editorial placeholders, filler and invented personal challenge rankings; separate map language metadata from frameworks/runtimes and verify focused regression tests.
 - [x] 26. Verify the complete relevant suite, typecheck/build and actual prepared portfolio context, including active-project isolation, bounds and preserved custom prompts; report model-behavior limits honestly.
 - [x] 27. Build and deliver the Windows update and short language references to the laptop, preserving the existing installation, settings and any running practice; verify hashes and the small project selection.
+
+## November 6 transcript and language clarification
+
+- [x] Read the private Micro-One transcript, reconstruct the question sequence and save a private reading copy without altering the original.
+- [x] Record the latest language clarification in CONV-D1 and verify that the installed laptop profile has no fixed proficiency ranking.
+- [x] Complete the product brief and classify inherited code in the feature ledger, then verify the metadata and linked tests.
