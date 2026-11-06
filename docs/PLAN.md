@@ -86,3 +86,33 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [x] Repair desktop launch targets before removing obsolete portable builds.
 - [x] Delete only verified obsolete builds, stale delivery proofs and redundant setup copies within named delivery roots.
 - [x] Verify the current installer, installed application, shortcuts and preserved private interview data.
+
+## November 6 - Windows overlay taskbar presence
+
+- [x] Locate both taskbar configuration paths and record the new requirement and standing rule.
+- [ ] Add a regression check for Windows startup and privacy-state changes; confirm the old behavior fails.
+- [ ] Exclude both overlay windows from the Windows taskbar and update the existing smoke expectation.
+- [ ] Run matching verification and a production build; inspect actual Windows taskbar behavior and responsive screenshots.
+- [ ] Install the current package while preserving profile data, then retire the superseded installer.
+
+## November 6 - editable job preparation
+
+- [x] Record CONV-9 and the selected architecture/product default; inspect the supplied role and skill requirements.
+- [x] Define a small Preparation form that reuses the current panel controls and keeps job data separate from confirmed personal experience.
+- [ ] Implement bounded local profiles and selected-context assembly with red/green regression tests in an isolated checkout.
+- [ ] Verify the form at 1440 and approximately 390 pixels, including saving, switching and custom dropdown behavior.
+- [ ] Merge with the Windows taskbar change, run combined checks and build one current Windows installer.
+- [ ] Preserve the existing interview prompts and seed the three local preparations, then verify the installed application and retire the superseded installer.
+
+## November 6 - session preparation and solution-first examples
+
+Authority: CONV-D7 replaces CONV-D6 for active preparation lifetime. The user explicitly released laptop changes during the current interview break. Personal context remains outside the repository.
+
+- [x] Record the current request and session-only activation decision.
+- [x] Inspect the local prompt, settings, IPC and exit paths; review source-backed language, thesis and Printing Press examples.
+- [ ] Complete the isolated laptop Preparation work: job description or task languages, optional platform/title, one Start action, and in-memory activation independent of saved settings.
+- [ ] Wire the active context through manual, automatic, image and simulation answers; preserve ordinary general-knowledge answers and selected-project context.
+- [ ] Verify activation snapshots, input boundaries, normal hide/listening controls, and true quit/relaunch reset with focused tests, typechecks and build.
+- [ ] Inspect the actual Preparation screen at 1440 and approximately 390 pixels and verify Start returns to the existing toolbar.
+- [ ] Integrate compact private support, language, thesis and open-source examples while preserving custom prompt text, projects, provider credentials and taskbar exclusion.
+- [ ] Build and install one current package on the laptop; verify installed hash, profile preservation and session reset, then record exact delivery proof.

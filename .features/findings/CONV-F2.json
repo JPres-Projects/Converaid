@@ -1,0 +1,14 @@
+{
+  "id": "CONV-F2",
+  "feature": "CONV-4",
+  "text": "The user reports visible PowerShell windows during Converaid-related operation. The source is not yet identified between app startup and remote operator tooling; investigate hidden process launch without disturbing an interview.",
+  "property": "visible",
+  "severity": "medium",
+  "at": null,
+  "by": "agent",
+  "created": {
+    "at": "2026-11-06T19:25:06.480Z",
+    "commit": "32209f1"
+  },
+  "updatedAt": "2026-11-06T19:25:06.481Z"
+}

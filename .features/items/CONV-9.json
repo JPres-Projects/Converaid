@@ -1,0 +1,61 @@
+{
+  "id": "CONV-9",
+  "title": "Prepare editable job applications before practice",
+  "summary": "English translation: I want to enter the role and company or platform myself in a Preparation tab, so the assistant knows which application and required skills the practice is for.",
+  "group": "General",
+  "areas": [],
+  "lifecycle": "in-progress",
+  "entryPoints": [],
+  "files": [],
+  "tests": [],
+  "acceptance": [],
+  "manualChecks": [],
+  "scope": {
+    "kind": "independent",
+    "by": "agent",
+    "at": "2026-11-06T18:10:27.511Z"
+  },
+  "relates": [
+    {
+      "id": "CONV-2",
+      "how": "uses",
+      "why": "The selected preparation supplies bounded role context to existing prompt and simulation answer flows.",
+      "by": "agent",
+      "at": "2026-11-06T18:10:27.197Z"
+    }
+  ],
+  "refs": {
+    "checked": true,
+    "at": "2026-11-06T18:10:27.197Z",
+    "by": "agent"
+  },
+  "captured": {
+    "words": "English translation: I want to enter the role and company or platform myself in a Preparation tab, so the assistant knows which application and required skills the practice is for.",
+    "at": "2026-11-06T18:07:34.780Z",
+    "by": "agent",
+    "request": true,
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e"
+  },
+  "steps": {
+    "research": {
+      "done": "Rechecked the current settings, exit, IPC and shared prompt paths. Use a main-process in-memory preparation service and existing panel/fields rather than persistent activation or a new platform subsystem. Reuse established prompt flows and existing dependencies; no paid analyzer or automatic repository scan is added.",
+      "at": "2026-11-06T21:28:38.505Z",
+      "by": "agent"
+    },
+    "design": {
+      "done": "Current design follows CONV-D7: optional platform and title, job description or task languages, and one Start action returning to the existing toolbar. Full Quit clears active context; hide and listening controls retain it. Keep optional templates separate. The actual desktop and narrow-screen images remain a required implementation check.",
+      "at": "2026-11-06T21:29:17.250Z",
+      "by": "agent"
+    },
+    "security": {
+      "done": "Job text and language input are bounded external reference data accepted through trusted IPC. Active context stays out of SettingsStore and is shared only with existing configured answer routes. Profile updates must preserve credentials and custom data; private biography and research/contribution notes stay outside Git. No additional paid provider call is introduced.",
+      "at": "2026-11-06T21:29:19.122Z",
+      "by": "agent"
+    }
+  },
+  "created": {
+    "at": "2026-11-06T18:07:34.764Z",
+    "commit": "da4bf6b"
+  },
+  "updatedAt": "2026-11-06T21:38:29.716Z"
+}

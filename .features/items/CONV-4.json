@@ -1,7 +1,7 @@
 {
   "id": "CONV-4",
   "title": "Launch Converaid with a distinct desktop identity",
-  "summary": "English requirement summary of earlier user requests: Brand the desktop application Converaid with original logo, application and tray assets, recognizable toolbar and panel, main-toolbar taskbar visibility, existing-profile compatibility, and no upstream auto-update feed unless an explicit fork feed is configured.",
+  "summary": "English requirement summary of earlier user requests: Brand the desktop application Converaid with original logo, application and tray assets, recognizable toolbar and panel, overlay and tray access with Windows taskbar exclusion, existing-profile compatibility, and no upstream auto-update feed unless an explicit fork feed is configured.",
   "group": "General",
   "areas": [
     "backend",
@@ -43,10 +43,15 @@
       "file": "app/tests/updater.test.ts",
       "area": "backend",
       "origin": "agent"
+    },
+    {
+      "file": "app/tests/window-taskbar.test.ts",
+      "area": "backend",
+      "origin": "person"
     }
   ],
   "acceptance": [
-    "WHEN Converaid opens THE SYSTEM SHALL display its original brand assets and application name in the toolbar, panel, tray and window titles, with the main toolbar visible in the taskbar.",
+    "WHEN Converaid opens THE SYSTEM SHALL display its original brand assets and application name in the toolbar, panel, tray and window titles, while both overlay windows stay excluded from the Windows taskbar.",
     "WHEN an existing profile is present THE SYSTEM SHALL retain its local settings and credentials through the established compatible storage identity.",
     "WHEN no explicit update feed is configured THE SYSTEM SHALL skip auto-updates instead of downloading an upstream application."
   ],
@@ -79,7 +84,7 @@
     "by": "agent"
   },
   "captured": {
-    "words": "English requirement summary of earlier user requests: Brand the desktop application Converaid with original logo, application and tray assets, recognizable toolbar and panel, main-toolbar taskbar visibility, existing-profile compatibility, and no upstream auto-update feed unless an explicit fork feed is configured.",
+    "words": "English requirement summary of earlier user requests: Brand the desktop application Converaid with original logo, application and tray assets, recognizable toolbar and panel, overlay and tray access with Windows taskbar exclusion, existing-profile compatibility, and no upstream auto-update feed unless an explicit fork feed is configured.",
     "at": "2026-11-06T15:09:29.043Z",
     "by": "agent",
     "request": true
@@ -91,8 +96,8 @@
       "by": "agent"
     },
     "design": {
-      "done": "The release owner inspected every original Converaid logo, ICO and tray image and the rendered toolbar/panel screenshots. Desktop 1440 px and approximately 390 px UI smoke passed. The toolbar remains taskbar-visible while auxiliary windows remain excluded, matching the requested desktop discoverability.",
-      "at": "2026-11-06T15:11:27.790Z",
+      "done": "The user superseded the earlier visible-taskbar request. Windows taskbar presence now follows CONV-D5; overlay and tray access remain. Both native configuration paths require matching regression coverage. Historical visible-taskbar checks are retained as dated history, not current acceptance.",
+      "at": "2026-11-06T18:12:52.690Z",
       "by": "agent"
     },
     "security": {
@@ -105,5 +110,5 @@
     "at": "2026-11-06T15:09:29.031Z",
     "commit": "c145803"
   },
-  "updatedAt": "2026-11-06T16:27:28.820Z"
+  "updatedAt": "2026-11-06T19:25:04.687Z"
 }
