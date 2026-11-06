@@ -17,7 +17,7 @@ function store() {
   return { file, settings: new SettingsStore(file) }
 }
 afterEach(() => { for (const folder of folders.splice(0)) fs.rmSync(folder, { recursive: true, force: true }) })
-const first = { title: "API developer", organization: "Example platform", focus: "Java, Rust", requirements: "Explain transactions." }
+const first = { requirements: "Explain transactions." }
 describe("session-only preparation", () => {
   it("keeps preparation reference separate from the suggestions JSON contract", async () => {
     const preparation = new PreparationService()
@@ -54,9 +54,20 @@ describe("session-only preparation", () => {
     const service = new PreparationService()
     expect(service.snapshot()).toBeNull()
     expect(service.context()).toBe("")
-    service.start({ title: "", organization: "", focus: "", requirements: "" })
-    expect(service.snapshot()).toEqual({ title: "", organization: "", focus: "", requirements: "" })
+    service.start({ requirements: "" })
+    expect(service.snapshot()).toEqual({ requirements: "" })
     expect(new PreparationService().snapshot()).toBeNull()
+  })
+  it("General clears job focus while retaining the existing project background", () => {
+    const service = new PreparationService()
+    service.start(first)
+    expect(service.context()).toContain(first.requirements)
+    service.start({ requirements: "" })
+    expect(service.reference()).toBe("")
+    expect(service.context()).toBe("")
+    const system = composeSystemPrompt(DEFAULT_PROMPT, { answerLength: "short" }, "English", "EXISTING_PROJECT_BACKGROUND", service.context())
+    expect(system).toContain("EXISTING_PROJECT_BACKGROUND")
+    expect(system).not.toContain(first.requirements)
   })
   it("takes an immutable copy and replaces it only after complete validation", () => {
     const service = new PreparationService()
@@ -65,12 +76,12 @@ describe("session-only preparation", () => {
     draft.requirements = "changed outside"
     expect(Object.isFrozen(service.snapshot())).toBe(true)
     expect(service.snapshot()).toEqual(first)
-    for (const invalid of [null, [], {}, { ...first, focus: 1 }, { ...first, title: "x\0" }, ...Object.entries(PREPARATION_LIMITS).map(([field, limit]) => ({ ...first, [field]: "x".repeat(limit + 1) }))]) {
+    for (const invalid of [null, [], {}, { requirements: 1 }, { requirements: "x\0" }, ...Object.entries(PREPARATION_LIMITS).map(([field, limit]) => ({ ...first, [field]: "x".repeat(limit + 1) }))]) {
       expect(() => service.start(invalid)).toThrow(/preparation/i)
       expect(service.snapshot()).toEqual(first)
     }
-    service.start({ ...first, focus: "Python, Go, Bash" })
-    expect(service.snapshot()?.focus).toBe("Python, Go, Bash")
+    service.start({ requirements: "Python, Go, Bash" })
+    expect(service.snapshot()?.requirements).toBe("Python, Go, Bash")
   })
   it("never writes active context to settings or disk", () => {
     const { file, settings } = store()
@@ -111,9 +122,9 @@ describe("session-only preparation", () => {
     await simulation.send("Explain a Java transaction.")
     expect(requests).toHaveLength(4)
     for (const system of requests) expect(system).toContain(JSON.stringify(first))
-    preparation.start({ ...first, organization: "Mercor", focus: "SRE, Kubernetes, AWS" })
+    preparation.start({ requirements: "SRE, Kubernetes, AWS" })
     await simulation.send("How would you mitigate an incident?")
     expect(requests.at(-1)).toContain("SRE, Kubernetes, AWS")
-    expect(requests.at(-1)).not.toContain(first.organization)
+    expect(requests.at(-1)).not.toContain(first.requirements)
   })
 })

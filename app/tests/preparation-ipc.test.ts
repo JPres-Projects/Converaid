@@ -43,7 +43,7 @@ describe("Preparation IPC", () => {
     expect(suggestions.state()).toMatchObject({ topic: "Old role", items: [{ text: "Explain the old role?" }] })
     const pending = suggestions.refresh()
     expect(suggestions.state().updating).toBe(true)
-    await invoke("preparation:start", { title: "New role" })
+    await invoke("preparation:start", { requirements: "New role" })
     expect(suggestions.state()).toEqual({ topic: "", items: [], updating: false })
     release()
     await pending
@@ -70,7 +70,7 @@ describe("Preparation IPC", () => {
   it("starts from the trusted panel, hides it and returns to Listen without recording or writing settings", async () => {
     const { invoke, preparation, windows, session, settings } = setup()
     await expect(invoke("preparation:state")).resolves.toEqual({ active: null })
-    const draft = { title: "", organization: "", focus: "", requirements: "" }
+    const draft = { requirements: "" }
     await invoke("preparation:start", draft)
     expect(preparation.start).toHaveBeenCalledExactlyOnceWith(draft)
     expect(windows.setPanelTab).toHaveBeenCalledWith("answers")

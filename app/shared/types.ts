@@ -221,12 +221,9 @@ export interface ProjectKnowledgeState {
 
 export type InterviewProjectPatch = Partial<Pick<InterviewProject, "name" | "description" | "experience" | "enabled">>
 
-export const PREPARATION_LIMITS = { title: 160, organization: 160, focus: 1000, requirements: 6000 } as const
+export const PREPARATION_LIMITS = { requirements: 12000 } as const
 
 export interface Preparation {
-  title: string
-  organization: string
-  focus: string
   requirements: string
 }
 

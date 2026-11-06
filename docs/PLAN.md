@@ -128,3 +128,12 @@ Authority: CONV-D7 replaces CONV-D6 for active preparation lifetime. The user ex
 - [x] Verify focused tests and typechecks; rebuild production and NSIS once.
 - [x] Back up the real profile, apply the authorized private bundle atomically and idempotently, and prove unrelated settings unchanged.
 - [x] Install the final build, prove true Quit/relaunch reset, sync synthetic screenshots and final proof, and commit the delivery record.
+
+## Preparation simplification after visual feedback
+
+Authority: CONV-D8 supersedes CONV-D7 for the visible form. Existing session lifetime and private background remain unchanged.
+
+- [x] Replace multiple fields and starters with General or one job-description textarea.
+- [x] Reproduce the old General/reference behavior with a focused regression.
+- [ ] Verify the single-text contract, General clearing and both typechecks.
+- [ ] Build, inspect General and job-description views at desktop/phone widths, and install on the laptop while preserving the already updated private profile.
