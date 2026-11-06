@@ -95,27 +95,14 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [ ] Run matching verification and a production build; inspect actual Windows taskbar behavior and responsive screenshots.
 - [ ] Install the current package while preserving profile data, then retire the superseded installer.
 
-## November 6 - editable job preparation
+## November 6 - editable job preparation (historical)
 
-- [x] Record CONV-9 and the selected architecture/product default; inspect the supplied role and skill requirements.
-- [x] Define a small Preparation form that reuses the current panel controls and keeps job data separate from confirmed personal experience.
-- [ ] Implement bounded local profiles and selected-context assembly with red/green regression tests in an isolated checkout.
-- [ ] Verify the form at 1440 and approximately 390 pixels, including saving, switching and custom dropdown behavior.
-- [ ] Merge with the Windows taskbar change, run combined checks and build one current Windows installer.
-- [ ] Preserve the existing interview prompts and seed the three local preparations, then verify the installed application and retire the superseded installer.
+The original multi-field plan was superseded by CONV-D8 after user feedback. Use the final simplification checklist below; do not restore template or metadata controls.
 
-## November 6 - session preparation and solution-first examples
+## November 6 - session preparation and solution-first examples (historical)
 
-Authority: CONV-D7 replaces CONV-D6 for active preparation lifetime. The user explicitly released laptop changes during the current interview break. Personal context remains outside the repository.
+The original multi-field form was delivered and then simplified under CONV-D8. The final checklist below is current; session-only activation, all answer routes, profile preservation and private references are verified in the final delivery proof.
 
-- [x] Record the current request and session-only activation decision.
-- [x] Inspect the local prompt, settings, IPC and exit paths; review source-backed language, thesis and Printing Press examples.
-- [ ] Complete the isolated laptop Preparation work: job description or task languages, optional platform/title, one Start action, and in-memory activation independent of saved settings.
-- [ ] Wire the active context through manual, automatic, image and simulation answers; preserve ordinary general-knowledge answers and selected-project context.
-- [ ] Verify activation snapshots, input boundaries, normal hide/listening controls, and true quit/relaunch reset with focused tests, typechecks and build.
-- [ ] Inspect the actual Preparation screen at 1440 and approximately 390 pixels and verify Start returns to the existing toolbar.
-- [ ] Integrate compact private support, language, thesis and open-source examples while preserving custom prompt text, projects, provider credentials and taskbar exclusion.
-- [ ] Build and install one current package on the laptop; verify installed hash, profile preservation and session reset, then record exact delivery proof.
 ## Preparation delivery, 2026-11-06
 - [x] Preserve partial changes and integrate taskbar commit 32209f1.
 - [x] Prove failing regressions; implement validated session-only context and trusted Start.
@@ -135,5 +122,5 @@ Authority: CONV-D8 supersedes CONV-D7 for the visible form. Existing session lif
 
 - [x] Replace multiple fields and starters with General or one job-description textarea.
 - [x] Reproduce the old General/reference behavior with a focused regression.
-- [ ] Verify the single-text contract, General clearing and both typechecks.
-- [ ] Build, inspect General and job-description views at desktop/phone widths, and install on the laptop while preserving the already updated private profile.
+- [x] Verify the single-text contract, General clearing and both typechecks.
+- [x] Build, inspect General and job-description views at desktop/phone widths, and install on the laptop while preserving the already updated private profile.

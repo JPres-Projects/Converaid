@@ -32,13 +32,15 @@ Converaid is a local fork of Meetingly, an open-source AI assistant for job inte
 
 ## Converaid features
 
+- **Session preparation.** Choose General to use your existing project background, or paste everything into one Job description field and press Start. The active preparation resets when the app fully quits.
+
 - **Selectable system prompts.** In Settings, add, edit, save, select or remove prompts with a title, system instructions and optional background notes. The selected prompt applies to the next answer; shared answer formatting and the separate Meeting, Interview or Coding focus still apply.
 - **Optional project summaries.** Each local project has a summary field separate from **Your role and experience**. Summaries describe the project; repository evidence describes its implementation; personal contributions must be confirmed by the user. These fields stay out of account sync and accompany relevant answers to the configured provider.
 - **Interview references prepared before the call.** Selected projects can provide a compact `INTERVIEW.md` or `docs/INTERVIEW.md` covering languages, architecture, provider boundaries, challenges and concrete test mechanics. Preparation safely caches these references alongside maps up to 8 MiB. Changed references require preparation again. Interview mode uses the role and question to choose the relevant explanation; no additional analysis agent runs during the conversation. See [the preparation prompt and guide](docs/project-interview-preparation.md).
 - **Separate Simulation tab.** Enter typed or microphone turns as **Interviewer** or **Candidate (you)**. Interviewer questions request an assistant answer; candidate turns add context. The simulation uses the selected prompt, prepared projects and configured AI route with its normal quota, while keeping its conversation separate from the live meeting. Its microphone uses local recognition and is unavailable during a live meeting. While recording, say "Now I am the interviewer" or "Now I am the candidate" to switch roles; German role commands are also supported. Recording stops after a spoken turn.
 - **Answer timing.** Simulation answers show time to first text and completion, measured from submitted text or recognized speech. These measurements exclude voice transcription time.
 - **OpenRouter model controls.** Own-key settings offer Claude Sonnet 5.5 and Claude Haiku 5.5 presets, editable model IDs and **Standard** or **Nitro** routing. Nitro adds `:nitro` to the model ID. The presets do not establish provider availability; use an ID available to your account.
-- **Converaid interface.** The toolbar, panel, tray text and window titles use Converaid branding. The main toolbar is included in the taskbar; auxiliary windows remain excluded. Package identity stays compatible with existing settings. Updates require an explicitly configured Converaid feed instead of silently replacing the fork with an upstream build.
+- **Converaid interface.** The toolbar, panel, tray text and window titles use Converaid branding. On Windows, the overlay windows remain excluded from the taskbar. Package identity stays compatible with existing settings. Updates require an explicitly configured Converaid feed instead of silently replacing the fork with an upstream build.
 
 ## Practical guides
 
