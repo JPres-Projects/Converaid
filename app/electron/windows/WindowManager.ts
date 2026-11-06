@@ -289,7 +289,7 @@ export class WindowManager extends EventEmitter {
       resizable: spec.resizable,
       movable: kind === "main" || spec.decorated,
       focusable: spec.focusable,
-      skipTaskbar: kind !== "main",
+      skipTaskbar: process.platform === "win32" || kind !== "main",
       acceptFirstMouse: true,
       autoHideMenuBar: true,
       webPreferences: {
@@ -345,7 +345,7 @@ export class WindowManager extends EventEmitter {
   private applyStealth(win: BrowserWindow, kind: WindowKind): void {
     if (win.isDestroyed()) return
     win.setContentProtection(this.stealth)
-    win.setSkipTaskbar(kind !== "main")
+    win.setSkipTaskbar(process.platform === "win32" || kind !== "main")
     if (kind && WINDOW_SPECS[kind].decorated) return
     win.setAlwaysOnTop(true, "screen-saver")
     if (process.platform === "darwin") {

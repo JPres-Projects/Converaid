@@ -830,14 +830,8 @@ async function simulationUiSmoke(windows: WindowManager, chat: ChatService, sett
     await until(`!document.querySelector('[data-simulation-role]')`)
     requireCheck("reset-clears-practice-only", !await run<boolean>("Boolean(document.querySelector('[data-simulation-role]'))") && JSON.stringify(chat.getHistory()) === liveHistory)
 
-    if (process.platform === "win32") {
-      const { default: koffi } = await import("koffi")
-      const getStyle = koffi.load("user32.dll").func("uint32_t __stdcall GetWindowLongW(void *hwnd, int32_t index)")
-      const style = (kind: WindowKind) => Number(getStyle(koffi.decode(windows.get(kind)!.getNativeWindowHandle(), "void *"), -20))
-      // Electron uses ITaskbarList for skipTaskbar; auxiliary windows need not have WS_EX_TOOLWINDOW.
-      requireCheck("native-toolbar-taskbar-eligible", (style("main") & 0x80) === 0 && windows.get("main")!.getParentWindow() === null && windows.get("main")!.isVisible())
-    }
-    const result = { ...summary(true), nativeTaskbarProof: process.platform === "win32" ? "toolbar visible and eligible; shell appearance requires desktop verification" : "requires Windows verification" }
+    requireCheck("overlay-windows-remain-visible", KINDS.every((kind) => windows.get(kind)?.isVisible() === true))
+    const result = { ...summary(true), nativeTaskbarProof: process.platform === "win32" ? "overlay visibility verified; taskbar absence requires native desktop inspection" : "requires Windows verification" }
     fs.writeFileSync(path.join(dir, "simulation-ui-checks.json"), JSON.stringify(result, null, 2))
     return result
   } catch (error) {
