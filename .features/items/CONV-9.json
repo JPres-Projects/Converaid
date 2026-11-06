@@ -4,7 +4,7 @@
   "summary": "English translation: I want to enter the role and company or platform myself in a Preparation tab, so the assistant knows which application and required skills the practice is for.",
   "group": "General",
   "areas": [],
-  "lifecycle": "in-progress",
+  "lifecycle": "implemented",
   "entryPoints": [],
   "files": [
     "app/electron/ipc/index.ts",
@@ -87,6 +87,13 @@
       "at": "2026-11-06T22:00:15.887Z",
       "by": "agent",
       "commit": "02aed94"
+    },
+    {
+      "what": "Simplified General and Job description layouts at 1440 and 390 pixels",
+      "result": "passed: root directly viewed the final General screenshot plus desktop and phone Job-description screenshots. General has no fields; Job description has exactly one textarea; margins, wrapping and Start are visible.",
+      "at": "2026-11-06T22:19:55.311Z",
+      "by": "agent",
+      "commit": "2c64eef"
     }
   ],
   "scope": {
@@ -122,8 +129,8 @@
       "by": "agent"
     },
     "design": {
-      "done": "Current design follows CONV-D7: optional platform and title, job description or task languages, and one Start action returning to the existing toolbar. Full Quit clears active context; hide and listening controls retain it. Keep optional templates separate. The actual desktop and narrow-screen images remain a required implementation check.",
-      "at": "2026-11-06T21:29:17.250Z",
+      "done": "CONV-D8 is current: exactly General and Job description buttons, one conditional description textarea and one Start action. General uses existing project/personal context with no added job reference. No platform/title/language fields or starter presets remain. Root has verified tests and types; fresh desktop/phone screenshots are the final delivery check.",
+      "at": "2026-11-06T22:15:53.163Z",
       "by": "agent"
     },
     "security": {
@@ -136,5 +143,5 @@
     "at": "2026-11-06T18:07:34.764Z",
     "commit": "da4bf6b"
   },
-  "updatedAt": "2026-11-06T22:05:47.245Z"
+  "updatedAt": "2026-11-06T22:22:59.663Z"
 }
