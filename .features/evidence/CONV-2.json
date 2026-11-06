@@ -1,0 +1,53 @@
+{
+  "tests": {
+    "app/tests/chat.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:06:26.377Z",
+      "commit": "837e977",
+      "fingerprint": "afdf76a135a2f626",
+      "ms": 12399
+    },
+    "app/tests/cloud-prompts.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:06:26.436Z",
+      "commit": "837e977",
+      "fingerprint": "afdf76a135a2f626",
+      "ms": 12399
+    },
+    "app/tests/ipc-guard.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:06:26.493Z",
+      "commit": "837e977",
+      "fingerprint": "afdf76a135a2f626",
+      "ms": 12399
+    },
+    "app/tests/settings.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:06:26.545Z",
+      "commit": "837e977",
+      "fingerprint": "afdf76a135a2f626",
+      "ms": 12399,
+      "skippedTests": 1
+    },
+    "app/tests/simulation-ipc.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:06:26.593Z",
+      "commit": "837e977",
+      "fingerprint": "afdf76a135a2f626",
+      "ms": 12399
+    },
+    "app/tests/simulation.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:06:26.657Z",
+      "commit": "837e977",
+      "fingerprint": "afdf76a135a2f626",
+      "ms": 12399
+    }
+  }
+}

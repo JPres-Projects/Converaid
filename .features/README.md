@@ -2,7 +2,7 @@
 
 <!-- Written by the awg-features plugin from .features/items. Change features with its commands (/awg-features, /awg-features-add, /awg-features-test), not in this file. -->
 
-Updated 2026-11-06 at commit c145803. 4 features: 4 tests not run. Tested in the backend: 0, in the frontend: 0. 62 code files belong to no feature yet.
+Updated 2026-11-06 at commit 837e977. 4 features: 1 tests not run; 3 backend tested. Tested in the backend: 3, in the frontend: 0. 62 code files belong to no feature yet.
 
 A status comes from the feature's tests, not from anybody's word: **Tested** means every test of the feature passed on the code as it is now; **Changed since last test** means it passed, but its files changed since.
 
@@ -14,10 +14,7 @@ No product brief yet. `/awg-features-brief` writes `.features/PRODUCT.md`: who t
 
 | ID | Feature | Status | Backend | Frontend |
 |---|---|---|---|---|
-| CONV-1 | Prepare selected projects for role-specific interviews | Tests not run | not run | untested |
-| CONV-2 | Practice interviews with editable system prompts | Tests not run | not run | untested |
 | CONV-3 | Choose OpenRouter Claude models and routing | Tests not run | not run | untested |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested |
 
 ## Open findings
 
@@ -31,10 +28,10 @@ Found wrong and not proven fixed yet. Each stays here until a test that names it
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-1 | Prepare selected projects for role-specific interviews | Tests not run | not run | untested | 2026-11-06 feat: add interview practice and prepared project briefings |
-| CONV-2 | Practice interviews with editable system prompts | Tests not run | not run | untested | 2026-11-06 feat: add interview practice and prepared project briefings |
+| CONV-1 | Prepare selected projects for role-specific interviews | Backend tested | passing | untested | 2026-11-06 fix: ground spoken language answers in reviewed examples |
+| CONV-2 | Practice interviews with editable system prompts | Backend tested | passing | untested | 2026-11-06 fix: ground spoken language answers in reviewed examples |
 | CONV-3 | Choose OpenRouter Claude models and routing | Tests not run | not run | untested | 2026-11-06 feat: add interview practice and prepared project briefings |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Tests not run | not run | untested | 2026-11-06 feat: add interview practice and prepared project briefings |
+| CONV-4 | Launch Converaid with a distinct desktop identity | Backend tested | passing | untested | 2026-11-06 fix: ground spoken language answers in reviewed examples |
 
 ## Code that belongs to no feature yet
 

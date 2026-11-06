@@ -1,0 +1,12 @@
+{
+  "tests": {
+    "app/tests/updater.test.ts": {
+      "status": "passed",
+      "runner": "vitest",
+      "at": "2026-11-06T16:06:26.712Z",
+      "commit": "837e977",
+      "fingerprint": "1b8deb071ff9af6e",
+      "ms": 12399
+    }
+  }
+}
