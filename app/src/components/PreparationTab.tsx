@@ -67,7 +67,7 @@ export function PreparationTab() {
           <label htmlFor="preparation-focus" className="text-xs text-white/70">Coding languages / focus</label>
           <Textarea id="preparation-focus" value={draft.focus} onChange={(e) => field("focus", e.target.value)} maxLength={PREPARATION_LIMITS.focus} placeholder="For example: Python, Go, incident response" disabled={pending || loading} />
         </div>
-        <p className="text-xs leading-relaxed text-white/50">{active ? "A preparation is active for this session. Start applies your edits. " : ""}Start returns to Listen without recording. Preparation stays active until you fully quit Converaid. Requirements guide answers; they do not establish personal experience.</p>
+        <p className="text-xs leading-relaxed text-white/50">{active ? "A preparation is active for this session. Start applies your edits. " : ""}Start returns to Listen without recording. Preparation stays active until you fully quit Converaid.</p>
         {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
         <Button type="submit" disabled={pending || loading} className="w-full sm:w-auto sm:self-start">{pending ? "Starting…" : "Start"}</Button>
       </form>
