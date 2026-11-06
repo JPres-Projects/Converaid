@@ -1,0 +1,45 @@
+{
+  "id": "CONV-D2",
+  "topic": "interview-language-ranking",
+  "verdict": "Use TypeScript in the JavaScript ecosystem as the approved main-language interview answer, grounded in AWG and DeepMines. Describe the main project stack, not measured proficiency. For Python follow-ups use the reviewed AI Clipping backend; keep personal responsibilities separate from project facts.",
+  "why": "The user approved the concrete TypeScript/JavaScript recommendation for the saved system prompt and asked how a Python project follow-up should be handled.",
+  "words": [
+    "language",
+    "python",
+    "typescript",
+    "javascript",
+    "strongest",
+    "main",
+    "sprache",
+    "interview"
+  ],
+  "markers": [
+    "Converaid",
+    "AWG",
+    "DeepMines"
+  ],
+  "status": "current",
+  "supersedes": [
+    "CONV-D1"
+  ],
+  "supersededBy": null,
+  "decided": {
+    "by": "Jim",
+    "at": "2026-11-06T16:43:04.569Z",
+    "quote": "English translation: Then please adjust that in the system prompt. What if I said Python and they asked what I built with Python?",
+    "via": "unseen",
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "tool": "codex",
+    "computer": "DESKTOP-KV3OK8I",
+    "transcript": "C:\\Users\\stand\\.codex\\sessions\\2026\\11\\05\\rollout-2026-11-05T03-10-10-01a1a978-8210-70f2-86b4-bd5cc8cc499e.jsonl",
+    "conversation": ".awg/conversations/codex-01a1a978-8210-70f2-86b4-bd5cc8cc499e.md"
+  },
+  "confirmed": true,
+  "seen": false,
+  "sources": [],
+  "created": {
+    "at": "2026-11-06T16:43:04.569Z",
+    "commit": "28f2561"
+  },
+  "updatedAt": "2026-11-06T16:43:04.569Z"
+}

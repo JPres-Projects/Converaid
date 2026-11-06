@@ -158,7 +158,8 @@ This research establishes the category and alternatives, not the number of poten
 - Keep the controls simple: choose a focus, choose a prompt, enable a few projects, and rehearse.
 - Prefer a short, supported language-to-component example over an unsolicited project presentation.
 - Keep facts about code separate from claims about personal ownership, proficiency and results.
-- The current language-answer policy is held in [decision CONV-D1](decisions/CONV-D1.json); decision records remain authoritative.
+- The current language-answer policy is held in [decision CONV-D2](decisions/CONV-D2.json); decision records remain authoritative.
+- Personal background and prepared project follow-ups are governed by [decision CONV-D3](decisions/CONV-D3.json); personal prompt payloads stay outside the repository.
 - Reuse prepared context before a call rather than running a large analysis task during it.
 - Treat response timing as a measured observation, not a promise that a particular provider will always be fast.
 - Preserve existing saved configuration when distributing an update.

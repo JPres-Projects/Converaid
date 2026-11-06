@@ -16,9 +16,9 @@
   "markers": [
     "Converaid"
   ],
-  "status": "current",
+  "status": "superseded",
   "supersedes": [],
-  "supersededBy": null,
+  "supersededBy": "CONV-D2",
   "decided": {
     "by": "Jim",
     "at": "2026-11-06T16:23:51.824Z",
@@ -37,5 +37,5 @@
     "at": "2026-11-06T16:23:51.824Z",
     "commit": "928719d"
   },
-  "updatedAt": "2026-11-06T16:23:51.824Z"
+  "updatedAt": "2026-11-06T16:43:04.569Z"
 }

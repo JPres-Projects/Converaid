@@ -1,0 +1,43 @@
+{
+  "id": "CONV-D3",
+  "topic": "interview-prepared-background",
+  "verdict": "Keep the user-confirmed founder background and concise application context in personal saved interview prompts. Prepare source-backed language/project follow-ups, including challenges, implemented responses and test criteria, before the call. Use confirmed identity directly while keeping detailed code authorship separate.",
+  "why": "The user wants natural connected answers to personal, language and project follow-ups without an expensive live project-analysis step.",
+  "words": [
+    "founder",
+    "background",
+    "role",
+    "project",
+    "language",
+    "prepared",
+    "interview",
+    "rolle",
+    "projekt",
+    "sprache"
+  ],
+  "markers": [
+    "Converaid"
+  ],
+  "status": "current",
+  "supersedes": [],
+  "supersededBy": null,
+  "decided": {
+    "by": "Jim",
+    "at": "2026-11-06T16:48:42.946Z",
+    "quote": "English translation: The assistant should know my role and already have answers about problems, what worked, difficult parts and how they were solved for all the languages we have.",
+    "via": "unseen",
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "tool": "codex",
+    "computer": "DESKTOP-KV3OK8I",
+    "transcript": "C:\\Users\\stand\\.codex\\sessions\\2026\\11\\05\\rollout-2026-11-05T03-10-10-01a1a978-8210-70f2-86b4-bd5cc8cc499e.jsonl",
+    "conversation": ".awg/conversations/codex-01a1a978-8210-70f2-86b4-bd5cc8cc499e.md"
+  },
+  "confirmed": true,
+  "seen": false,
+  "sources": [],
+  "created": {
+    "at": "2026-11-06T16:48:42.946Z",
+    "commit": "28f2561"
+  },
+  "updatedAt": "2026-11-06T16:48:42.946Z"
+}
