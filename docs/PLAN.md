@@ -45,7 +45,7 @@ Design: docs/simulation-design.md. The user has specified the behavior; routine 
 - [x] 14. Verify all changed behavior with fake providers, run the appropriate suite/build, and inspect actual renderer screenshots at 1440/390 pixels.
 - [x] 15. Commit/push the verified changes, build a portable Windows version, and update the laptop Desktop shortcut; verify the delivered artifact and report any required manual launch precisely.
 - [x] 16. Add verified OpenRouter Claude Sonnet 5.5 / Haiku 5.5 presets and Standard/Nitro routing while preserving manual model entry; verify helpers, provider boundaries and responsive selection controls.
-- [ ] 17. Generate and integrate an original Converaid logo into application/tray/Windows icon assets; inspect the generated mark and final packaged interface. Confirm the taskbar entry appears automatically when the toolbar opens.
+- [x] 17. Generate and integrate an original Converaid logo into application/tray/Windows icon assets; inspect the generated mark and final packaged interface. Confirm the taskbar entry appears automatically when the toolbar opens.
 - [x] 18. Brand the floating toolbar and panel header as Converaid using the generated mark, coherent sky-blue accents and readable grouped controls; verify functionality and 1440/390 layouts without changing profile identity.
 
 - [x] 19. Review DeepMind (ExtractMiningStocksData) and AWG maps, current source and bounded Git history; identify verifiable architecture, languages, integration boundaries, challenges and concrete test mechanics without assuming personal authorship.
