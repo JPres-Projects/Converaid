@@ -163,6 +163,7 @@ This research establishes the category and alternatives, not the number of poten
 - Reuse prepared context before a call rather than running a large analysis task during it.
 - Treat response timing as a measured observation, not a promise that a particular provider will always be fast.
 - Preserve existing saved configuration when distributing an update.
+- Keep delivery folders and launchers unambiguous according to [decision CONV-D4](decisions/CONV-D4.json).
 
 ## What it is not
 
