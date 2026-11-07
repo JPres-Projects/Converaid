@@ -1,0 +1,33 @@
+{
+  "file": "Converaid-2026-11-06-Portable.exe",
+  "bytes": 114530000,
+  "sha256": "842b59a5679eb463a816302ede9b1ae6a2cccb9c70ec09fe201553d7ab50eeeb",
+  "packagedFeaturesVerified": true,
+  "nativeAsrIncluded": true,
+  "unitTestsPassed": 257,
+  "unitTestsSkipped": 1,
+  "typecheck": "passed",
+  "rendererUiSmoke": "passed",
+  "widths": [
+    1440,
+    390
+  ],
+  "sourceHashMode": "UTF-8 text with LF endings; PNG exact bytes",
+  "sourceHashes": {
+    "app/electron/main.ts": "50ffa679829f556a8924fa52ebf0bcab6a35e048ec8244ed83f34794d720761e",
+    "app/electron/windows/WindowManager.ts": "5128e981dd0e14c618fd53d8b580ca97fc871945275f2d9e8322bd4f04637b0a",
+    "app/electron/updater.ts": "70f27f4cde98ef8a0708761de331e403e73b9bc2339172c5e73b56a83c69586d",
+    "app/electron/services/simulation.ts": "8502d78f5a39735cbc764b98573210c0d4fdf71ba935b797b0340f5dddb963d6",
+    "app/electron/services/projectKnowledge.ts": "7e27e6c6aed8fd364cec2dcdb0bd64dde628d2c9628ca608fc63bd45cddd4a2a",
+    "app/electron/services/projectKnowledgeService.ts": "e0cfafae2ddb485997b1091853623f79343d0b9bf4ea03c9847110a5b0638329",
+    "app/electron/services/projectContext.ts": "e9c2aba7aa8f7c8d91514ef7b99158bf4532165f6c33088a3eb3114aa7a7ba50",
+    "app/electron/services/cloud.ts": "3329dac66f094a9a7d75f80fdd306a10dab00a45dd34c695035b3b858a2fa01c",
+    "app/shared/types.ts": "ee3c07e87418c11d1446d9a395065da16626c4d3af66052605d58b26bcabc691",
+    "app/shared/model-presets.ts": "d0f11fbcd5e3298367e53b6422ce46cc1a67af83e2ac10c2627274d852704e7c",
+    "app/src/windows/MainWindow.tsx": "e9a5356ba7215a4e799218c2c77b659a07fc28e0a01387e24544b48279fedc75",
+    "app/src/windows/PanelWindow.tsx": "55a8fb535dacb35403efcba246767c91024808a0908be35a87dcd5117d04a12c",
+    "app/src/components/SimulationTab.tsx": "43cb0ae45aa6c1f2449158128b5df3e49fb65ab5248787fc03feb2d650819306",
+    "app/src/components/PromptSettings.tsx": "352b701a6c76344328b6c1706f29614c8184d6a9e43ef68512556314891e7748",
+    "app/build/converaid-logo.png": "09aebe7bfa6f12d9d621989955baf0fcf200681c87bf67dba484ac84c8afc299"
+  }
+}

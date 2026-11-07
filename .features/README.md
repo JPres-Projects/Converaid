@@ -2,7 +2,7 @@
 
 <!-- Written by the awg-features plugin from .features/items. Change features with its commands (/awg-features, /awg-features-add, /awg-features-test), not in this file. -->
 
-Updated 2026-11-07 at commit b669b0a. 9 features: 8 changed since last test; 1 backend tested. Tested in the backend: 1, in the frontend: 0.
+Updated 2026-11-07 at commit e55cc04. 9 features: 8 changed since last test; 1 backend tested. Tested in the backend: 1, in the frontend: 0.
 
 A status comes from the feature's tests, not from anybody's word: **Tested** means every test of the feature passed on the code as it is now; **Changed since last test** means it passed, but its files changed since.
 
@@ -80,33 +80,33 @@ Found wrong and not proven fixed yet. Each stays here until a test that names it
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-8 | Use managed accounts and service allowances | Changed since last test | changed | untested | 2026-11-06 Add session-only preparation and editable role context |
+| CONV-8 | Use managed accounts and service allowances | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
 ## Conversation assistance
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-7 | Get answers and suggestions during conversations | Changed since last test | changed | untested | 2026-11-06 Simplify Preparation to General or one job description |
+| CONV-7 | Get answers and suggestions during conversations | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
 ## Conversation recording
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-5 | Record and transcribe conversations | Changed since last test | changed | untested | 2026-11-06 Simplify Preparation to General or one job description |
+| CONV-5 | Record and transcribe conversations | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
 ## General
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-1 | Prepare selected projects for role-specific interviews | Changed since last test | changed | untested | 2026-11-06 Simplify Preparation to General or one job description |
-| CONV-2 | Practice interviews with editable system prompts | Changed since last test | changed | untested | 2026-11-06 Simplify Preparation to General or one job description |
-| CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-11-06 Add session-only preparation and editable role context |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Changed since last test | changed | untested | 2026-11-06 docs: record final simplified laptop delivery |
-| CONV-9 | Prepare editable job applications before practice | Changed since last test | changed | untested | 2026-11-06 Simplify Preparation to General or one job description |
+| CONV-1 | Prepare selected projects for role-specific interviews | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-2 | Practice interviews with editable system prompts | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-4 | Launch Converaid with a distinct desktop identity | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-9 | Prepare editable job applications before practice | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
 ## Meeting records
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-6 | Review saved meetings and reports | Changed since last test | changed | untested | 2026-11-06 Simplify Preparation to General or one job description |
+| CONV-6 | Review saved meetings and reports | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
 
