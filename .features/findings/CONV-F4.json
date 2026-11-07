@@ -6,7 +6,8 @@
   "severity": "medium",
   "at": null,
   "words": [
-    "Weil da hat er mich mehrfach hängen lassen, indem er einfach gesagt hat: Hey, das weiß ich jetzt nicht so genau und so weiter."
+    "Weil da hat er mich mehrfach hängen lassen, indem er einfach gesagt hat: Hey, das weiß ich jetzt nicht so genau und so weiter.",
+    "Ja, der hat auf jeden Fall mich ein paar Mal hängen lassen, das kann ich dir sagen."
   ],
   "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
   "by": "agent",
@@ -14,5 +15,5 @@
     "at": "2026-11-07T01:16:48.136Z",
     "commit": "b669b0a"
   },
-  "updatedAt": "2026-11-07T01:16:48.137Z"
+  "updatedAt": "2026-11-07T01:28:53.832Z"
 }
