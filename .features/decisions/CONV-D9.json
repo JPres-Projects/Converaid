@@ -1,0 +1,28 @@
+{
+  "id": "CONV-D9",
+  "topic": "answer-support-fallback",
+  "verdict": "Give direct concise answers without inferring inexperience or adding authorship disclaimers. Explain supported project challenges and solutions. Allow unnamed illustrative first-person drafts for general behavioral questions; never attach invented facts to named projects, employers, credentials or metrics. Answer factual questions independently of project notes.",
+  "why": "The user reports repeated defensive caveats and hypothetical-only answers and wants practical answers without forced project attribution.",
+  "words": [],
+  "markers": [],
+  "applies": "app/shared/types.ts,app/electron/services/chat.ts,app/tests/chat.test.ts,app/tests/settings.test.ts",
+  "status": "current",
+  "supersedes": [],
+  "supersededBy": null,
+  "decided": {
+    "by": "Jim",
+    "at": "2026-11-07T01:23:01.490Z",
+    "quote": "Dann kann er einfach sagen: okay, ich hatte das schon mal, dass es so und so war, wie habe ich es gelöst? So und so, weißt du?",
+    "via": "chat",
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "computer": "DESKTOP-KV3OK8I"
+  },
+  "confirmed": true,
+  "seen": true,
+  "sources": [],
+  "created": {
+    "at": "2026-11-07T01:23:01.490Z",
+    "commit": "b669b0a"
+  },
+  "updatedAt": "2026-11-07T01:23:01.490Z"
+}

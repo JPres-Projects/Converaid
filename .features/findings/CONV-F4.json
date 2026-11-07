@@ -1,0 +1,19 @@
+{
+  "id": "CONV-F4",
+  "feature": "CONV-2",
+  "text": "During a recent interview, answer suggestions repeatedly fall back to uncertainty instead of providing useful direct support; inspect the saved dialogue to distinguish factual limits from unsupported personal denials.",
+  "property": null,
+  "severity": "medium",
+  "at": null,
+  "words": [
+    "Weil da hat er mich mehrfach hängen lassen, indem er einfach gesagt hat: Hey, das weiß ich jetzt nicht so genau und so weiter.",
+    "Ja, der hat auf jeden Fall mich ein paar Mal hängen lassen, das kann ich dir sagen."
+  ],
+  "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+  "by": "agent",
+  "created": {
+    "at": "2026-11-07T01:16:48.136Z",
+    "commit": "b669b0a"
+  },
+  "updatedAt": "2026-11-07T01:28:53.832Z"
+}

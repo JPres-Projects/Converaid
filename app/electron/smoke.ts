@@ -1,5 +1,5 @@
 import { app, BrowserWindow, clipboard, screen } from "electron"
-import { spawn } from "node:child_process"
+import { execFileSync, spawn } from "node:child_process"
 import fs from "node:fs"
 import http from "node:http"
 import path from "node:path"
@@ -7,7 +7,8 @@ import type { AddressInfo } from "node:net"
 import type { AsrModel } from "./services/asrModel"
 import { LocalAsrSocket } from "./services/localAsr"
 import type { RefineModels } from "./services/refine"
-import { getLanguage, type AudioSource, type LanguageCode, type SessionState, type WindowKind } from "../shared/types"
+import { ANSWER_FORMAT, getLanguage, type AudioSource, type InterviewProject, type LanguageCode, type ProjectKnowledgeState, type SessionState, type WindowKind } from "../shared/types"
+import type { SimulationState } from "../shared/simulation"
 import type { ChatService } from "./services/chat"
 import type { CloudSync } from "./services/cloud"
 import { MeetingStore } from "./services/meetings"
@@ -44,6 +45,10 @@ interface SmokeDeps {
  *             direct answers, small talk must be skipped (nothing shown in chat).
  *   "shots"   capture the toolbar and every panel tab (with sample answers) as PNGs into
  *             IGPT_SMOKE_SHOTS. capturePage works even with content protection on.
+ *   "project-ui" local project preparation, role notes and selection through the real renderer;
+ *             project overview, expanded briefing and mode-menu PNGs at 1440 and 390 pixels.
+ *   "simulation-ui" prompt editing, project summaries and isolated practice turns through the real
+ *             renderer and a fake local provider; Settings and Simulation PNGs at 1440 and 390 pixels.
  *   "demo"    frames of answers streaming in the panel, for the README animation (see demoFrames).
  *   "copy"    selecting an answer in the panel and pressing Ctrl+C copies it (the Ctrl+C shortcut must not
  *             swallow the copy); nothing selected means the copy path declines. Restores the clipboard.
@@ -135,6 +140,15 @@ export async function runSmokeTest(mode: string, { windows, chat, session, setti
   if (mode === "cloud") cloudProbe = await cloudSmoke({ cloud, settings, meetings })
 
   if (mode === "shots") await shots(windows, settings, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp"))
+  if (mode === "project-ui") {
+    try { await projectUiSmoke(windows, settings, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp")) }
+    catch (error) { errors.push(`Project UI: ${(error as Error).message}`) }
+  }
+  let simulationUiProbe: Record<string, unknown> & { ok: boolean } | undefined
+  if (mode === "simulation-ui") {
+    try { simulationUiProbe = await simulationUiSmoke(windows, chat, settings, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp")) }
+    catch (error) { errors.push(`Simulation UI: ${(error as Error).message}`) }
+  }
   if (mode === "demo") await demoFrames(windows, process.env.IGPT_SMOKE_SHOTS || app.getPath("temp"))
 
   let answersProbe: Record<string, unknown> & { ok: boolean } | undefined
@@ -182,6 +196,7 @@ export async function runSmokeTest(mode: string, { windows, chat, session, setti
     ownKey: ownKeyProbe,
     hide: hideProbe,
     answers: answersProbe,
+    simulationUi: simulationUiProbe,
     errors
   }
   console.log(`SMOKE_REPORT ${JSON.stringify(report)}`)
@@ -270,6 +285,576 @@ function sendKeys(keys: string): Promise<void> {
 }
 
 const TEST_PHRASE = "The purple elephant is testing system audio capture."
+
+/** Local-only acceptance checks against the actual Electron renderer and preload bridge. */
+async function projectUiSmoke(windows: WindowManager, settings: SettingsStore, dir: string): Promise<void> {
+  fs.mkdirSync(dir, { recursive: true })
+  const original = settings.get()
+  const tempRoot = fs.realpathSync(app.getPath("temp"))
+  const fixtureRoot = fs.mkdtempSync(path.join(tempRoot, "meetingly-project-ui-"))
+  const emptyHooks = path.join(fixtureRoot, "empty-hooks")
+  fs.mkdirSync(emptyHooks)
+  const write = (folder: string, relative: string, content: string) => {
+    const file = path.join(folder, relative)
+    fs.mkdirSync(path.dirname(file), { recursive: true })
+    fs.writeFileSync(file, content)
+  }
+  const git = (folder: string, ...args: string[]) => execFileSync("git", [
+    "-c", `core.hooksPath=${emptyHooks}`, "-c", "commit.gpgsign=false", "-c", "core.fsmonitor=false", "-C", folder, ...args
+  ], { encoding: "utf8", windowsHide: true, timeout: 5000, maxBuffer: 64 * 1024 }).trim()
+  const mappedProject = (id: string, name: string, purpose: string, experience: string): InterviewProject => {
+    const folder = path.join(fixtureRoot, `${id}-project-with-a-readable-long-folder-name`)
+    write(folder, "src/Screen.tsx", "export const Screen = 'Project overview and actions'\n")
+    write(folder, "src/api.ts", "export function handleRequest() { return 'Validated project request' }\n")
+    write(folder, "src/database.ts", "export const database = 'Persistent project records'\n")
+    git(folder, "init", "--quiet")
+    git(folder, "add", "src")
+    // The identity and empty hooks directory apply only to this disposable fixture commit.
+    git(folder, "-c", "user.name=Project UI Fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "Create local smoke fixture")
+    write(folder, ".ua/knowledge-graph.json", JSON.stringify({
+      project: { name, description: purpose, languages: ["TypeScript"], frameworks: ["React"], gitCommitHash: git(folder, "rev-parse", "HEAD") },
+      nodes: [
+        { id: "screen", type: "file", name: "Project screen", filePath: "src/Screen.tsx", summary: "The frontend presents records and sends user actions to the API.", tags: ["frontend"] },
+        { id: "api", type: "file", name: "Project API", filePath: "src/api.ts", summary: "The backend validates requests before accessing stored records.", tags: ["backend"] },
+        { id: "database", type: "file", name: "Project database", filePath: "src/database.ts", summary: "The database persists records used by the project.", tags: ["database"] }
+      ],
+      edges: [{ source: "screen", target: "api", type: "calls" }, { source: "api", target: "database", type: "depends_on" }],
+      layers: [{ id: "frontend", name: "Frontend", description: "User actions and record views.", nodeIds: ["screen"] }, { id: "backend", name: "Backend", description: "Validation and persistence.", nodeIds: ["api", "database"] }],
+      tour: [{ order: 1, title: "Request journey", description: "Follow an action from the screen through validation to storage.", nodeIds: ["screen", "api", "database"] }]
+    }))
+    return { id, name, folder, experience, enabled: true }
+  }
+
+  settings.update({ answerMode: "meeting", ownKey: null, cloud: null, projects: [], suggestions: false })
+  windows.setPanelExtra(0)
+  windows.showPanel("settings")
+  const panel = windows.get("chat")!
+  const originalBounds = panel.getBounds()
+  const originalMaximum = panel.getMaximumSize()
+  const run = <T = unknown>(js: string) => panel.webContents.executeJavaScript(js) as Promise<T>
+  const query = (selector: string) => `document.querySelector(${JSON.stringify(selector)})`
+  const until = async (js: string, timeout = 6000) => {
+    const deadline = Date.now() + timeout
+    while (Date.now() < deadline) {
+      if (await run(js)) return
+      await sleep(100)
+    }
+    throw new Error(`Project UI check failed: ${js}`)
+  }
+  const click = async (selector: string) => {
+    await until(`Boolean(${query(selector)}) && !${query(selector)}.disabled`)
+    await run(`${query(selector)}.scrollIntoView({ block: 'nearest' })`)
+    await sleep(75)
+    const point = await run<{ x: number; y: number }>(`(() => { const r = ${query(selector)}.getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) } })()`)
+    panel.webContents.sendInputEvent({ type: "mouseDown", ...point, button: "left", clickCount: 1 })
+    panel.webContents.sendInputEvent({ type: "mouseUp", ...point, button: "left", clickCount: 1 })
+  }
+  const fillRole = async (selector: string, text: string) => {
+    await click(selector)
+    await run(`(() => { const input = ${query(selector)}; Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, ${JSON.stringify(text)}); input.dispatchEvent(new Event('input', { bubbles: true })); })()`)
+    await until(`${query(selector)}.value === ${JSON.stringify(text)}`)
+  }
+  const capture = async (name: string) => fs.writeFileSync(path.join(dir, name), (await panel.webContents.capturePage()).toPNG())
+  const checkLayout = async (width: number) => {
+    if (!await run(`innerWidth === ${width} && document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('.scroll')].every(e => e.scrollWidth <= e.clientWidth + 1)`)) throw new Error(`Horizontal overflow or incorrect viewport at ${width}px`)
+    if (!await run(`(() => { const r = document.querySelector('section[aria-label="Projects"]').getBoundingClientRect(); return r.left >= 8 && r.right <= innerWidth - 8 })()`)) throw new Error(`Project page margins missing at ${width}px`)
+    if (!await run(`document.querySelectorAll('select,datalist').length === 0`)) throw new Error(`Native dropdown rendered at ${width}px`)
+  }
+  const section = 'section[aria-label="Projects"]'
+  const modeSelector = '[role="combobox"][aria-label="Answer mode"]'
+  const mode = query(modeSelector)
+  const prepareSelector = `${section} > div:first-child > button:last-child`
+  const invoice = '[data-project-id="invoice-portal"]'
+  const delivery = '[data-project-id="delivery-planner"]'
+  const prototype = '[data-project-id="calendar-prototype"]'
+  const invoiceRole = `${invoice} textarea`
+  const deliveryRole = `${delivery} textarea`
+  const invoiceExperience = "I maintained the API and reviewed database migrations."
+  const deliveryExperience = "I designed routing rules and monitored delivery retries."
+
+  try {
+    const projects: InterviewProject[] = [
+      mappedProject("invoice-portal", "Invoice Portal", "Tracks supplier invoices and approval status.", "I maintained the API."),
+      mappedProject("delivery-planner", "Delivery Planner", "Plans parcel routes and tracks delivery events.", "I implemented delivery events."),
+      { id: "calendar-prototype", name: "Calendar Prototype", folder: path.join(fixtureRoot, "calendar-prototype-without-a-map"), experience: "I built the first scheduling prototype.", enabled: true }
+    ]
+    write(projects[2].folder, "README.md", "# Calendar Prototype\nA calendar planner built with React. The prototype groups appointments by day.\n")
+    panel.setMaximumSize(1600, 1000)
+    panel.setSize(1440, 900)
+    await until(`Boolean(${mode}) && Boolean(${query(section)})`)
+    await until(`${query(prepareSelector)}.disabled && document.querySelectorAll('[data-project-id]').length === 0`)
+    await until(`${query(section)}.textContent.includes('Add projects')`)
+    await checkLayout(1440)
+
+    await click(modeSelector)
+    await until(`document.querySelectorAll('[role="option"]').length === 3`)
+    await click('[role="option"]:last-child')
+    await until(`${mode}.textContent.includes('Coding')`)
+    if (settings.get().answerMode !== "coding") throw new Error("Mouse-selected mode did not persist through IPC")
+    await run(`${mode}.focus()`)
+    for (const key of ["Enter", "ArrowUp", "Enter"]) {
+      await run(`${mode}.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true }))`)
+      await sleep(100)
+    }
+    await until(`${mode}.textContent.includes('Interview')`)
+    if (settings.get().answerMode !== "interview") throw new Error("Keyboard-selected mode did not persist through IPC")
+    await click(modeSelector)
+    await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+    await run(`${mode}.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+    await until(`!document.querySelector('[role="listbox"]')`)
+    if (!panel.isVisible()) throw new Error("Escape closed the panel instead of the mode menu")
+    await click(modeSelector)
+    await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+    await click(`${section} h2`)
+    await until(`!document.querySelector('[role="listbox"]')`)
+
+    settings.update({ projects })
+    await until(`document.querySelectorAll('[data-project-id]').length === 3 && document.querySelectorAll('[data-project-status="unprepared"]').length === 3`)
+    await click(`${delivery} [role="switch"]`)
+    await until(`${query(`${delivery} [role="switch"]`)}.getAttribute('aria-checked') === 'false' && ${query(section)}.textContent.includes('2 selected')`)
+    if (settings.get().projects.find((project) => project.id === projects[1].id)?.enabled !== false) throw new Error("Project deselection did not persist")
+    await click(`${delivery} [role="switch"]`)
+    await until(`${query(`${delivery} [role="switch"]`)}.getAttribute('aria-checked') === 'true' && ${query(section)}.textContent.includes('3 selected')`)
+
+    await click(`${delivery} [aria-label="Details for Delivery Planner"]`)
+    await fillRole(deliveryRole, deliveryExperience)
+    await click(`${delivery} [aria-label="Details for Delivery Planner"]`)
+    await until(`window.api.invoke('settings:get').then(s => s.projects.find(p => p.id === 'delivery-planner')?.experience === ${JSON.stringify(deliveryExperience)})`)
+    if (settings.get().projects.find((project) => project.id === projects[0].id)?.experience !== projects[0].experience) throw new Error("Saving one role changed another project's role")
+
+    await click(`${invoice} [aria-label="Details for Invoice Portal"]`)
+    await fillRole(invoiceRole, invoiceExperience)
+    // Actual mouse input blurs the role field and immediately clicks Prepare, exercising save ordering.
+    await click(prepareSelector)
+    await until(`window.api.invoke('projects:state').then(s => !s.preparing && s.projects.filter(p => p.status === 'ready').length === 2 && s.projects.find(p => p.id === 'calendar-prototype')?.status === 'limited')`, 20000)
+    await until(`${query(section)}.textContent.includes('3 selected, 2 ready') && ${query(prepareSelector)}.textContent.includes('Prepare again') && !${query(prepareSelector)}.disabled`)
+    const state = await run<ProjectKnowledgeState>("window.api.invoke('projects:state')")
+    for (const project of projects.slice(0, 2)) {
+      const prepared = state.projects.find((item) => item.id === project.id)
+      if (prepared?.status !== "ready" || !prepared.preparedAt || !prepared.brief.includes("Frontend") || !prepared.brief.includes("Backend") || !prepared.brief.includes("Request journey") || !prepared.notice.includes("Map freshness verified")) throw new Error(`Mapped project was not fully prepared: ${project.name}`)
+    }
+    const limited = state.projects.find((item) => item.id === projects[2].id)
+    if (limited?.status !== "limited" || !/no Understand Anything map/i.test(limited.notice)) throw new Error("Missing project map was not reported as limited knowledge")
+    await until(`${query(prototype)}.textContent.includes('Limited knowledge') && ${query(prototype)}.textContent.includes('No project map found. Only available documentation is prepared.')`)
+    if (settings.get().projects.find((project) => project.id === projects[0].id)?.experience !== invoiceExperience || settings.get().projects.find((project) => project.id === projects[1].id)?.experience !== deliveryExperience) throw new Error("Project roles did not persist separately before preparation")
+    await until(`${query(`${invoice} h4`)}?.textContent === 'Prepared architecture briefing'`)
+
+    for (const width of [1440, 390]) {
+      panel.setSize(width, 900)
+      await until(`innerWidth === ${width}`)
+      await run(`document.querySelectorAll('${section} [aria-expanded="true"]').forEach(e => e.click()); document.querySelectorAll('.scroll').forEach(e => { e.scrollTop = 0 })`)
+      await sleep(200)
+      await checkLayout(width)
+      await capture(`projects-${width}.png`)
+
+      await click(`${invoice} [aria-label="Details for Invoice Portal"]`)
+      await until(`Boolean(${query(`${invoice} h4`)})`)
+      await run(`${query(`${invoice} label`)}.scrollIntoView({ block: 'start' }); ${query(section)}.closest('.scroll').scrollTop -= 12`)
+      await sleep(200)
+      await checkLayout(width)
+      await capture(`project-briefing-${width}.png`)
+      await click(`${invoice} [aria-label="Details for Invoice Portal"]`)
+
+      await run(`${mode}.scrollIntoView({ block: 'center' })`)
+      await sleep(150)
+      await click(modeSelector)
+      await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+      await sleep(200)
+      if (!await run(`(() => { const r = document.querySelector('[role="listbox"]').getBoundingClientRect(); return r.left >= 8 && r.right <= innerWidth - 8 && r.top >= 0 && r.bottom <= innerHeight })()`)) throw new Error(`Dropdown outside viewport at ${width}px`)
+      await capture(`mode-${width}.png`)
+      await run(`${mode}.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+      await until(`!document.querySelector('[role="listbox"]')`)
+    }
+
+    await click(`${delivery} [aria-label="Remove Delivery Planner"]`)
+    await until(`!${query(delivery)} && document.querySelectorAll('[data-project-id]').length === 2`)
+    if (settings.get().projects.length !== 2 || settings.get().projects.some((project) => project.id === projects[1].id) || settings.get().projects.find((project) => project.id === projects[0].id)?.experience !== invoiceExperience) throw new Error("Removing a project did not preserve the other projects and their roles")
+    await click(`${invoice} [aria-label="Remove Invoice Portal"]`)
+    await until(`!${query(invoice)}`)
+    await click(`${prototype} [aria-label="Remove Calendar Prototype"]`)
+    await until(`document.querySelectorAll('[data-project-id]').length === 0 && ${query(prepareSelector)}.disabled`)
+    if (settings.get().projects.length !== 0) throw new Error("Removing the last project did not clear the selection")
+    fs.writeFileSync(path.join(dir, "project-ui-checks.json"), JSON.stringify({
+      ok: true,
+      checks: ["mode mouse selection", "mode keyboard selection", "Escape and outside close", "multiple project selection", "independent roles saved on blur before Prepare", "two verified mapped projects ready", "missing map limited", "project removal preserves other roles", "empty selection disables Prepare", "no native selects", "page margins", "no horizontal overflow"],
+      widths: [1440, 390],
+      screenshots: [1440, 390].flatMap((width) => [`projects-${width}.png`, `project-briefing-${width}.png`, `mode-${width}.png`])
+    }, null, 2))
+  } catch (error) {
+    try { await capture("project-ui-failure.png") } catch { /* Preserve the original check failure. */ }
+    throw error
+  } finally {
+    settings.update({ answerMode: original.answerMode, ownKey: original.ownKey, cloud: original.cloud, projects: original.projects, suggestions: original.suggestions })
+    panel.setMaximumSize(originalMaximum[0], originalMaximum[1])
+    panel.setBounds(originalBounds)
+    const resolvedFixture = path.resolve(fixtureRoot)
+    if (path.dirname(resolvedFixture) !== tempRoot || !path.basename(resolvedFixture).startsWith("meetingly-project-ui-")) throw new Error("Refusing to remove a fixture outside the expected temporary directory")
+    if (process.platform === "win32") {
+      // Git creates read-only object files; clear that flag only inside this run's disposable fixture.
+      const directories = [resolvedFixture]
+      while (directories.length) {
+        const folder = directories.pop()!
+        for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+          const file = path.join(folder, entry.name)
+          if (entry.isSymbolicLink()) continue
+          if (entry.isDirectory()) directories.push(file)
+          else if (entry.isFile()) fs.chmodSync(file, 0o600)
+        }
+      }
+    }
+    await fs.promises.rm(resolvedFixture, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
+  }
+}
+
+/** Real Settings and Simulation interaction; every model request stays on this bounded local server. */
+async function simulationUiSmoke(windows: WindowManager, chat: ChatService, settings: SettingsStore, dir: string): Promise<Record<string, unknown> & { ok: boolean }> {
+  fs.mkdirSync(dir, { recursive: true })
+  const original = settings.get()
+  const originalWindows = windows.state()
+  const originalFetch = globalThis.fetch
+  let toolbarSession: SessionState | undefined
+  const tempRoot = fs.realpathSync(app.getPath("temp"))
+  const fixtureRoot = fs.mkdtempSync(path.join(tempRoot, "meetingly-simulation-ui-"))
+  const checks: Record<string, boolean> = {}
+  const screenshots: string[] = []
+  const requests: { messages: { role: string; content: string }[]; authenticated: boolean }[] = []
+  const dummyKey = "sk-simulation-ui-local-only"
+  const reply = "I would start with the scheduling API and confirm its constraints."
+  let requestCount = 0
+  const server = http.createServer((req, res) => {
+    let raw = ""
+    req.on("data", (data) => { raw += data; if (raw.length > 256_000) req.destroy() })
+    req.on("end", () => {
+      if (++requestCount > 16) { res.writeHead(429); res.end("Local smoke request limit reached"); return }
+      let body: { stream?: boolean; model?: string; messages?: { role: string; content: string }[] }
+      try { body = raw ? JSON.parse(raw) : {} }
+      catch { res.writeHead(400); res.end("Invalid local smoke request"); return }
+      if (req.url === "/v1/models") {
+        res.writeHead(200, { "Content-Type": "application/json" })
+        res.end(JSON.stringify({ data: [{ id: "smoke-simulation" }] }))
+        return
+      }
+      if (req.url !== "/v1/chat/completions") { res.writeHead(404); res.end(); return }
+      if (!body.stream) {
+        res.writeHead(200, { "Content-Type": "application/json" })
+        res.end(JSON.stringify({ id: "smoke-check", object: "chat.completion", model: body.model, choices: [{ index: 0, message: { role: "assistant", content: "OK" }, finish_reason: "stop" }] }))
+        return
+      }
+      requests.push({ messages: body.messages ?? [], authenticated: req.headers.authorization === `Bearer ${dummyKey}` })
+      const chunk = (text: string, done = false) => `data: ${JSON.stringify({ id: "simulation-smoke", object: "chat.completion.chunk", created: 0, model: body.model, choices: [{ index: 0, delta: { content: text }, finish_reason: done ? "stop" : null }] })}\n\n`
+      res.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" })
+      res.write(chunk("I would start with "))
+      const finish = setTimeout(() => res.end(chunk(reply.slice("I would start with ".length), true) + "data: [DONE]\n\n"), 750)
+      res.once("close", () => clearTimeout(finish))
+    })
+  })
+  const panel = windows.get("chat")!
+  const originalBounds = panel.getBounds()
+  const originalMaximum = panel.getMaximumSize()
+  const originalMainBounds = windows.get("main")?.getBounds()
+  const run = <T = unknown>(js: string) => panel.webContents.executeJavaScript(js) as Promise<T>
+  const query = (selector: string) => `document.querySelector(${JSON.stringify(selector)})`
+  const button = (text: string, scope = "document") => `[...${scope}.querySelectorAll('button')].find(e => e.textContent.trim() === ${JSON.stringify(text)} || e.getAttribute('aria-label') === ${JSON.stringify(text)})`
+  const until = async (js: string, timeout = 8000) => {
+    const deadline = Date.now() + timeout
+    while (Date.now() < deadline) {
+      if (await run(js)) return
+      await sleep(75)
+    }
+    const state = await run<{ width: number; height: number; labels: (string | null)[] }>(`({ width: innerWidth, height: innerHeight, labels: [...document.querySelectorAll('[role="combobox"]')].map(element => element.getAttribute('aria-label')) })`)
+    throw new Error(`Simulation UI check failed: ${js.slice(0, 300)}; renderer ${JSON.stringify(state)}`)
+  }
+  const requireCheck = (name: string, passed: boolean) => {
+    checks[name] = passed
+    if (!passed) throw new Error(`Simulation UI check failed: ${name}`)
+  }
+  const resizeViewport = async (win: BrowserWindow, width: number, height: number) => {
+    const attempts: unknown[] = []
+    let requestedWidth = width
+    let requestedHeight = height
+    win.setContentSize(requestedWidth, requestedHeight)
+    for (let attempt = 0; attempt < 6; attempt++) {
+      await sleep(100)
+      const actual = await win.webContents.executeJavaScript("({ width: innerWidth, height: innerHeight })") as { width: number; height: number }
+      attempts.push({ actual, bounds: win.getBounds(), content: win.getContentSize(), maximum: win.getMaximumSize() })
+      if (actual.width === width && actual.height === height) return
+      // Windows can round a transparent window by one CSS pixel at fractional desktop scaling.
+      requestedWidth += width - actual.width
+      requestedHeight += height - actual.height
+      win.setContentSize(requestedWidth, requestedHeight)
+    }
+    throw new Error(`Could not set the renderer viewport to ${width}x${height}: ${JSON.stringify(attempts)}`)
+  }
+  const click = async (expression: string) => {
+    await until(`Boolean(${expression}) && !(${expression}).disabled`)
+    await run(`(${expression}).scrollIntoView({ block: 'nearest' })`)
+    await sleep(75)
+    const point = await run<{ x: number; y: number }>(`(() => { const r = (${expression}).getBoundingClientRect(); return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) } })()`)
+    panel.webContents.sendInputEvent({ type: "mouseDown", ...point, button: "left", clickCount: 1 })
+    panel.webContents.sendInputEvent({ type: "mouseUp", ...point, button: "left", clickCount: 1 })
+  }
+  const fill = async (selector: string, text: string) => {
+    await click(query(selector))
+    await run(`(() => { const field = ${query(selector)}; const prototype = field instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype; Object.getOwnPropertyDescriptor(prototype, 'value').set.call(field, ${JSON.stringify(text)}); field.dispatchEvent(new Event('input', { bubbles: true })); })()`)
+    await until(`${query(selector)}.value === ${JSON.stringify(text)}`)
+  }
+  const capture = async (name: string) => {
+    await sleep(200)
+    fs.writeFileSync(path.join(dir, name), (await panel.webContents.capturePage()).toPNG())
+    screenshots.push(name)
+  }
+  const promptsSection = 'section[aria-label="System prompts"]'
+  const promptSelector = '[role="combobox"][aria-label="System prompt"]'
+  const simulationSection = 'section[aria-label="Interview simulation"]'
+  const simulationInput = 'textarea[aria-label="Simulation input"]'
+  const alphaInstruction = "SMOKE_ALPHA_INSTRUCTION. Explain the scheduling API clearly in complete sentences."
+  const betaInstruction = "SMOKE_BETA_INSTRUCTION. Focus the next answer on delivery tradeoffs."
+  const alphaSummary = "A scheduling service for small teams, built with React and a TypeScript API."
+  const betaSummary = "A delivery planner for dispatch teams, built with Python and PostgreSQL."
+  const alphaRole = "I implemented the scheduling API and reviewed database migrations."
+  const betaRole = "I designed route validation and monitored delivery retries."
+  const liveMarker = "LIVE_HISTORY_ONLY_SMOKE: discuss a private live meeting topic."
+  const candidateText = "I built the scheduling API and would start by validating the request."
+  const checkLayout = async (width: number, section: string) => {
+    const passed = await run<boolean>(`innerWidth === ${width} && document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('.scroll')].every(e => !e.clientWidth || e.scrollWidth <= e.clientWidth + 1) && !document.querySelector('select,datalist') && (() => { const e = ${query(section)}; const r = e.getBoundingClientRect(); const css = getComputedStyle(e); return r.left + parseFloat(css.paddingLeft) >= 8 && r.right - parseFloat(css.paddingRight) <= innerWidth - 8 })()`)
+    if (!passed) {
+      const dimensions = await run(`({ width: innerWidth, document: document.documentElement.scrollWidth, scroll: [...document.querySelectorAll('.scroll')].map(e => ({ label: e.getAttribute('aria-label'), client: e.clientWidth, width: e.scrollWidth })), section: (() => { const e = ${query(section)}; const r = e.getBoundingClientRect(); const css = getComputedStyle(e); return { left: r.left, right: r.right, padding: [css.paddingLeft, css.paddingRight] } })() })`)
+      throw new Error(`Layout ${section} at ${width}: ${JSON.stringify(dimensions)}`)
+    }
+    requireCheck(`layout-${section === promptsSection ? "prompts" : "simulation"}-${width}`, passed)
+  }
+  const choosePrompt = async (title: string) => {
+    await click(query(promptSelector))
+    await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+    await click(`[...document.querySelectorAll('[role="option"]')].find(e => e.textContent.trim() === ${JSON.stringify(title)})`)
+    await until(`${query(promptSelector)}.textContent.includes(${JSON.stringify(title)})`)
+    await until(`window.api.invoke('settings:get').then(s => s.prompts.find(p => p.id === s.activePromptId)?.title === ${JSON.stringify(title)})`)
+  }
+  const simulationState = () => run<SimulationState>("window.api.invoke('simulation:state')")
+  const summary = (ok: boolean, error?: string) => ({ ok, checks, widths: [1440, 390], screenshots, localRequests: requestCount, streamedRequests: requests.length, ...(error ? { error: error.slice(0, 600) } : {}) })
+
+  try {
+    await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve) })
+    const baseUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}/v1`
+    const projects: InterviewProject[] = [
+      { id: "smoke-scheduling", name: "Scheduling Service", folder: path.join(fixtureRoot, "scheduling"), experience: "I worked on the API.", enabled: true },
+      { id: "smoke-delivery", name: "Delivery Planner", folder: path.join(fixtureRoot, "delivery"), experience: betaRole, enabled: true }
+    ]
+    for (const project of projects) {
+      fs.mkdirSync(project.folder)
+      fs.writeFileSync(path.join(project.folder, "README.md"), `# ${project.name}\nLocal simulation smoke fixture.\n`)
+    }
+    settings.update({ cloud: null, ownKey: null, answerMode: "interview", outputLanguage: "en", suggestions: false, projects, prompts: [{ id: "smoke-baseline", title: "General practice", content: "Answer the interviewer's question." }], activePromptId: "smoke-baseline" })
+    windows.setPanelExtra(0)
+    windows.showPanel("settings")
+    panel.setMaximumSize(1600, 1000)
+    await resizeViewport(panel, 1440, 900)
+    await until(`Boolean(${query(promptSelector)})`)
+    requireCheck("last-prompt-kept", await run<boolean>(`(${button("Remove prompt", query(promptsSection))}).disabled`))
+    // Use the public own-key flow so the OS secret box encrypts even this disposable dummy key.
+    await run(`window.api.invoke('ownkey:save', ${JSON.stringify({ baseUrl, key: dummyKey, model: "smoke-simulation" })})`)
+    const ownKey = settings.get().ownKey
+    requireCheck("encrypted-local-provider", Boolean(ownKey && ownKey.baseUrl === baseUrl && ownKey.key && ownKey.key !== dummyKey))
+
+    // Only this catalog URL is intercepted. Validation and every completion still use localhost.
+    let catalogRequests = 0
+    globalThis.fetch = async (input, init) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url
+      if (url === "https://openrouter.ai/api/v1/models") {
+        catalogRequests++
+        return new Response(JSON.stringify({ data: [{ id: "anthropic/claude-sonnet-5.5" }, { id: "anthropic/claude-haiku-5.5" }] }), { status: 200, headers: { "Content-Type": "application/json" } })
+      }
+      return originalFetch(input, init)
+    }
+    try {
+      openOwnKeyForm(windows)
+      await until(`Boolean(${query("#own-model")})`)
+      await fill("#own-key", "unsaved-local-provider-key")
+      await click(button("OpenRouter", query('[aria-label="API provider"]')))
+      await until(`${query("#own-url")}.value === 'https://openrouter.ai/api/v1' && Boolean(${query('[aria-label="Model preset"]')}) && Boolean(${query('[aria-label="Available models"]')})`)
+      requireCheck("provider-change-clears-typed-key", await run<boolean>(`${query("#own-key")}.value === ''`))
+      const chooseModelOption = async (label: string, choice: string) => {
+        const selector = `[role="combobox"][aria-label="${label}"]`
+        await click(query(selector))
+        await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+        await click(`[...document.querySelectorAll('[role="option"]')].find(e => e.textContent.trim() === ${JSON.stringify(choice)})`)
+        await until(`${query(selector)}.textContent.includes(${JSON.stringify(choice)})`)
+      }
+      await chooseModelOption("Model preset", "Claude Sonnet 5.5")
+      requireCheck("sonnet-preset-standard", await run<boolean>(`${query("#own-model")}.value === 'anthropic/claude-sonnet-5.5'`))
+      await chooseModelOption("OpenRouter routing", "Nitro")
+      requireCheck("sonnet-nitro-exact-model-id", await run<boolean>(`${query("#own-model")}.value === 'anthropic/claude-sonnet-5.5:nitro'`))
+      await chooseModelOption("OpenRouter routing", "Standard")
+      requireCheck("standard-removes-nitro", await run<boolean>(`${query("#own-model")}.value === 'anthropic/claude-sonnet-5.5'`))
+      await chooseModelOption("OpenRouter routing", "Nitro")
+      await chooseModelOption("Model preset", "Claude Haiku 5.5")
+      requireCheck("haiku-preset-preserves-nitro", await run<boolean>(`${query("#own-model")}.value === 'anthropic/claude-haiku-5.5:nitro'`))
+      await fill("#own-model", "custom/smoke-model:nitro")
+      await until(`${query('[aria-label="Model preset"]')}.textContent.includes('Custom')`)
+      requireCheck("manual-model-remains-editable", await run<boolean>(`${query("#own-model")}.value === 'custom/smoke-model:nitro' && !${query("#own-model")}.disabled`))
+      await chooseModelOption("Model preset", "Claude Sonnet 5.5")
+      for (const width of [1440, 390]) {
+        await resizeViewport(panel, width, 900)
+        await run(`${query("#own-url")}.closest('form').scrollIntoView({ block: 'center' })`)
+        requireCheck(`model-form-layout-${width}`, await run<boolean>(`!document.querySelector('select,datalist') && document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll('.scroll')].every(e => !e.clientWidth || e.scrollWidth <= e.clientWidth + 1) && (() => { const r = ${query("#own-url")}.closest('form').getBoundingClientRect(); const route = ${query('[aria-label="OpenRouter routing"]')}.getBoundingClientRect(); return r.left + 10 >= 8 && r.right - 10 <= innerWidth - 8 && route.top >= 0 && route.bottom <= innerHeight })()`))
+        await click(query('[aria-label="Model preset"]'))
+        await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+        await capture(`models-${width}.png`)
+        await run(`${query('[aria-label="Model preset"]')}.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+        await until(`!document.querySelector('[role="listbox"]')`)
+      }
+      // Editing the address changes provider without the OpenAI button's external catalog request.
+      await fill("#own-url", baseUrl)
+      await click(query("#own-model"))
+      await until(`!${query('[aria-label="OpenRouter routing"]')} && !${query('[aria-label="Model preset"]')}`)
+      requireCheck("local-provider-removes-nitro-routing", await run<boolean>(`${query("#own-model")}.value === 'anthropic/claude-sonnet-5.5'`))
+      await click(button("Cancel", `${query("#own-url")}.closest('form')`))
+      await until(`!${query("#own-url")}`)
+      requireCheck("catalog-local-and-provider-not-saved", catalogRequests > 0 && JSON.stringify(settings.get().ownKey) === JSON.stringify(ownKey))
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+    windows.showPanel("settings")
+    await resizeViewport(panel, 1440, 900)
+    await until(`Boolean(${query(promptSelector)})`)
+
+    const toolbar = windows.get("main")!
+    toolbarSession = await toolbar.webContents.executeJavaScript("window.api.invoke('session:state')") as SessionState
+    await resizeViewport(toolbar, 360, 44)
+    for (const status of ["idle", "recording"] as const) {
+      windows.send("main", "session:state", { ...toolbarSession, status, startedAt: status === "recording" ? Date.now() - 75_000 : null, connected: status === "recording", notice: null })
+      await sleep(200)
+      requireCheck(`toolbar-360x44-${status}`, await toolbar.webContents.executeJavaScript(`innerWidth === 360 && innerHeight === 44 && document.querySelector('[aria-label="Converaid"]').textContent.includes('Converaid') && document.querySelector('[aria-label="Converaid"] img').complete && [...document.querySelectorAll('button')].every(e => { const r = e.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight })`) as boolean)
+      const name = `toolbar-${status}.png`
+      fs.writeFileSync(path.join(dir, name), (await toolbar.webContents.capturePage()).toPNG())
+      screenshots.push(name)
+    }
+    windows.send("main", "session:state", toolbarSession)
+
+    await click(button("Add prompt", query(promptsSection)))
+    await until(`window.api.invoke('settings:get').then(s => s.prompts.length === 2)`)
+    await fill('[aria-label="Prompt title"]', "Technical interview")
+    await fill('[aria-label="System instructions"]', alphaInstruction)
+    await fill('[aria-label="Background notes"]', "SMOKE_ALPHA_BACKGROUND: three years of API experience.")
+    await click(button("Save prompt", query(promptsSection)))
+    await until(`window.api.invoke('settings:get').then(s => s.prompts.find(p => p.id === s.activePromptId)?.content === ${JSON.stringify(alphaInstruction)})`)
+    requireCheck("prompt-add-edit-save", settings.get().prompts.some((prompt) => prompt.title === "Technical interview" && prompt.content === alphaInstruction && prompt.notes?.includes("SMOKE_ALPHA_BACKGROUND")))
+    await click(button("Add prompt", query(promptsSection)))
+    await until(`window.api.invoke('settings:get').then(s => s.prompts.length === 3)`)
+    await fill('[aria-label="Prompt title"]', "Project follow-up")
+    await fill('[aria-label="System instructions"]', betaInstruction)
+    await fill('[aria-label="Background notes"]', "SMOKE_BETA_BACKGROUND: discuss delivery decisions.")
+    await choosePrompt("Technical interview")
+    requireCheck("dirty-prompt-saved-on-selection", settings.get().prompts.some((prompt) => prompt.title === "Project follow-up" && prompt.content === betaInstruction && prompt.notes?.includes("SMOKE_BETA_BACKGROUND")))
+    await choosePrompt("General practice")
+    await click(button("Remove prompt", query(promptsSection)))
+    await until(`window.api.invoke('settings:get').then(s => s.prompts.length === 2 && !s.prompts.some(p => p.id === 'smoke-baseline'))`)
+    requireCheck("prompt-removal-preserves-others", settings.get().prompts.some((prompt) => prompt.content === alphaInstruction) && settings.get().prompts.some((prompt) => prompt.content === betaInstruction))
+    await choosePrompt("Technical interview")
+
+    await click(query('[aria-label="Details for Scheduling Service"]'))
+    await fill('textarea[aria-label="Project summary for Scheduling Service"]', alphaSummary)
+    await fill('textarea[aria-label="Your role and experience for Scheduling Service"]', alphaRole)
+    await click(query('[aria-label="Details for Scheduling Service"]'))
+    await click(query('[aria-label="Details for Delivery Planner"]'))
+    await fill('textarea[aria-label="Project summary for Delivery Planner"]', betaSummary)
+    await click(query('[aria-label="Details for Delivery Planner"]'))
+    await until(`window.api.invoke('settings:get').then(s => s.projects.find(p => p.id === 'smoke-scheduling')?.description === ${JSON.stringify(alphaSummary)} && s.projects.find(p => p.id === 'smoke-scheduling')?.experience === ${JSON.stringify(alphaRole)} && s.projects.find(p => p.id === 'smoke-delivery')?.description === ${JSON.stringify(betaSummary)})`)
+    requireCheck("separate-project-summaries-and-roles", settings.get().projects.every((project) => project.description === (project.id === "smoke-scheduling" ? alphaSummary : betaSummary) && project.experience === (project.id === "smoke-scheduling" ? alphaRole : betaRole)))
+
+    // A real live-chat turn makes accidental sharing observable in the later provider payload.
+    await chat.send(liveMarker)
+    const liveHistory = JSON.stringify(chat.getHistory())
+    const beforeCandidate = requests.length
+    windows.showPanel("simulation")
+    await until(`Boolean(${query(simulationInput)}) && Boolean(${query('[aria-label="Input speaker"]')})`)
+    await run("window.api.invoke('simulation:clear')")
+    await click(button("Candidate (you)", query('[aria-label="Input speaker"]')))
+    await until(`(${button("Candidate (you)", query('[aria-label="Input speaker"]'))}).getAttribute('aria-pressed') === 'true'`)
+    await fill(simulationInput, candidateText)
+    await click(button("Add candidate turn", query(simulationSection)))
+    await until(`document.querySelectorAll('[data-simulation-role="candidate"]').length === 1 && !${query(simulationInput)}.value`)
+    await sleep(300)
+    requireCheck("candidate-context-without-provider-call", requests.length === beforeCandidate && (await simulationState()).turns.length === 1)
+    requireCheck("microphone-unused", !(await simulationState()).listening && await run<boolean>(`Boolean(${query('button[aria-label="Record simulation turn"]')})`))
+    await click(button("Interviewer", query('[aria-label="Input speaker"]')))
+    await until(`(${button("Interviewer", query('[aria-label="Input speaker"]'))}).getAttribute('aria-pressed') === 'true'`)
+    await fill(simulationInput, "How would you validate the scheduling API request?")
+    await click(button("Ask as interviewer", query(simulationSection)))
+    await until(`Boolean(document.querySelector('[data-simulation-role="assistant"][data-simulation-status="streaming"]')) && document.querySelector('[data-simulation-role="assistant"]').textContent.includes('I would start with')`)
+    requireCheck("streamed-answer-and-reset-lock", await run<boolean>(`(${button("Reset simulation", query(simulationSection))}).disabled`))
+    await until(`window.api.invoke('simulation:state').then(s => !s.busy && s.turns.some(t => t.role === 'assistant' && t.status === 'complete'))`)
+    const firstAnswer = (await simulationState()).turns.find((turn) => turn.role === "assistant")!
+    const firstRequest = requests[beforeCandidate]
+    const firstSystem = firstRequest.messages.filter((message) => message.role === "system").map((message) => message.content).join("\n")
+    requireCheck("selected-prompt-and-shared-format", firstSystem.includes(alphaInstruction) && firstSystem.includes("SMOKE_ALPHA_BACKGROUND") && firstSystem.includes(ANSWER_FORMAT))
+    requireCheck("project-summaries-and-roles-in-model", [alphaSummary, betaSummary, alphaRole, betaRole].every((text) => firstSystem.includes(text)))
+    requireCheck("labeled-candidate-context-and-isolated-history", JSON.stringify(firstRequest.messages).includes(`Candidate: ${candidateText}`) && !JSON.stringify(firstRequest.messages).includes(liveMarker) && JSON.stringify(chat.getHistory()) === liveHistory)
+    requireCheck("numeric-first-and-completion-timing", firstAnswer.text === reply && typeof firstAnswer.firstTokenMs === "number" && Number.isFinite(firstAnswer.firstTokenMs) && firstAnswer.firstTokenMs >= 0 && typeof firstAnswer.totalMs === "number" && Number.isFinite(firstAnswer.totalMs) && firstAnswer.totalMs >= firstAnswer.firstTokenMs && await run<boolean>(`/First text: [0-9.]+ (ms|s)/.test(${query('[data-simulation-role="assistant"]')}.textContent) && /Completed: [0-9.]+ (ms|s)/.test(${query('[data-simulation-role="assistant"]')}.textContent)`))
+
+    for (const width of [1440, 390]) {
+      windows.showPanel("settings")
+      await until(`Boolean(${query(promptSelector)})`)
+      await resizeViewport(panel, width, 900)
+      await run(`${query(promptsSection)}.scrollIntoView({ block: 'start' })`)
+      await checkLayout(width, promptsSection)
+      await capture(`prompts-${width}.png`)
+      await click(query(promptSelector))
+      await until(`Boolean(document.querySelector('[role="listbox"]'))`)
+      requireCheck(`prompt-dropdown-${width}`, await run<boolean>(`(() => { const r = document.querySelector('[role="listbox"]').getBoundingClientRect(); return r.left >= 8 && r.right <= innerWidth - 8 && r.top >= 0 && r.bottom <= innerHeight })()`))
+      await capture(`prompt-menu-${width}.png`)
+      await run(`${query(promptSelector)}.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`)
+      await until(`!document.querySelector('[role="listbox"]')`)
+      windows.showPanel("simulation")
+      await until(`Boolean(${query(simulationInput)}) && document.querySelectorAll('[data-simulation-role="assistant"]').length === 1`)
+      await resizeViewport(panel, width, 900)
+      await checkLayout(width, simulationSection)
+      requireCheck(`role-controls-${width}`, await run<boolean>(`(() => { const r = ${query('[aria-label="Input speaker"]')}.getBoundingClientRect(); return r.left >= 8 && r.right <= innerWidth - 8 && r.top >= 0 && r.bottom <= innerHeight })()`))
+      await capture(`simulation-${width}.png`)
+    }
+
+    windows.showPanel("settings")
+    await until(`Boolean(${query(promptSelector)})`)
+    await choosePrompt("Project follow-up")
+    windows.showPanel("simulation")
+    await until(`Boolean(${query(simulationInput)})`)
+    const beforeSecond = requests.length
+    await fill(simulationInput, "Which delivery tradeoff would you explain first?")
+    await click(button("Ask as interviewer", query(simulationSection)))
+    await until(`window.api.invoke('simulation:state').then(s => !s.busy && s.turns.filter(t => t.role === 'assistant' && t.status === 'complete').length === 2)`)
+    const secondSystem = requests[beforeSecond].messages.filter((message) => message.role === "system").map((message) => message.content).join("\n")
+    requireCheck("prompt-switch-applies-to-next-answer", secondSystem.includes(betaInstruction) && secondSystem.includes("SMOKE_BETA_BACKGROUND") && !secondSystem.includes(alphaInstruction) && !secondSystem.includes("SMOKE_ALPHA_BACKGROUND"))
+    requireCheck("one-request-per-interviewer-turn", requests.length === beforeCandidate + 2 && requests.every((request) => request.authenticated))
+    await click(button("Reset simulation", query(simulationSection)))
+    await until(`window.api.invoke('simulation:state').then(s => !s.busy && !s.listening && s.turns.length === 0)`)
+    await until(`!document.querySelector('[data-simulation-role]')`)
+    requireCheck("reset-clears-practice-only", !await run<boolean>("Boolean(document.querySelector('[data-simulation-role]'))") && JSON.stringify(chat.getHistory()) === liveHistory)
+
+    requireCheck("overlay-windows-remain-visible", KINDS.every((kind) => windows.get(kind)?.isVisible() === true))
+    const result = { ...summary(true), nativeTaskbarProof: process.platform === "win32" ? "overlay visibility verified; taskbar absence requires native desktop inspection" : "requires Windows verification" }
+    fs.writeFileSync(path.join(dir, "simulation-ui-checks.json"), JSON.stringify(result, null, 2))
+    return result
+  } catch (error) {
+    try { await capture("simulation-ui-failure.png") } catch { /* Preserve the original failure. */ }
+    fs.writeFileSync(path.join(dir, "simulation-ui-checks.json"), JSON.stringify(summary(false, (error as Error).message), null, 2))
+    throw error
+  } finally {
+    globalThis.fetch = originalFetch
+    if (toolbarSession) windows.send("main", "session:state", toolbarSession)
+    try { await run("window.api.invoke('simulation:listen', false)") } catch { /* The renderer may have failed. */ }
+    server.closeAllConnections()
+    await new Promise<void>((resolve) => { if (server.listening) server.close(() => resolve()); else resolve() })
+    settings.update({ cloud: original.cloud, ownKey: original.ownKey, answerMode: original.answerMode, outputLanguage: original.outputLanguage, suggestions: original.suggestions, projects: original.projects, prompts: original.prompts, activePromptId: original.activePromptId })
+    panel.setMaximumSize(originalMaximum[0], originalMaximum[1])
+    panel.setBounds(originalBounds)
+    windows.showPanel(originalWindows.panelTab)
+    if (!originalWindows.chat) windows.hide("chat")
+    if (originalMainBounds) windows.get("main")?.setBounds(originalMainBounds)
+    const resolvedFixture = path.resolve(fixtureRoot)
+    if (path.dirname(resolvedFixture) !== tempRoot || !path.basename(resolvedFixture).startsWith("meetingly-simulation-ui-")) throw new Error("Refusing to remove a simulation fixture outside the expected temporary directory")
+    await fs.promises.rm(resolvedFixture, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
+  }
+}
 
 /** Render sample content into the panel and save each window as a PNG (with alpha) plus its bounds. */
 async function shots(windows: WindowManager, settings: SmokeDeps["settings"], dir: string): Promise<void> {
@@ -629,7 +1214,9 @@ async function ownKeySmoke(windows: WindowManager, chat: ChatService, settings: 
         el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new FocusEvent("blur")); el.dispatchEvent(new FocusEvent("focusout", { bubbles: true })); return true })()`)
     steps.filled = (await fill("own-url", base)) === true && (await fill("own-key", "sk-smoke-123")) === true && (await fill("own-model", "smoke-model")) === true
     await sleep(800)
-    steps.listedModels = (await run(`document.querySelectorAll("#own-models option").length`)) === 2
+    await run(`document.getElementById("own-models")?.click()`)
+    steps.listedModels = (await run(`document.querySelectorAll('[role="option"]').length`)) === 3
+    await run(`document.getElementById("own-models")?.click()`)
     await shot("2-form")
     await run(`document.querySelector("form button[type=submit]").click()`)
     for (let i = 0; i < 20 && !settings.get().ownKey; i++) await sleep(250)

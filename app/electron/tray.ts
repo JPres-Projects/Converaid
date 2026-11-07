@@ -19,7 +19,7 @@ interface TrayActions {
 export function createTray(windows: WindowManager, settings: SettingsStore, actions: TrayActions): Tray {
   const iconPath = app.isPackaged
     ? path.join(process.resourcesPath, "tray.png")
-    : path.join(app.getAppPath(), "build", "tray.png")
+    : path.join(app.getAppPath(), "build", "converaid-tray.png")
   let icon = nativeImage.createFromPath(iconPath)
   if (icon.isEmpty()) icon = nativeImage.createEmpty()
   if (process.platform === "darwin") icon = icon.resize({ width: 18, height: 18 })
@@ -28,7 +28,7 @@ export function createTray(windows: WindowManager, settings: SettingsStore, acti
   // Tooltip and menu follow the shortcut and the interface language, so rebuild them on settings changes.
   const refresh = () => {
     const key = settings.get().shortcuts.showToolbar.replace("CommandOrControl", process.platform === "darwin" ? "Cmd" : "Ctrl")
-    tray?.setToolTip(t("Meetingly ({key} shows the toolbar)", { key }))
+    tray?.setToolTip(t("Converaid ({key} shows the toolbar)", { key }))
     tray?.setContextMenu(
       Menu.buildFromTemplate([
         { label: t("Show toolbar"), click: () => windows.centerMain() },
@@ -41,7 +41,7 @@ export function createTray(windows: WindowManager, settings: SettingsStore, acti
         { label: t("Use your own API key…"), click: () => actions.ownKey() },
         { label: t("Open the log folder"), click: () => actions.openLogs() },
         { type: "separator" },
-        { label: t("Quit Meetingly"), click: () => app.quit() }
+        { label: t("Quit Converaid"), click: () => app.quit() }
       ])
     )
   }

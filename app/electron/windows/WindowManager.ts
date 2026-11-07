@@ -33,7 +33,7 @@ export class WindowManager extends EventEmitter {
 
   setStealth(enabled: boolean): void {
     this.stealth = enabled
-    for (const win of this.windows.values()) this.applyStealth(win)
+    for (const [kind, win] of this.windows) this.applyStealth(win, kind)
   }
 
   get(kind: WindowKind): BrowserWindow | null {
@@ -279,7 +279,7 @@ export class WindowManager extends EventEmitter {
       maxWidth: spec.maxWidth + extra,
       maxHeight: spec.maxHeight,
       show: false,
-      title: spec.decorated ? "Meetingly" : undefined,
+      title: "Converaid",
       frame: spec.decorated,
       transparent: !spec.decorated,
       hasShadow: spec.decorated,
@@ -289,7 +289,7 @@ export class WindowManager extends EventEmitter {
       resizable: spec.resizable,
       movable: kind === "main" || spec.decorated,
       focusable: spec.focusable,
-      skipTaskbar: true,
+      skipTaskbar: process.platform === "win32" || kind !== "main",
       acceptFirstMouse: true,
       autoHideMenuBar: true,
       webPreferences: {
@@ -303,7 +303,7 @@ export class WindowManager extends EventEmitter {
     })
     win.setMenuBarVisibility(false)
     this.emit("created", kind, win.webContents)
-    this.applyStealth(win)
+    this.applyStealth(win, kind)
     // Never navigate away or open popups from the renderer.
     win.webContents.setWindowOpenHandler(() => ({ action: "deny" }))
     win.webContents.on("will-navigate", (e) => e.preventDefault())
@@ -342,11 +342,10 @@ export class WindowManager extends EventEmitter {
     this.emitState()
   }
 
-  private applyStealth(win: BrowserWindow): void {
+  private applyStealth(win: BrowserWindow, kind: WindowKind): void {
     if (win.isDestroyed()) return
     win.setContentProtection(this.stealth)
-    win.setSkipTaskbar(true)
-    const kind = this.kindOf(win.webContents)
+    win.setSkipTaskbar(process.platform === "win32" || kind !== "main")
     if (kind && WINDOW_SPECS[kind].decorated) return
     win.setAlwaysOnTop(true, "screen-saver")
     if (process.platform === "darwin") {

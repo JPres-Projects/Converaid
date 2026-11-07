@@ -3,6 +3,7 @@ import path from "node:path"
 import { randomUUID } from "node:crypto"
 import { EventEmitter } from "node:events"
 import {
+  ANSWER_MODES,
   DEFAULT_PROMPT,
   DEFAULT_SETTINGS,
   DEFAULT_SHORTCUTS,
@@ -10,6 +11,9 @@ import {
   LEGACY_DEFAULT_SHORTCUTS,
   RETIRED_DEFAULT_SHORTCUTS,
   LEGACY_DEFAULT_SYSTEM_PROMPTS,
+  PROMPT_LIMITS,
+  PROJECT_DESCRIPTION_LIMIT,
+  type InterviewProject,
   type Prompt,
   type Settings,
   type SettingsView,
@@ -24,6 +28,7 @@ import { resolveLocale } from "../../shared/i18n"
 export class SettingsStore extends EventEmitter {
   private data: Settings
   private shortcutConflicts: ShortcutAction[] = []
+  private migrated = false
 
   constructor(
     private readonly file: string,
@@ -33,12 +38,13 @@ export class SettingsStore extends EventEmitter {
     this.data = this.load()
     if (!this.data.deviceId) {
       this.data.deviceId = randomUUID().replace(/-/g, "")
-      this.persist()
+      this.migrated = true
     }
+    if (this.migrated) this.persist()
   }
 
   get(): Settings {
-    return { ...this.data, prompts: this.data.prompts.map((p) => ({ ...p })) }
+    return { ...this.data, projects: this.data.projects.map((p) => ({ ...p })), prompts: this.data.prompts.map((p) => ({ ...p })) }
   }
 
   /** `origin` tells listeners where a change came from so sync never echoes its own writes. */
@@ -102,12 +108,21 @@ export class SettingsStore extends EventEmitter {
           try { fs.chmodSync(this.file, 0o600); fs.chmodSync(path.dirname(this.file), 0o700) }
           catch { console.warn("[settings] could not tighten existing settings permissions") }
         }
-        const raw = JSON.parse(fs.readFileSync(this.file, "utf8")) as Partial<Settings> & { __v?: number }
+        const raw = JSON.parse(fs.readFileSync(this.file, "utf8")) as Partial<Settings> & { __v?: number; projectFolder?: unknown; projectExperience?: unknown }
         // v2: "microphone" used to be the silent default; nobody chose it. Move to mic + system.
         if ((raw.__v ?? 1) < 2 && raw.audioSource === "microphone") raw.audioSource = "both"
         // v3 (1.2.5): auto-answer became a Pro feature, off until turned on. It used to be on by default, so turn it
         // off once; on a paying account the next sync brings back what the account has.
         if ((raw.__v ?? 1) < 3) raw.autoAnswer = "off"
+        // An existing projects array, including an empty one, is authoritative after removal.
+        if (!Object.hasOwn(raw, "projects") && validFolder(raw.projectFolder)) {
+          const folder = path.normalize(raw.projectFolder.trim())
+          raw.projects = [{ id: randomUUID(), name: path.basename(folder) || folder, folder,
+            experience: typeof raw.projectExperience === "string" ? raw.projectExperience : "", enabled: true }]
+        }
+        this.migrated = (raw.__v ?? 1) < SETTINGS_VERSION || Object.hasOwn(raw, "projectFolder") || Object.hasOwn(raw, "projectExperience")
+        delete raw.projectFolder
+        delete raw.projectExperience
         return normalize({ ...DEFAULT_SETTINGS, ...raw })
       }
     } catch (err) {
@@ -130,18 +145,65 @@ export class SettingsStore extends EventEmitter {
   }
 }
 
-const SETTINGS_VERSION = 3
+const SETTINGS_VERSION = 4
+
+function validFolder(folder: unknown): folder is string {
+  return typeof folder === "string" && folder.length <= 4096 && !folder.includes("\0") && path.isAbsolute(folder.trim())
+}
+
+/** Windows paths are case insensitive; trailing separators do not create a second project. */
+export function projectFolderKey(folder: string): string {
+  const normalized = path.resolve(folder)
+  return process.platform === "win32" ? normalized.toLowerCase() : normalized
+}
+
+function normalizeProjects(input: unknown): InterviewProject[] {
+  if (!Array.isArray(input)) return []
+  const result: InterviewProject[] = []
+  const ids = new Set<string>(), folders = new Set<string>()
+  for (const p of input) {
+    if (!p || typeof p !== "object" || typeof p.id !== "string" || !/^[a-zA-Z0-9_-]{1,64}$/.test(p.id) || !validFolder(p.folder)) continue
+    const folder = path.normalize(p.folder.trim())
+    const key = projectFolderKey(folder)
+    if (ids.has(p.id) || folders.has(key)) continue
+    ids.add(p.id)
+    folders.add(key)
+    result.push({ id: p.id, folder,
+      name: (typeof p.name === "string" ? p.name.trim() : "").slice(0, 120) || path.basename(folder) || folder.slice(0, 120),
+      ...(typeof p.description === "string" ? { description: p.description.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g, "").trim().slice(0, PROJECT_DESCRIPTION_LIMIT) } : {}),
+      experience: typeof p.experience === "string" ? p.experience.trim().slice(0, 6000) : "",
+      enabled: p.enabled === true })
+    if (result.length === 32) break
+  }
+  return result
+}
+
+function normalizePrompts(input: unknown): Prompt[] {
+  const result: Prompt[] = []
+  const ids = new Set<string>()
+  const squash = (text: string) => text.replace(/\s+/g, " ").trim()
+  for (const p of Array.isArray(input) ? input : []) {
+    if (!p || typeof p !== "object" || typeof p.id !== "string" || !p.id.trim() || p.id.length > 128 || /[\x00-\x1f\x7f]/.test(p.id) || ids.has(p.id)) continue
+    if (typeof p.title !== "string" || typeof p.content !== "string") continue
+    const title = p.title.replace(/[\x00-\x1f\x7f]/g, "").trim().slice(0, PROMPT_LIMITS.title)
+    const content = p.content.replace(/\0/g, "").slice(0, PROMPT_LIMITS.content)
+    if (!title || !content.trim()) continue
+    ids.add(p.id)
+    // An unchanged earlier default follows the current one; custom content and cloud ids survive.
+    const prompt: Prompt = { id: p.id, title, content: LEGACY_DEFAULT_SYSTEM_PROMPTS.some((old) => squash(content) === squash(old)) ? DEFAULT_PROMPT.content : content }
+    if (typeof p.notes === "string") prompt.notes = p.notes.replace(/\0/g, "").slice(0, PROMPT_LIMITS.notes)
+    result.push(prompt)
+    if (result.length === PROMPT_LIMITS.count) break
+  }
+  return result.length ? result : [{ ...DEFAULT_PROMPT }]
+}
 
 export function normalize(s: Settings): Settings {
-  const squash = (t: string) => t.replace(/\s+/g, " ").trim()
-  const prompts = (Array.isArray(s.prompts) && s.prompts.length > 0
-    ? s.prompts.filter((p) => p && typeof p.id === "string" && typeof p.content === "string")
-    : [DEFAULT_PROMPT]
-  ).map((p) =>
-    // A prompt still on an earlier default follows the current one; edited prompts stay as they are.
-    LEGACY_DEFAULT_SYSTEM_PROMPTS.some((old) => squash(p.content) === squash(old)) ? { ...p, content: DEFAULT_PROMPT.content } : p
-  )
-  if (prompts.length === 0) prompts.push({ ...DEFAULT_PROMPT })
+  // Obsolete fields must never survive an update or resurrect a removed project.
+  const clean = { ...s } as Settings & { projectFolder?: unknown; projectExperience?: unknown }
+  delete clean.projectFolder
+  delete clean.projectExperience
+  const prompts = normalizePrompts(s.prompts)
   const activePromptId = prompts.some((p) => p.id === s.activePromptId) ? s.activePromptId : prompts[0].id
   const shortcuts = { ...DEFAULT_SHORTCUTS }
   for (const key of Object.keys(DEFAULT_SHORTCUTS) as ShortcutAction[]) {
@@ -151,7 +213,7 @@ export function normalize(s: Settings): Settings {
     if (typeof v === "string" && v.trim() !== LEGACY_DEFAULT_SHORTCUTS[key] && v.trim() !== RETIRED_DEFAULT_SHORTCUTS[key]) shortcuts[key] = v.trim()
   }
   return {
-    ...s,
+    ...clean,
     deviceId: typeof s.deviceId === "string" && /^[a-zA-Z0-9_-]{8,64}$/.test(s.deviceId) ? s.deviceId : "",
     prompts: prompts.length > 0 ? prompts : [DEFAULT_PROMPT],
     activePromptId,
@@ -164,6 +226,8 @@ export function normalize(s: Settings): Settings {
     outputLanguage: LANGUAGES.some((l) => l.code === s.outputLanguage) ? s.outputLanguage : "en",
     audioLanguage: LANGUAGES.some((l) => l.code === s.audioLanguage) ? s.audioLanguage : "en",
     transcriptionEngine: s.transcriptionEngine === "cloud" ? "cloud" : "local",
+    answerMode: Object.hasOwn(ANSWER_MODES, s.answerMode) ? s.answerMode : "meeting",
+    projects: normalizeProjects(s.projects),
     suggestions: s.suggestions !== false,
     keepMeetingsLocal: s.keepMeetingsLocal === true,
     autoLaunch: s.autoLaunch === true,

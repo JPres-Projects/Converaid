@@ -11,3 +11,6 @@ release/
 .vscode/
 *.local
 app/vendor/transcribe/
+
+# Keep local synchronization conflict copies out of the feature ledger.
+.features/*.sync-conflict-*.md

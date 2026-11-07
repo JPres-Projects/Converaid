@@ -1,0 +1,37 @@
+{
+  "note": "Hazards judged harmless, with the reason (awg-features: hazard ok).",
+  "ok": [
+    {
+      "file": "app/electron/services/cloud.ts",
+      "rule": "swallowed-failure",
+      "text": "this.promptPushQueue = upload.catch(() => {})",
+      "why": "This catch recovers only the internal prompt-upload queue so later saves can run after a failed request. pushPrompts returns the original rejecting upload promise to its caller; schedulePush and reconciliation report failures through fail(). The adjacent comment states that each caller retains its failure, and cloud-prompts tests cover queue recovery.",
+      "by": "agent",
+      "at": "2026-11-06T15:11:50.366Z"
+    },
+    {
+      "file": "app/electron/services/projectKnowledge.ts",
+      "rule": "all-or-nothing",
+      "text": "const stamps = await Promise.all(files.map(async (relative) => {",
+      "why": "These conventional interview-input stamps form one atomic project snapshot, rather than independent work results. Failure to stat an input must invalidate the whole snapshot so stale or partial evidence cannot be treated as current. isProjectKnowledgeCurrent fails closed, and ProjectKnowledgeService.prepareSelected catches each project independently and publishes its error before continuing to later projects.",
+      "by": "agent",
+      "at": "2026-11-06T15:11:50.610Z"
+    },
+    {
+      "file": "app/electron/smoke.ts",
+      "rule": "secret-in-code",
+      "text": "const dummyKey = \"sk-simulation-ui-local-only\"",
+      "why": "sk-simulation-ui-local-only is a deliberately fake authentication fixture for the bounded localhost smoke server, not a live provider credential. The smoke creates and uses a local HTTP endpoint, enforces request bounds and restores original settings; it neither grants provider access nor exposes a stored key.",
+      "by": "agent",
+      "at": "2026-11-06T15:11:50.870Z"
+    },
+    {
+      "file": "app/src/components/SimulationTab.tsx",
+      "rule": "swallowed-failure",
+      "text": "void api.invoke(\"simulation:listen\", false).catch(() => {})",
+      "why": "This is best-effort microphone-off IPC during component unmount, when the component can no longer show a new error. Its separate capture effect stops local AudioCapture synchronously, and main-process lifecycle rules stop simulation listening when the tab/panel changes, a live session starts or the app quits. No answer or user input result is discarded by this cleanup catch.",
+      "by": "agent",
+      "at": "2026-11-06T15:11:51.283Z"
+    }
+  ]
+}

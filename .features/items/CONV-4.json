@@ -1,0 +1,114 @@
+{
+  "id": "CONV-4",
+  "title": "Launch Converaid with a distinct desktop identity",
+  "summary": "English requirement summary of earlier user requests: Brand the desktop application Converaid with original logo, application and tray assets, recognizable toolbar and panel, overlay and tray access with Windows taskbar exclusion, existing-profile compatibility, and no upstream auto-update feed unless an explicit fork feed is configured.",
+  "group": "General",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "lifecycle": "implemented",
+  "entryPoints": [],
+  "files": [
+    "README.md",
+    "app/electron/copy-menu.ts",
+    "app/electron/copy.ts",
+    "app/electron/mac-updater.ts",
+    "app/electron/main.ts",
+    "app/electron/shortcuts.ts",
+    "app/electron/tray.ts",
+    "app/electron/update-feed.ts",
+    "app/electron/updater.ts",
+    "app/electron/windows/WindowManager.ts",
+    "app/electron/windows/config.ts",
+    "app/index.html",
+    "app/package.json",
+    "app/src/vite-env.d.ts",
+    "app/src/windows/MainWindow.tsx",
+    "app/src/windows/PanelWindow.tsx",
+    "docs/converaid-branding.md"
+  ],
+  "tests": [
+    {
+      "file": "app/tests/copy.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/update-feed.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/updater.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/window-taskbar.test.ts",
+      "area": "backend",
+      "origin": "person"
+    }
+  ],
+  "acceptance": [
+    "WHEN Converaid opens THE SYSTEM SHALL display its original brand assets and application name in the toolbar, panel, tray and window titles, while both overlay windows stay excluded from the Windows taskbar.",
+    "WHEN an existing profile is present THE SYSTEM SHALL retain its local settings and credentials through the established compatible storage identity.",
+    "WHEN no explicit update feed is configured THE SYSTEM SHALL skip auto-updates instead of downloading an upstream application."
+  ],
+  "manualChecks": [
+    {
+      "what": "Release-owner verification at c145803",
+      "result": "Existing verified work reported by the release owner: complete suite 257 passed and 1 skipped, desktop/390 px local UI smoke passed, and every generated image inspected. Source package was already built by the release owner; this bookkeeping task made no new package or delivery claim.",
+      "at": "2026-11-06T15:11:29.347Z",
+      "by": "agent",
+      "commit": "c145803"
+    },
+    {
+      "what": "Laptop taskbar appearance",
+      "result": "Jim confirmed both the updated Converaid toolbar and the blue C in the Windows taskbar after opening the updated Desktop shortcut on MININT-V535CT1. Final visible desktop verification passed.",
+      "at": "2026-11-06T15:29:02.099Z",
+      "by": "person",
+      "commit": "b24451f"
+    }
+  ],
+  "scope": {
+    "kind": "independent",
+    "why": "Desktop application identity, packaging and update feeds are independent of coding assistant.",
+    "by": "agent",
+    "at": "2026-11-06T15:10:25.429Z"
+  },
+  "refs": {
+    "checked": true,
+    "none": true,
+    "at": "2026-11-06T15:10:26.541Z",
+    "by": "agent"
+  },
+  "captured": {
+    "words": "English requirement summary of earlier user requests: Brand the desktop application Converaid with original logo, application and tray assets, recognizable toolbar and panel, overlay and tray access with Windows taskbar exclusion, existing-profile compatibility, and no upstream auto-update feed unless an explicit fork feed is configured.",
+    "at": "2026-11-06T15:09:29.043Z",
+    "by": "agent",
+    "request": true
+  },
+  "steps": {
+    "research": {
+      "done": "Inspected the Electron window, tray, package and updater integration. Kept the established storage/app identity for existing-profile compatibility, introduced original Converaid artwork and visible names, and required an explicit CONVERAID_UPDATE_URL feed rather than inheriting upstream updates. Evidence: app/package.json, electron/main.ts, tray.ts, updater.ts, windows/WindowManager.ts and docs/converaid-branding.md at c145803.",
+      "at": "2026-11-06T15:11:27.020Z",
+      "by": "agent"
+    },
+    "design": {
+      "done": "The user superseded the earlier visible-taskbar request. Windows taskbar presence now follows CONV-D5; overlay and tray access remain. Both native configuration paths require matching regression coverage. Historical visible-taskbar checks are retained as dated history, not current acceptance.",
+      "at": "2026-11-06T18:12:52.690Z",
+      "by": "agent"
+    },
+    "security": {
+      "done": "Branding preserves compatible profile and credential storage and does not copy secrets into assets or metadata. The packaged app only starts update checks when an explicit fork feed is supplied; updater tests cover the absent-feed boundary. Original image assets and local UI fixtures add no paid calls. An unchanged upstream account/billing error-display issue is recorded separately as a low-severity finding.",
+      "at": "2026-11-06T15:11:28.582Z",
+      "by": "agent"
+    }
+  },
+  "created": {
+    "at": "2026-11-06T15:09:29.031Z",
+    "commit": "c145803"
+  },
+  "updatedAt": "2026-11-06T19:25:04.687Z"
+}

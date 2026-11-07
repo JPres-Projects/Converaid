@@ -1,0 +1,100 @@
+{
+  "id": "CONV-3",
+  "title": "Choose a model provider and routing",
+  "summary": "English requirement summary of earlier user requests: Offer Claude Sonnet 5.5 and Claude Haiku 5.5 OpenRouter presets, keep model identifiers editable, and allow Standard or Nitro routing while preserving the selected model.",
+  "group": "General",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "lifecycle": "implemented",
+  "entryPoints": [],
+  "files": [
+    "app/electron/services/llm.ts",
+    "app/electron/services/ownKey.ts",
+    "app/electron/services/secretBox.ts",
+    "app/shared/model-presets.ts",
+    "app/src/windows/PanelWindow.tsx"
+  ],
+  "tests": [
+    {
+      "file": "app/tests/model-presets.test.ts",
+      "area": "backend",
+      "origin": "agent"
+    },
+    {
+      "file": "app/tests/own-key.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/plan.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/secret-box.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/session.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    }
+  ],
+  "acceptance": [
+    "WHEN OpenRouter is selected THE SYSTEM SHALL offer Sonnet 5.5 and Haiku 5.5 presets and an editable model identifier.",
+    "WHEN routing changes THE SYSTEM SHALL add or remove only the terminal :nitro suffix and retain the base model.",
+    "WHEN the provider origin changes THE SYSTEM SHALL prevent the previous provider key from following the changed endpoint."
+  ],
+  "manualChecks": [
+    {
+      "what": "Release-owner verification at c145803",
+      "result": "The release owner reports the full suite passed with 257 passing and 1 skipped test, including app/tests/model-presets.test.ts, and the 1440/390 px local Settings/Simulation UI smoke passed. Existing proof is recorded without manually marking the feature tested.",
+      "at": "2026-11-06T15:11:26.569Z",
+      "by": "agent",
+      "commit": "c145803"
+    }
+  ],
+  "scope": {
+    "kind": "independent",
+    "why": "Provider model and routing choices apply to this desktop app regardless of coding assistant.",
+    "by": "agent",
+    "at": "2026-11-06T15:10:23.938Z"
+  },
+  "refs": {
+    "checked": true,
+    "none": true,
+    "at": "2026-11-06T15:10:25.044Z",
+    "by": "agent"
+  },
+  "captured": {
+    "words": "English requirement summary of earlier user requests: Offer Claude Sonnet 5.5 and Claude Haiku 5.5 OpenRouter presets, keep model identifiers editable, and allow Standard or Nitro routing while preserving the selected model.",
+    "at": "2026-11-06T15:09:27.896Z",
+    "by": "agent",
+    "request": true
+  },
+  "steps": {
+    "research": {
+      "done": "Kept the existing OpenAI-compatible own-key route and custom model field. Added small shared model-presets helpers for OpenRouter-only Sonnet 5.5/Haiku 5.5 choices and the terminal :nitro suffix; model IDs remain editable instead of assuming catalog availability. Evidence: app/shared/model-presets.ts, PanelWindow.tsx and app/tests/model-presets.test.ts at c145803.",
+      "at": "2026-11-06T15:11:24.231Z",
+      "by": "agent"
+    },
+    "design": {
+      "done": "The model preset, editable model name and Standard/Nitro controls reuse the panel custom dropdown and input design. The release owner verified and inspected the Settings/Simulation smoke at 1440 px and 390 px; preset and routing behavior also has focused model-presets tests.",
+      "at": "2026-11-06T15:11:24.929Z",
+      "by": "agent"
+    },
+    "security": {
+      "done": "Model helpers restrict OpenRouter presets/routing to its exact HTTPS API endpoint, normalize terminal Nitro suffixes and clear the retained provider key when the endpoint origin changes. API keys stay in established secure storage. No paid call or credential was created during this backfill; model helper and provider-boundary cases were included in the verified release suite.",
+      "at": "2026-11-06T15:11:25.655Z",
+      "by": "agent"
+    }
+  },
+  "created": {
+    "at": "2026-11-06T15:09:27.883Z",
+    "commit": "c145803"
+  },
+  "updatedAt": "2026-11-06T16:27:28.823Z"
+}

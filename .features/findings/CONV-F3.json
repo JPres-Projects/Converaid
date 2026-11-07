@@ -1,0 +1,18 @@
+{
+  "id": "CONV-F3",
+  "feature": "CONV-2",
+  "text": "The user reports that personal-experience follow-ups produce unsupported denials and repeat project overviews already covered in the dialogue, instead of using the separately confirmed experience profile.",
+  "property": "visible",
+  "severity": "medium",
+  "at": null,
+  "words": [
+    "Das geht nicht."
+  ],
+  "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+  "by": "agent",
+  "created": {
+    "at": "2026-11-06T20:30:07.913Z",
+    "commit": "32209f1"
+  },
+  "updatedAt": "2026-11-06T20:30:07.914Z"
+}

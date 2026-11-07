@@ -1,0 +1,41 @@
+{
+  "id": "CONV-D1",
+  "topic": "interview-language-ranking",
+  "verdict": "Do not store a fixed strongest programming language. Match the concrete interview question with concise, source-backed language and component examples from selected projects; never infer personal proficiency from repository counts.",
+  "why": "The user clarified that the historical Python answer was casual and should not become a permanent profile ranking.",
+  "words": [
+    "strongest",
+    "language",
+    "python",
+    "javascript",
+    "typescript",
+    "staerkste",
+    "sprache",
+    "interview"
+  ],
+  "markers": [
+    "Converaid"
+  ],
+  "status": "superseded",
+  "supersedes": [],
+  "supersededBy": "CONV-D2",
+  "decided": {
+    "by": "Jim",
+    "at": "2026-11-06T16:23:51.824Z",
+    "quote": "English translation: I just said that casually; it should orient itself to the questions. That application was for a Software Engineer position, where one could probably name any language.",
+    "via": "unseen",
+    "session": "codex-01a1ad75-321c-73d2-a04b-830afef9f478",
+    "tool": "codex",
+    "computer": "DESKTOP-KV3OK8I",
+    "transcript": null,
+    "conversation": ".awg/conversations/codex-codex-01a1ad75-321c-73d2-a04b-830afef9f478.md"
+  },
+  "confirmed": true,
+  "seen": false,
+  "sources": [],
+  "created": {
+    "at": "2026-11-06T16:23:51.824Z",
+    "commit": "928719d"
+  },
+  "updatedAt": "2026-11-06T16:43:04.569Z"
+}

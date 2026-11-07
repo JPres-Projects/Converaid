@@ -1,0 +1,40 @@
+{
+  "id": "CONV-D8",
+  "topic": "preparation-context",
+  "verdict": "Simplify Preparation to General or Job description. General uses the existing project and personal references without extra role focus. Job description exposes one textarea for all pasted requirements. Keep one Start action and session-only activation cleared by full Quit. Remove separate platform, title, language and starter-template controls.",
+  "why": "The user found the multi-field Preparation UI too complex and wants one place to paste the complete description, with General as the uncomplicated alternative.",
+  "words": [
+    "preparation",
+    "general",
+    "job",
+    "description",
+    "simple",
+    "session"
+  ],
+  "markers": [
+    "Preparation",
+    "Starter",
+    "Coding languages"
+  ],
+  "status": "current",
+  "supersedes": [
+    "CONV-D7"
+  ],
+  "supersededBy": null,
+  "decided": {
+    "by": "Jim",
+    "at": "2026-11-06T22:06:40.128Z",
+    "quote": "[English translation] Simply focus on entering a job description, where everything can be pasted. General just knows the projects without anything special.",
+    "via": "unseen",
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "computer": "DESKTOP-KV3OK8I"
+  },
+  "confirmed": true,
+  "seen": false,
+  "sources": [],
+  "created": {
+    "at": "2026-11-06T22:06:40.128Z",
+    "commit": "3fee6e7"
+  },
+  "updatedAt": "2026-11-06T22:06:40.128Z"
+}

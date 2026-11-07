@@ -1,0 +1,41 @@
+{
+  "id": "CONV-D4",
+  "topic": "windows-delivery-hygiene",
+  "verdict": "After a delivery, keep only the current user-facing installer and one Converaid desktop shortcut per device. Remove superseded builds, legacy launchers and redundant delivery copies while preserving settings, prompts, project references and transcripts.",
+  "why": "The user wants an unambiguous current version and does not want old application artifacts left lying around.",
+  "words": [
+    "delivery",
+    "installer",
+    "portable",
+    "cleanup",
+    "shortcut",
+    "windows",
+    "version",
+    "aufraeumen"
+  ],
+  "markers": [
+    "Converaid"
+  ],
+  "status": "current",
+  "supersedes": [],
+  "supersededBy": null,
+  "decided": {
+    "by": "Jim",
+    "at": "2026-11-06T17:10:54.350Z",
+    "quote": "English translation: Please delete everything that is no longer current. I do not like all the old versions left lying around.",
+    "via": "unseen",
+    "session": "01a1a978-8210-70f2-86b4-bd5cc8cc499e",
+    "tool": "codex",
+    "computer": "DESKTOP-KV3OK8I",
+    "transcript": "C:\\Users\\stand\\.codex\\sessions\\2026\\11\\05\\rollout-2026-11-05T03-10-10-01a1a978-8210-70f2-86b4-bd5cc8cc499e.jsonl",
+    "conversation": ".awg/conversations/codex-01a1a978-8210-70f2-86b4-bd5cc8cc499e.md"
+  },
+  "confirmed": true,
+  "seen": false,
+  "sources": [],
+  "created": {
+    "at": "2026-11-06T17:10:54.350Z",
+    "commit": "579e6cb"
+  },
+  "updatedAt": "2026-11-06T17:10:54.350Z"
+}

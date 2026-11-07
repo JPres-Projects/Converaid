@@ -1,0 +1,92 @@
+{
+  "id": "CONV-5",
+  "title": "Record and transcribe conversations",
+  "summary": "Capture microphone and system audio, transcribe locally or through the configured cloud route, and manage recording state.",
+  "group": "Conversation recording",
+  "areas": [
+    "backend",
+    "frontend"
+  ],
+  "lifecycle": "implemented",
+  "entryPoints": [],
+  "files": [
+    "app/electron/asr-worker.ts",
+    "app/electron/ipc/index.ts",
+    "app/electron/main.ts",
+    "app/electron/services/asrAudio.ts",
+    "app/electron/services/asrModel.ts",
+    "app/electron/services/deepgram.ts",
+    "app/electron/services/localAsr.ts",
+    "app/electron/services/refine.ts",
+    "app/electron/services/refineQueue.ts",
+    "app/electron/services/session.ts",
+    "app/src/lib/audio.ts",
+    "app/src/lib/capture.ts",
+    "app/src/windows/MainWindow.tsx",
+    "app/src/windows/PanelWindow.tsx"
+  ],
+  "tests": [
+    {
+      "file": "app/tests/chat.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/deepgram.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/preparation-ipc.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/project-ipc.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/refine.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/session.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    },
+    {
+      "file": "app/tests/simulation-ipc.test.ts",
+      "area": "backend",
+      "origin": "scan"
+    }
+  ],
+  "acceptance": [],
+  "manualChecks": [],
+  "scope": {
+    "kind": "independent",
+    "why": "Inherited desktop capability, independent of coding-assistant integrations.",
+    "by": "agent",
+    "at": "2026-11-06T16:26:22.521Z"
+  },
+  "relates": [
+    {
+      "id": "CONV-2",
+      "how": "uses",
+      "why": "Microphone simulation uses the existing local transcription engine.",
+      "by": "agent",
+      "at": "2026-11-06T16:26:34.882Z"
+    }
+  ],
+  "refs": {
+    "checked": true,
+    "at": "2026-11-06T16:26:34.882Z",
+    "by": "agent"
+  },
+  "created": {
+    "at": "2026-11-06T16:25:42.505Z",
+    "commit": "928719d"
+  },
+  "updatedAt": "2026-11-06T22:03:48.207Z"
+}

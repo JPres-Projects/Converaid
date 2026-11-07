@@ -3,7 +3,8 @@ import os from "node:os"
 import path from "node:path"
 import { afterEach, describe, expect, it } from "vitest"
 import { SettingsStore } from "../electron/services/settings"
-import { DEFAULT_PROMPT } from "../shared/types"
+import { ANSWER_FORMAT, DEFAULT_PROMPT } from "../shared/types"
+import { CLOUD_SETTING_KEYS } from "../shared/cloud"
 
 const dirs: string[] = []
 function tmpFile(): string {
@@ -40,6 +41,94 @@ describe("SettingsStore", () => {
     const reloaded = new SettingsStore(file)
     expect(reloaded.get().outputLanguage).toBe("ru")
     expect(reloaded.get().stealth).toBe(false)
+  })
+
+  it("persists local projects and answer mode without changing prompt notes", () => {
+    const file = tmpFile()
+    const store = new SettingsStore(file)
+    expect(store.get().answerMode).toBe("meeting")
+    expect(store.get().projects).toEqual([])
+    const projects = [{ id: "project-a", name: "Export", folder: path.dirname(file), experience: "I maintained the export endpoint.", enabled: true }]
+    store.update({ answerMode: "coding", projects })
+    const settings = new SettingsStore(file).get()
+    expect(settings.answerMode).toBe("coding")
+    expect(settings.projects).toEqual(projects)
+    expect(settings.prompts).toEqual([DEFAULT_PROMPT])
+    for (const localKey of ["answerMode", "projects"]) expect(CLOUD_SETTING_KEYS).not.toContain(localKey)
+  })
+
+  it("normalizes invalid modes and project configurations", () => {
+    const file = tmpFile()
+    fs.writeFileSync(file, JSON.stringify({ answerMode: "unknown", projectFolder: "relative/path", projectExperience: 17 }))
+    const store = new SettingsStore(file)
+    expect(store.get().answerMode).toBe("meeting")
+    expect(store.get().projects).toEqual([])
+    const project = { id: "project-a", name: "  Export  ", folder: path.dirname(file), experience: `  ${"x".repeat(6500)}  `, enabled: true }
+    store.update({ answerMode: "interview", projects: [project, { ...project, id: "bad", folder: "relative" }] })
+    expect(store.get().answerMode).toBe("interview")
+    expect(store.get().projects).toEqual([{ ...project, name: "Export", experience: "x".repeat(6000) }])
+    store.update({ projects: Array.from({ length: 40 }, (_, i) => ({ ...project, id: `project-${i}`, folder: path.join(path.dirname(file), String(i)) })) })
+    expect(store.get().projects).toHaveLength(32)
+  })
+  it("persists a short project description separately from confirmed experience", () => {
+    const file = tmpFile()
+    const store = new SettingsStore(file)
+    store.update({ projects: [{ id: "project-a", name: "Practice", folder: path.dirname(file),
+      description: "  A practice assistant.\0  ", experience: "I built the API.", enabled: true }] })
+    expect(new SettingsStore(file).get().projects[0]).toMatchObject({ description: "A practice assistant.", experience: "I built the API." })
+    store.update({ projects: [{ ...store.get().projects[0], description: "x".repeat(2500) }] })
+    expect(store.get().projects[0].description).toHaveLength(2000)
+  })
+  it("saves, switches and removes named prompts while retaining custom content and cloud ids", () => {
+    const file = tmpFile()
+    const store = new SettingsStore(file)
+    const custom = { id: "cloud:custom/123", title: "Technical interview", content: "  Use my custom approach.  ", notes: "My background" }
+    store.update({ prompts: [DEFAULT_PROMPT, custom], activePromptId: custom.id })
+    expect(new SettingsStore(file).activePrompt()).toEqual(custom)
+    const exposed = store.get().prompts
+    exposed[1].content = "Mutated"
+    custom.notes = "Mutated after saving"
+    expect(store.activePrompt().content).toBe("  Use my custom approach.  ")
+    expect(store.activePrompt().notes).toBe("My background")
+    store.update({ prompts: [DEFAULT_PROMPT] })
+    expect(new SettingsStore(file).activePrompt()).toEqual(DEFAULT_PROMPT)
+    store.update({ prompts: [] })
+    expect(store.activePrompt()).toEqual(DEFAULT_PROMPT)
+  })
+  it("recovers malformed prompts and duplicate ids within a bounded saved collection", () => {
+    const file = tmpFile()
+    const valid = { id: "cloud:existing", title: "Custom", content: "Keep this custom instruction.", notes: "Background" }
+    fs.writeFileSync(file, JSON.stringify({ prompts: [null, { ...valid, title: "" }, valid, { ...valid, content: "Duplicate" },
+      ...Array.from({ length: 25 }, (_, i) => ({ ...valid, id: `saved-${i}` }))], activePromptId: "missing" }))
+    const store = new SettingsStore(file)
+    expect(store.get().prompts).toHaveLength(20)
+    expect(store.activePrompt()).toEqual(valid)
+    expect(store.get().prompts.filter((prompt) => prompt.id === valid.id)).toHaveLength(1)
+  })
+
+  it("migrates the legacy selected project once and removes obsolete fields from disk", () => {
+    const file = tmpFile()
+    fs.writeFileSync(file, JSON.stringify({ deviceId: "existing-device-id", projectFolder: path.dirname(file), projectExperience: "I maintained exports.", __v: 3 }))
+    const store = new SettingsStore(file)
+    expect(store.get().projects).toEqual([expect.objectContaining({ folder: path.dirname(file), experience: "I maintained exports.", enabled: true })])
+    const id = store.get().projects[0].id
+    expect(new SettingsStore(file).get().projects[0].id).toBe(id)
+    expect(fs.readFileSync(file, "utf8")).not.toMatch(/projectFolder|projectExperience/)
+    store.update({ projects: [] })
+    expect(new SettingsStore(file).get().projects).toEqual([])
+    fs.writeFileSync(file, JSON.stringify({ projects: [], projectFolder: path.dirname(file), __v: 3 }))
+    expect(new SettingsStore(file).get().projects).toEqual([])
+  })
+
+  it("never exposes mutable project references through settings or views", () => {
+    const file = tmpFile()
+    const store = new SettingsStore(file)
+    const project = { id: "project-a", name: "Export", folder: path.dirname(file), experience: "My role", enabled: true }
+    store.update({ projects: [project] })
+    project.name = "Caller mutation"
+    store.get().projects[0].name = "Get mutation"
+    store.view().projects[0].experience = "View mutation"
+    expect(store.get().projects[0]).toMatchObject({ name: "Export", experience: "My role" })
   })
 
   it("has suggestions off by default (1.2.5), and keeps them on where they were saved on", () => {
@@ -113,9 +202,44 @@ describe("SettingsStore", () => {
 })
 
 describe("prompt migration", () => {
+  // @finding CONV-F4
+  it("upgrades the previous unknown-detail default while preserving an edited copy", () => {
+    const old = `You are a real-time assistant for meetings and interviews. Give the actual answer to what was asked, the way a knowledgeable person would say it out loud.
+
+- Answer the question itself. Never coach or describe how to answer.
+- Use short, complete sentences and a coherent explanation. Explain the key reasoning in plain language; avoid bare bullet fragments.
+- If the question is about the user, use the first person only for facts supported by their confirmed background or what they said earlier. State when a personal detail is unknown rather than inventing experience or responsibilities.
+- No preamble, filler or closing question. Spoken language with contractions.
+- Include code, pseudocode or an example only when the task needs it or it makes the explanation clearer.
+- If the question is ambiguous, answer the most likely meaning.`
+    const custom = `${old}\n- Keep my own custom terminology.`
+    const file = tmpFile()
+    fs.writeFileSync(file, JSON.stringify({
+      prompts: [
+        { id: "default", title: "Meeting assistant", content: old.replace(/\n/g, "\r\n"), notes: "Keep these notes." },
+        { id: "custom", title: "Custom", content: custom, notes: "Keep my custom notes." }
+      ],
+      activePromptId: "custom"
+    }))
+    const store = new SettingsStore(file)
+    const settings = store.get()
+    expect(settings.prompts[0].content).not.toContain("State when a personal detail is unknown")
+    expect(settings.prompts[0].content).toBe(DEFAULT_PROMPT.content)
+    expect(settings.prompts[0].notes).toBe("Keep these notes.")
+    expect(settings.prompts[1].content).toBe(custom)
+    expect(settings.prompts[1].notes).toBe("Keep my custom notes.")
+    expect(store.activePrompt().id).toBe("custom")
+  })
+
+  it("defaults to short complete sentences and a coherent explanation without bare fragments", () => {
+    expect(DEFAULT_PROMPT.content).toContain("short, complete sentences")
+    expect(DEFAULT_PROMPT.content).toContain("coherent explanation")
+    expect(ANSWER_FORMAT).toContain("short, complete")
+    expect(ANSWER_FORMAT).toContain("coherent explanation")
+  })
   it("upgrades a saved copy of any earlier default, keeps custom prompts", async () => {
     const { LEGACY_DEFAULT_SYSTEM_PROMPTS, DEFAULT_SYSTEM_PROMPT } = await import("../shared/types")
-    expect(LEGACY_DEFAULT_SYSTEM_PROMPTS).toHaveLength(3)
+    expect(LEGACY_DEFAULT_SYSTEM_PROMPTS).toHaveLength(6)
     for (const old of LEGACY_DEFAULT_SYSTEM_PROMPTS) {
       const file = tmpFile()
       fs.writeFileSync(file, JSON.stringify({
@@ -163,7 +287,7 @@ describe("logger", () => {
     const logger = new Logger(file, "debug", false)
     logger.info("audio", "capture started", { opened: ["microphone", "system"] })
     logger.error("chat", "failed", new Error("boom"))
-    await new Promise((r) => setTimeout(r, 60))
+    await expect.poll(() => fs.existsSync(file) && fs.readFileSync(file, "utf8").includes("ERROR [chat] failed Error: boom"), { timeout: 5000 }).toBe(true)
     const text = fs.readFileSync(file, "utf8")
     expect(text).toContain("[audio] capture started")
     expect(text).toContain('"opened":["microphone","system"]')
