@@ -112,6 +112,14 @@
       "why": "This existing branding, product or project-reference line does not claim how active preparation persists. CONV-D7 governs the session lifecycle; this is a lexical sweep match, not a conflicting preparation policy.",
       "by": "agent",
       "at": "2026-11-06T21:26:04.576Z"
+    },
+    {
+      "key": "README.md#fc6fefd1af73",
+      "file": "README.md",
+      "text": "- **Converaid interface.** The toolbar, panel, tray text and window titles use Converaid branding. On Windows, the overlay windows remain excluded from the taskbar. Package identity stays compatible…",
+      "why": "This line documents existing Converaid branding and verified Windows taskbar behavior. It does not state the superseded multi-field Preparation design or activation persistence. CONV-D8 exclusively governs the simplified General/Job-description preparation; this is an unrelated lexical match.",
+      "by": "agent",
+      "at": "2026-11-06T22:26:38.365Z"
     }
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "id": "CONV-O4",
+  "title": "Verify and deliver the latest answer-support correction on the laptop",
+  "done": "Local CONV-D9 correction, prompt-boundary regressions, safe default migration, full app suite, both typechecks and production build are verified. Latest private interview analysis is complete.",
+  "check": "A safe laptop installation matches the corrected build, preserves the profile, and a bounded replay of the reported challenge/Git questions confirms useful concise responses without unsupported denial.",
+  "waits": "A safe laptop update window and an observed configured-model replay; the current request leaves the running app untouched.",
+  "refs": [
+    "CONV-2",
+    "CONV-F3",
+    "CONV-F4"
+  ],
+  "source": {
+    "computer": "DESKTOP-KV3OK8I"
+  },
+  "by": "agent",
+  "created": {
+    "at": "2026-11-07T01:26:58.394Z",
+    "commit": "b669b0a"
+  },
+  "updatedAt": "2026-11-07T01:26:58.395Z"
+}
