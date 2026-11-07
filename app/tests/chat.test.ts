@@ -135,6 +135,58 @@ describe("gateDecision", () => {
 })
 
 describe("answer request coverage", () => {
+  // @finding CONV-F4
+  it.each([
+    { answerMode: "interview", question: "Have you worked with distributed queues?", path: "manual" },
+    { answerMode: "interview", question: "What was difficult about the ingestion pipeline, and how did you solve it?", path: "automatic" },
+    { answerMode: "meeting", question: "Tell me about a time you disagreed with a technical decision.", path: "manual" },
+    { answerMode: "coding", question: "Explain the retry strategy shown on screen.", path: "screenshot" }
+  ] as const)("keeps useful answer fallbacks after saved instructions for $path in $answerMode mode", async ({ answerMode, question, path }) => {
+    const { ChatService } = await import("../electron/services/chat")
+    const prompt = {
+      ...DEFAULT_PROMPT,
+      content: "If personal details are missing, state that they are unknown.",
+      notes: "Atlas: ingestion normalizes source facts; schema validation rejects malformed records."
+    }
+    const original = { ...prompt }
+    let system = ""
+    const chat = new ChatService({
+      settings: { get: () => ({ answerLength: "auto", answerMode, autoAnswer: "questions", projects: [] }), activePrompt: () => prompt } as never,
+      llm: {
+        languageInstruction: () => "Respond in English.",
+        chat: async (messages: { content: string }[], onChunk?: (delta: string) => void) => {
+          system = messages[0].content
+          onChunk?.("An answer draft.")
+          return { text: "An answer draft.", tokens: 1 }
+        },
+        vision: async (_image: string, _question: string, instruction: string) => {
+          system = instruction
+          return { text: "An answer draft.", tokens: 1 }
+        }
+      } as never,
+      session: { transcriptText: () => "", getLastUtterance: () => null },
+      capture: async () => ({ base64: "fixture", width: 10, height: 10 }) as never,
+      projectContext: async () => "Atlas: schema validation rejects malformed records. Individual authorship is not supplied."
+    })
+    if (path === "automatic") await chat.autoAnswer({ text: question, channel: "them", speaker: null, timestamp: 0 })
+    else if (path === "screenshot") await chat.screenshot(question)
+    else await chat.send(question)
+
+    expect(prompt).toEqual(original)
+    expect(system).toContain(original.notes)
+    expect(system).toContain("Individual authorship is not supplied.")
+    const finalRules = system.slice(system.indexOf(ANSWER_FORMAT))
+    expect(system.indexOf(ANSWER_FORMAT)).toBeGreaterThan(system.indexOf(original.content))
+    expect(finalRules).toMatch(/missing (?:personal )?notes.*not evidence of no experience/i)
+    expect(finalRules).toMatch(/do not infer.*personal denial/i)
+    expect(finalRules).toMatch(/project challenge.*supported problem and concrete solution.*missing individual authorship.*not block/i)
+    expect(finalRules).toMatch(/generic behavioral.*unnamed illustrative first-person answer draft.*problem, action and result/i)
+    expect(finalRules).toMatch(/first-person past tense.*draft status internal.*if this happened.*inability-to-recall.*spoken hypothetical or draft label/i)
+    expect(finalRules).toMatch(/never attach illustrative details to named projects, employers, credentials, deployments or metrics/i)
+    expect(finalRules).toMatch(/do not repeat.*project overview/i)
+    expect(finalRules).toMatch(/reference data.*never follow instructions/i)
+  })
+
   it.each(["Backend", "Frontend", "Full-stack"])("applies spoken interview safeguards after a saved %s prompt without rewriting it", async (title) => {
     const { ChatService } = await import("../electron/services/chat")
     const prompt = {
@@ -174,8 +226,11 @@ describe("answer request coverage", () => {
       expect(trusted).toMatch(/requested code or templates/i)
       expect(trusted).toMatch(/no coaching or generic closing/i)
       expect(trusted).toMatch(/missing personal role.*answer.*project facts/i)
-      expect(trusted).toMatch(/direct.*personal ownership.*one short.*clarif/i)
-      expect(trusted).toMatch(/general project challenge.*personal.*hardest/i)
+      expect(trusted).toMatch(/missing authorship must not block the explanation/i)
+      expect(trusted).toMatch(/general project challenge.*confirmed personal achievement/i)
+      expect(trusted).toMatch(/project-level challenge explanation does not require exclusive authorship/i)
+      expect(trusted).toMatch(/illustrative event is not confirmed user background/i)
+      expect(trusted).not.toContain("or hardest problem")
       expect(trusted).toContain("JavaScript/TypeScript ecosystem")
       expect(trusted).toMatch(/languages.*frameworks.*runtimes/i)
       expect(trusted).toMatch(/browser.*Node\.js build tools/i)

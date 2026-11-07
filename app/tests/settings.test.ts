@@ -202,6 +202,35 @@ describe("SettingsStore", () => {
 })
 
 describe("prompt migration", () => {
+  // @finding CONV-F4
+  it("upgrades the previous unknown-detail default while preserving an edited copy", () => {
+    const old = `You are a real-time assistant for meetings and interviews. Give the actual answer to what was asked, the way a knowledgeable person would say it out loud.
+
+- Answer the question itself. Never coach or describe how to answer.
+- Use short, complete sentences and a coherent explanation. Explain the key reasoning in plain language; avoid bare bullet fragments.
+- If the question is about the user, use the first person only for facts supported by their confirmed background or what they said earlier. State when a personal detail is unknown rather than inventing experience or responsibilities.
+- No preamble, filler or closing question. Spoken language with contractions.
+- Include code, pseudocode or an example only when the task needs it or it makes the explanation clearer.
+- If the question is ambiguous, answer the most likely meaning.`
+    const custom = `${old}\n- Keep my own custom terminology.`
+    const file = tmpFile()
+    fs.writeFileSync(file, JSON.stringify({
+      prompts: [
+        { id: "default", title: "Meeting assistant", content: old.replace(/\n/g, "\r\n"), notes: "Keep these notes." },
+        { id: "custom", title: "Custom", content: custom, notes: "Keep my custom notes." }
+      ],
+      activePromptId: "custom"
+    }))
+    const store = new SettingsStore(file)
+    const settings = store.get()
+    expect(settings.prompts[0].content).not.toContain("State when a personal detail is unknown")
+    expect(settings.prompts[0].content).toBe(DEFAULT_PROMPT.content)
+    expect(settings.prompts[0].notes).toBe("Keep these notes.")
+    expect(settings.prompts[1].content).toBe(custom)
+    expect(settings.prompts[1].notes).toBe("Keep my custom notes.")
+    expect(store.activePrompt().id).toBe("custom")
+  })
+
   it("defaults to short complete sentences and a coherent explanation without bare fragments", () => {
     expect(DEFAULT_PROMPT.content).toContain("short, complete sentences")
     expect(DEFAULT_PROMPT.content).toContain("coherent explanation")
@@ -210,7 +239,7 @@ describe("prompt migration", () => {
   })
   it("upgrades a saved copy of any earlier default, keeps custom prompts", async () => {
     const { LEGACY_DEFAULT_SYSTEM_PROMPTS, DEFAULT_SYSTEM_PROMPT } = await import("../shared/types")
-    expect(LEGACY_DEFAULT_SYSTEM_PROMPTS).toHaveLength(5)
+    expect(LEGACY_DEFAULT_SYSTEM_PROMPTS).toHaveLength(6)
     for (const old of LEGACY_DEFAULT_SYSTEM_PROMPTS) {
       const file = tmpFile()
       fs.writeFileSync(file, JSON.stringify({

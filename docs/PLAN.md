@@ -124,3 +124,11 @@ Authority: CONV-D8 supersedes CONV-D7 for the visible form. Existing session lif
 - [x] Reproduce the old General/reference behavior with a focused regression.
 - [x] Verify the single-text contract, General clearing and both typechecks.
 - [x] Build, inspect General and job-description views at desktop/phone widths, and install on the laptop while preserving the already updated private profile.
+
+## November 7 - direct answer support and latest-dialog review
+
+- [x] Retrieve the latest substantive laptop interview read-only and distinguish spoken transcript from generated suggestions.
+- [x] Reproduce the conflicting unknown-role/never-done instructions at the actual composed provider-prompt boundary, linked to CONV-F4.
+- [x] Replace unsupported denials and ownership caveats with direct challenge/solution support and concise unnamed illustrative behavioral answer drafts; preserve facts about named projects.
+- [x] Run the relevant suite and both typechecks after the final change, and independently review the prompt precedence.
+- [x] Deliver a private evidence-backed dialogue analysis and report the exact local-versus-installed state without touching the running laptop app.

@@ -38,8 +38,15 @@ describe("meeting sync", () => {
     await internal.pushPrompts(true)
     expect(requests).toHaveLength(2)
     const sent = requests.join("\n")
-    for (const local of ["private-project-location", "Private project name", "Private confirmed responsibility", "projects", "projectFolder", "projectExperience", "answerMode"]) {
+    for (const local of ["private-project-location", "Private project name", "Private confirmed responsibility"]) {
       expect(sent).not.toContain(local)
+    }
+    const [profile, promptPayload] = requests.map((body) => JSON.parse(body))
+    for (const localKey of ["projects", "projectFolder", "projectExperience", "answerMode"]) {
+      expect(profile).not.toHaveProperty(localKey)
+      expect(profile.settings).not.toHaveProperty(localKey)
+      expect(promptPayload).not.toHaveProperty(localKey)
+      for (const prompt of promptPayload.prompts) expect(prompt).not.toHaveProperty(localKey)
     }
   })
 
