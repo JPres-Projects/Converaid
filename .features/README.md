@@ -2,7 +2,7 @@
 
 <!-- Written by the awg-features plugin from .features/items. Change features with its commands (/awg-features, /awg-features-add, /awg-features-test), not in this file. -->
 
-Updated 2026-11-07 at commit e55cc04. 9 features: 8 changed since last test; 1 backend tested. Tested in the backend: 1, in the frontend: 0.
+Updated 2026-11-07 at commit ea92c2a. 9 features: 8 changed since last test; 1 backend tested. Tested in the backend: 1, in the frontend: 0.
 
 A status comes from the feature's tests, not from anybody's word: **Tested** means every test of the feature passed on the code as it is now; **Changed since last test** means it passed, but its files changed since.
 
@@ -52,7 +52,7 @@ Put down by the chat that did the work; closed when a chat says what showed it w
 | ID | What it is about | Waits for | Will show it worked | From |
 |---|---|---|---|---|
 | CONV-O1 | Prove the documented Windows product acceptance scenarios end to end | A dedicated Windows acceptance-test pass for the newly documented scenarios. | Each scenario has passing tagged end-to-end evidence on the Windows desktop, with explicit provider stand-ins and no claim about untested real-model answer… | Codex on DESKTOP-KV3OK8I, 2026-11-06 `01a1a978-8210-70f2-86b4-bd5cc8cc499e` |
-| CONV-O4 | Verify and deliver the latest answer-support correction on the laptop | A safe laptop update window and an observed configured-model replay; the current request leaves the running app untouched. | A safe laptop installation matches the corrected build, preserves the profile, and a bounded replay of the reported challenge/Git questions confirms useful… | a chat on DESKTOP-KV3OK8I, 2026-11-07 |
+| CONV-O4 | Verify and deliver the latest answer-support correction on the laptop | Observed configured-model behavior or user feedback; deployment is complete and no paid replay was performed. | Observed ordinary-session or simulation answers to the reported project-challenge and generic Git questions provide useful concise support without unsupported… | a chat on DESKTOP-KV3OK8I, 2026-11-07 |
 
 ## Steps not done
 
@@ -80,33 +80,33 @@ Found wrong and not proven fixed yet. Each stays here until a test that names it
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-8 | Use managed accounts and service allowances | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-8 | Use managed accounts and service allowances | Changed since last test | changed | untested | 2026-11-07 fix: keep interview answers useful when personal notes are missing |
 
 ## Conversation assistance
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-7 | Get answers and suggestions during conversations | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-7 | Get answers and suggestions during conversations | Changed since last test | changed | untested | 2026-11-07 fix: keep interview answers useful when personal notes are missing |
 
 ## Conversation recording
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-5 | Record and transcribe conversations | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-5 | Record and transcribe conversations | Changed since last test | changed | untested | 2026-11-07 fix: keep interview answers useful when personal notes are missing |
 
 ## General
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-1 | Prepare selected projects for role-specific interviews | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
-| CONV-2 | Practice interviews with editable system prompts | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
-| CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
-| CONV-4 | Launch Converaid with a distinct desktop identity | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
-| CONV-9 | Prepare editable job applications before practice | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-1 | Prepare selected projects for role-specific interviews | Changed since last test | changed | untested | 2026-11-07 fix: keep interview answers useful when personal notes are missing |
+| CONV-2 | Practice interviews with editable system prompts | Changed since last test | changed | untested | 2026-11-07 fix: keep interview answers useful when personal notes are missing |
+| CONV-3 | Choose a model provider and routing | Backend tested | passing | untested | 2026-11-06 Add session-only preparation and editable role context |
+| CONV-4 | Launch Converaid with a distinct desktop identity | Changed since last test | changed | untested | 2026-11-06 docs: record final simplified laptop delivery |
+| CONV-9 | Prepare editable job applications before practice | Changed since last test | changed | untested | 2026-11-07 fix: keep interview answers useful when personal notes are missing |
 
 ## Meeting records
 
 | ID | Feature | Status | Backend | Frontend | Last change |
 |---|---|---|---|---|---|
-| CONV-6 | Review saved meetings and reports | Changed since last test | changed | untested | 2026-10-31 1.3.1: "Keep meetings on this computer", Electron 44.10.0 |
+| CONV-6 | Review saved meetings and reports | Changed since last test | changed | untested | 2026-11-07 fix: keep interview answers useful when personal notes are missing |
 

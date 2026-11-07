@@ -132,3 +132,10 @@ Authority: CONV-D8 supersedes CONV-D7 for the visible form. Existing session lif
 - [x] Replace unsupported denials and ownership caveats with direct challenge/solution support and concise unnamed illustrative behavioral answer drafts; preserve facts about named projects.
 - [x] Run the relevant suite and both typechecks after the final change, and independently review the prompt precedence.
 - [x] Deliver a private evidence-backed dialogue analysis and report the exact local-versus-installed state without touching the running laptop app.
+
+## November 7 - authorized laptop answer-support delivery
+
+- [x] Record the explicit safe update window and verify the approved source revision.
+- [x] Build one installer in the existing isolated laptop checkout and install the correction.
+- [x] Verify installed source, preserved private profile, native ASR files and taskbar flags.
+- [x] Restart normally, verify current delivery hashes and report the distinction between deployment and observed model behavior.
